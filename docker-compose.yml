@@ -1,0 +1,17 @@
+version: '3'
+services:
+  vuejs:
+    build:
+      context: ./frontend 
+    ports:
+      - "5173:5173"
+    depends_on:
+      - java
+
+  java:
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "3232:3232"
+      - "4242:4242"
