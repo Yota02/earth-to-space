@@ -22,7 +22,6 @@ public class WebSocketClient {
     public void onMessage(Session session, String message) {
         try {
             JSONObject jsonMessage = new JSONObject(message);
-            String name = jsonMessage.getString("name");
 
             // Retrieve the action
             String action = jsonMessage.getString("action");
@@ -32,65 +31,32 @@ public class WebSocketClient {
             // Handle different actions
             switch (action) {
                 case "startResearch":
-                    GameServer.jeu.demarrerRecherche(name);
-                    break;
-
                 case "buyObject":
-                    ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);
-                    if (objectToBuy != null) {
-                        GameServer.jeu.acheter(objectToBuy);
-                        GameServer.sendGameStateToClients();
-                    }
-                    break;
-
                 case "sellObject":
-                    ObjectAchetable objectToSell = GameServer.jeu.findObjectByName(name);
-                    if (objectToSell != null) {
-                        GameServer.jeu.vendre(objectToSell);
-                        GameServer.sendGameStateToClients(); // Mettre à jour l'état pour tous les clients
+                    if (!jsonMessage.has("name")) {
+                        response.put("error", "Missing 'name' field for action '" + action + "'");
+                        session.getBasicRemote().sendText(response.toString());
+                        return;
                     }
+                    String name = jsonMessage.getString("name");
+                    handleActionWithName(action, name, session, response);
                     break;
 
                 case "getProgrammeState":
-                    Programme programmeEnCours = getProgrammeEnCours();
-                    response.put("action", "programmeState");
-                    if (programmeEnCours != null) {
-                        response.put("programme", new JSONObject()
-                                .put("nom", programmeEnCours.getNom())
-                                .put("objectif", programmeEnCours.getObjectif()));
-                    } else {
-                        response.put("programme", JSONObject.NULL);
-                    }
-                    session.getBasicRemote().sendText(response.toString());
+                    handleGetProgrammeState(session);
                     break;
 
                 case "creerUnProgramme":
-                    if (jsonMessage.has("nom") && jsonMessage.has("objectif")) {
-                        String nom = jsonMessage.getString("nom");
-                        String objectif = jsonMessage.getString("objectif");
-                        GameServer.jeu.creerUnProgramme(nom, objectif);
-                        response.put("action", "programmeCree");
-                        response.put("nom", nom);
-                        response.put("objectif", objectif);
-                        session.getBasicRemote().sendText(response.toString());
-                    } else {
-                        response.put("error", "Missing 'nom' or 'objectif' fields for action 'creerUnProgramme'");
-                        session.getBasicRemote().sendText(response.toString());
-                    }
+                    handleCreerUnProgramme(jsonMessage, session);
                     break;
 
                 case "getCarburantQuantite":
-                    if (jsonMessage.has("nom")) {
-                        String nom = jsonMessage.getString("nom");
-                        double quantite = GameServer.jeu.getQuantiteCarburant(nom);
-                        response.put("action", "updateCarburantQuantite");
-                        response.put("nom", nom);
-                        response.put("quantite", quantite);
-                        session.getBasicRemote().sendText(response.toString());
-                    } else {
+                    if (!jsonMessage.has("nom")) {
                         response.put("error", "Missing 'nom' field for action 'getCarburantQuantite'");
                         session.getBasicRemote().sendText(response.toString());
+                        return;
                     }
+                    handleGetCarburantQuantite(jsonMessage, session);
                     break;
 
                 default:
@@ -114,16 +80,80 @@ public class WebSocketClient {
         GameServer.removeClient(session);
     }
 
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.err.println("WebSocket error: " + throwable.getMessage());
+    }
+
+    private void handleActionWithName(String action, String name, Session session, JSONObject response) throws IOException {
+        switch (action) {
+            case "startResearch":
+                GameServer.jeu.demarrerRecherche(name);
+                break;
+
+            case "buyObject":
+                ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);
+                if (objectToBuy != null) {
+                    GameServer.jeu.acheter(objectToBuy);
+                    GameServer.sendGameStateToClients();
+                }
+                break;
+
+            case "sellObject":
+                ObjectAchetable objectToSell = GameServer.jeu.findObjectByName(name);
+                if (objectToSell != null) {
+                    GameServer.jeu.vendre(objectToSell);
+                    GameServer.sendGameStateToClients();
+                }
+                break;
+        }
+    }
+
+    private void handleGetProgrammeState(Session session) throws IOException {
+        Programme programmeEnCours = getProgrammeEnCours();
+        JSONObject response = new JSONObject();
+        response.put("action", "programmeState");
+        if (programmeEnCours != null) {
+            response.put("programme", new JSONObject()
+                    .put("nom", programmeEnCours.getNom())
+                    .put("objectif", programmeEnCours.getObjectif()));
+        } else {
+            response.put("programme", JSONObject.NULL);
+        }
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void handleCreerUnProgramme(JSONObject jsonMessage, Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        if (jsonMessage.has("nom") && jsonMessage.has("objectif")) {
+            String nom = jsonMessage.getString("nom");
+            String objectif = jsonMessage.getString("objectif");
+            GameServer.jeu.creerUnProgramme(nom, objectif);
+            response.put("action", "programmeCree");
+            response.put("nom", nom);
+            response.put("objectif", objectif);
+            session.getBasicRemote().sendText(response.toString());
+        } else {
+            response.put("error", "Missing 'nom' or 'objectif' fields for action 'creerUnProgramme'");
+            session.getBasicRemote().sendText(response.toString());
+        }
+    }
+
+    private void handleGetCarburantQuantite(JSONObject jsonMessage, Session session) throws IOException {
+        String nom = jsonMessage.getString("nom");
+        double quantite = GameServer.jeu.getQuantiteCarburant(nom);
+        JSONObject response = new JSONObject();
+        response.put("action", "updateCarburantQuantite");
+        response.put("nom", nom);
+        response.put("quantite", quantite);
+        session.getBasicRemote().sendText(response.toString());
+    }
+
     private Programme getProgrammeEnCours() {
         // Retourne le premier programme trouvé, ou null s'il n'y en a pas
         if (GameServer.jeu.getProgrammes().isEmpty()) {
             return null;
         }
         return GameServer.jeu.getProgrammes().get(0); // Vous pouvez ajuster cette logique si vous avez plusieurs programmes
-    }
-
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.err.println("WebSocket error: " + throwable.getMessage());
     }
 }

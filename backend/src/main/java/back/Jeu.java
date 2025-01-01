@@ -8,6 +8,7 @@ import back.recherche.Recherche;
 import gui.GameServer;
 
 import javax.websocket.Session;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -121,7 +122,7 @@ public class Jeu implements Runnable {
     public void creerUnProgramme(String nom, String objectif){
         programmes.add(new Programme(nom, objectif));
         System.out.println("Nouveau programme " + nom + " " + objectif);
-    }
+    }   
 
     public void demarrerRecherche(String rechercheName) {
         System.out.println("Recherche de : " + rechercheName);

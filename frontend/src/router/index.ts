@@ -4,6 +4,7 @@ import AboutView from '../views/AboutView.vue';
 import ResearcheView from '../views/ResearcheView.vue';
 import ShopView from '../views/ShopView.vue';
 import ProgrammeView from '../views/ProgrammeView.vue';
+import ProgrammeDetails from "../views/ProgrammeDetail.vue";
 
 const routes = [
   {
@@ -30,6 +31,12 @@ const routes = [
     path: '/programme',
     name: 'programme',
     component: ProgrammeView
+  },
+  ,
+  {
+    path: "/programme-details",
+    name: "ProgrammeDetails",
+    component: ProgrammeDetails,
   },
   {
     path: '/:catchAll(.*)',  
