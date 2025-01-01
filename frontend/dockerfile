@@ -1,11 +1,19 @@
-FROM node:16
+FROM node:18
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install -g @vue/cli-service
-RUN npm install vue @vue/compiler-sfc
 
+# Clean install
+RUN rm -rf node_modules package-lock.json
+RUN npm install --legacy-peer-deps
+
+# Copy the rest of the application
 COPY . .
+
+# Expose Vite's default port
 EXPOSE 5173
-CMD ["npm", "run", "serve"]
+
+# Use Vite's dev server command
+CMD ["npm", "run", "dev", "--", "--host"]

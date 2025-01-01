@@ -27,25 +27,25 @@ public class GameServer {
     public static void main(String[] args) throws IOException, DeploymentException {
         String[] nomsJoueurs = {"Joueur"};
         jeu = new JeuWebsocket(nomsJoueurs);
-    
+
         HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
         httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
         httpServer.start();
-    
+
         System.out.println("Pour s'y connecter : http://localhost:4242");
         Server server = new Server("0.0.0.0", 3232, "/", new HashMap<>(), WebSocketClient.class);
-    
+
         try {
             server.start();
             new Thread(jeu).start();
-    
+
             // Replace the scanner with simulated input for Docker environments
             while (true) {
                 String input = "default"; // Simulating input (replace this with any logic you want)
                 if (input != null && !input.trim().isEmpty()) {
                     jeu.addInput(input);
                 }
-    
+
                 // Sleep to simulate delay
                 Thread.sleep(1000); // Adjust the sleep time as needed
             }
@@ -59,7 +59,6 @@ public class GameServer {
             }
         }
     }
-    
 
     public static void addInput(String message) {
         if (message != null && !message.trim().isEmpty()) {

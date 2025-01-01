@@ -6,19 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview",
-    "serve": "vue-cli-service serve",
-    "start": "concurrently \"npm run serve\" \"java -cp . gui.GameServer\""
+    "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.13",
-    "@vue/compiler-sfc": "^3.5.13" 
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/compiler-sfc": "^3.4.0",
     "@vue/tsconfig": "^0.7.0",
     "typescript": "~5.6.2",
-    "vite": "^6.0.5",
+    "vite": "^5.0.0",
     "vue-tsc": "^2.2.0"
   }
 }

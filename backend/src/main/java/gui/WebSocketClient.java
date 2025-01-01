@@ -12,6 +12,7 @@ import java.io.IOException;
 
 @ServerEndpoint("/")
 public class WebSocketClient {
+
     @OnOpen
     public void onOpen(Session session) {
         GameServer.addClient(session);
@@ -77,6 +78,7 @@ public class WebSocketClient {
                         session.getBasicRemote().sendText(response.toString());
                     }
                     break;
+
                 case "getCarburantQuantite":
                     if (jsonMessage.has("nom")) {
                         String nom = jsonMessage.getString("nom");
@@ -124,5 +126,4 @@ public class WebSocketClient {
     public void onError(Session session, Throwable throwable) {
         System.err.println("WebSocket error: " + throwable.getMessage());
     }
-
 }
