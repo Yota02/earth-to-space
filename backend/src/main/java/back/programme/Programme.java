@@ -5,6 +5,9 @@ public class Programme {
     String nom;
     String objectif;
 
+    Integer nbLancement;
+
+
     public Programme(String objectif, String nom) {
         this.objectif = objectif;
         this.nom = nom;
@@ -25,4 +28,13 @@ public class Programme {
     public void setNom(String nom) {
         this.nom = nom;
     }
+
+    public Integer getNbLancement() {
+        return nbLancement;
+    }
+
+    public void setNbLancement(Integer nbLancement) {
+        this.nbLancement = nbLancement;
+    }
+
 }

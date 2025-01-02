@@ -5,6 +5,7 @@ import ResearcheView from '../views/ResearcheView.vue';
 import ShopView from '../views/ShopView.vue';
 import ProgrammeView from '../views/ProgrammeView.vue';
 import ProgrammeDetails from "../views/ProgrammeDetail.vue";
+import LanceurView from '../views/LanceurView.vue';
 
 const routes = [
   {
@@ -26,6 +27,11 @@ const routes = [
     path: '/shop',
     name: 'shop',
     component: ShopView
+  },
+  {
+    path: '/lanceur',
+    name: 'lanceur',
+    component: LanceurView
   },
   {
     path: '/programme',

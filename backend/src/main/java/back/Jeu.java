@@ -181,7 +181,7 @@ public class Jeu implements Runnable {
         if (getProgrammes().isEmpty()) {
             return null;
         }
-        return getProgrammes().get(0); // Vous pouvez ajuster cette logique si vous avez plusieurs programmes
+        return getProgrammes().get(0);
     }
 
     @Override
@@ -191,7 +191,6 @@ public class Jeu implements Runnable {
             try {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
-
             } finally {
                 researchLock.unlock();
             }
