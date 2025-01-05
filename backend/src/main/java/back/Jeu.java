@@ -1,5 +1,6 @@
 package back;
 
+import back.booster.Booster;
 import back.objectAchetable.GestionnaireObject;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;
@@ -32,8 +33,11 @@ public class Jeu implements Runnable {
     // Carburant
     private Map<String, Double> carburantPosseder;
 
-    //Carburant
+    //Programmes
     private List<Programme> programmes;
+
+    // Boosters
+    private List<Booster> lanceurs;
 
     // Collections pour les recherches
     private List<Recherche> recherchesTotal;
@@ -62,6 +66,8 @@ public class Jeu implements Runnable {
         this.objectAcheter = new ArrayList<>();
 
         this.programmes = new ArrayList<>();
+
+        this.lanceurs = new ArrayList<>();
 
         this.executorService = Executors.newSingleThreadExecutor();
 
@@ -349,7 +355,12 @@ public class Jeu implements Runnable {
         return programmes;
     }
 
+    public List<Booster> getLanceurs() {
+        return lanceurs;
+    }
+
     public void setProgrammes(List<Programme> programmes) {
         this.programmes = programmes;
     }
+
 }

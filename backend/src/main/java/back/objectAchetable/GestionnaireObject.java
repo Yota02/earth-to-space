@@ -1,10 +1,8 @@
 package back.objectAchetable;
 
-import back.moteur.Carburant;
-
 import java.util.*;
 
-import static back.moteur.Carburant.HYDROGENE;
+import back.moteur.Ergol;
 
 public class GestionnaireObject {
     private final List<ObjectAchetable> objectAchetables = new ArrayList<>();
@@ -40,7 +38,7 @@ public class GestionnaireObject {
                 .setNom("Hydrogen liquide")
                 .setPrix(1000)
                 .setEstAchetable(true)
-                .setCarburant(Carburant.HYDROGENE)
+                .setCarburant(Ergol.HYDROGENE)
                 .setQuantite(500.0)
                 .build();
 
@@ -48,7 +46,7 @@ public class GestionnaireObject {
                 .setNom("Oxygen liquide")
                 .setPrix(1000)
                 .setEstAchetable(true)
-                .setCarburant(Carburant.OXYGEN)
+                .setCarburant(Ergol.OXYGEN)
                 .setQuantite(300.0)
                 .build();
 
@@ -56,7 +54,7 @@ public class GestionnaireObject {
                 .setNom("Methane liquide")
                 .setPrix(1000)
                 .setEstAchetable(true)
-                .setCarburant(Carburant.METHANES)
+                .setCarburant(Ergol.METHANES)
                 .setQuantite(400.0)
                 .build();
 

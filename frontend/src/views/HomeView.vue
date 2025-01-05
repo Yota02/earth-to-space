@@ -1,7 +1,7 @@
 <template>
-    <div>
-
-    </div>
+    <h1>
+      Et 
+    </h1>
   </template>
   
   <script lang="ts">

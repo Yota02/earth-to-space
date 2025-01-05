@@ -10,6 +10,7 @@ import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
 import back.Jeu;
+import back.booster.Booster;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -85,6 +86,7 @@ public class GameServer {
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
+            gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
 
             String gameStateStr = gameState.toString();
 
@@ -140,6 +142,23 @@ public class GameServer {
         }
         return jsonArray.toString();
     }
+
+    public static String convertLanceurToJson(List<Booster> boosters) {
+        JSONArray jsonArray = new JSONArray();
+        for (Booster booster : boosters) {
+            JSONObject boosterJson = new JSONObject();
+            boosterJson.put("nom", booster.getNom());
+            boosterJson.put("taille", booster.getTaille());
+            boosterJson.put("diametre", booster.getDiametre());
+            boosterJson.put("poidsTotal", booster.getPoidsTotal());
+            boosterJson.put("altitudeMax", booster.getAltitudeMax());
+            boosterJson.put("carburantRestant", booster.getCarburantRestant());    
+            jsonArray.put(boosterJson);
+        }
+        return jsonArray.toString();
+    }
+    
+    
 
     public static void addClient(Session session) {
         if (session != null && session.isOpen()) {

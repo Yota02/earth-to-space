@@ -6,10 +6,9 @@
         <li><router-link to="/shop">Shop</router-link></li>
         <li><router-link to="/programme">Programme</router-link></li>
         <li><router-link to="/researche">Researche</router-link></li>
-        <li><router-link to="/LanceurView"> Lanceur </router-link></li>
+        <li><router-link to="/lanceur"> Lanceur </router-link></li>
       </ul>
     </nav>
-
     <router-view /> 
   </div>
 </template>

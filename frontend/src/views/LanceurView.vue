@@ -5,12 +5,12 @@
 </template>
   
 <script>
-  import LanceurDetail from "../components/LanceurGeneral.vue";
+  import LanceurGeneral from "../components/LanceurGeneral.vue";
   
   export default {
     name: "LanceurView",
     components: {
-        LanceurDetail
+      LanceurGeneral
     }
   };
 </script>

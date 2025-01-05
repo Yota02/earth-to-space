@@ -1,10 +1,10 @@
 package back.objectAchetable;
 
 import back.Jeu;
-import back.moteur.Carburant;
+import back.moteur.Ergol;
 
 public class CarburantAchetable extends ObjectAchetable {
-    private final Carburant carburant;
+    private final Ergol carburant;
     private final double quantite;
 
     private CarburantAchetable(Builder builder) {
@@ -13,7 +13,7 @@ public class CarburantAchetable extends ObjectAchetable {
         this.quantite = builder.quantite;
     }
 
-    public Carburant getCarburant() {
+    public Ergol getCarburant() {
         return carburant;
     }
 
@@ -28,10 +28,10 @@ public class CarburantAchetable extends ObjectAchetable {
     }
 
     public static class Builder extends ObjectAchetable.Builder<Builder> {
-        private Carburant carburant;
+        private Ergol carburant;
         private double quantite;
 
-        public Builder setCarburant(Carburant carburant) {
+        public Builder setCarburant(Ergol carburant) {
             this.carburant = carburant;
             return this;
         }
