@@ -94,8 +94,19 @@ public class WebSocketClient {
             case "buyObject":
                 ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);
                 if (objectToBuy != null) {
-                    GameServer.jeu.acheter(objectToBuy);
-                    GameServer.sendGameStateToClients();
+                    if (GameServer.jeu.getArgent() >= objectToBuy.getPrix()) {
+                        GameServer.jeu.acheter(objectToBuy);
+                        response.put("action", "buyObjectSuccess");
+                        response.put("name", objectToBuy.getNom());
+                        session.getBasicRemote().sendText(response.toString());
+                        GameServer.sendGameStateToClients();
+                    } else {
+                        response.put("error", "Not enough money to buy " + objectToBuy.getNom());
+                        session.getBasicRemote().sendText(response.toString());
+                    }
+                } else {
+                    response.put("error", "Object not found: " + name);
+                    session.getBasicRemote().sendText(response.toString());
                 }
                 break;
 

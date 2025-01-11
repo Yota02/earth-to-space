@@ -1,6 +1,6 @@
 <template>
     <h1>
-      Et 
+      
     </h1>
   </template>
   

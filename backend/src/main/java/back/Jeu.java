@@ -1,6 +1,10 @@
 package back;
 
 import back.booster.Booster;
+import back.booster.reservoir.Reservoir;
+import back.booster.reservoir.ReservoirPose;
+import back.moteur.Ergol;
+import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireObject;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;
@@ -32,6 +36,7 @@ public class Jeu implements Runnable {
 
     // Carburant
     private Map<String, Double> carburantPosseder;
+    private List<ReservoirPose> reservoirs;
 
     //Programmes
     private List<Programme> programmes;
@@ -56,7 +61,20 @@ public class Jeu implements Runnable {
     public Jeu(String[] nomsJoueurs) {
         this.argent = 1000;
         this.pointsRecherche = 0;
+
         this.carburantPosseder = new HashMap<>();
+
+        ReservoirPose reservoir1 = new ReservoirPose.Builder()
+    .setNom("Reservoir 1")
+    .setErgol(Ergol.OXYGEN)
+    .setQuantite(0.0)
+    .setQuantiteTotal(1000.0)  // Définir explicitement la capacité totale
+    .build();
+
+        this.reservoirs = new ArrayList<>();
+
+        ajouterReservoir(reservoir1);
+
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
 
@@ -97,12 +115,81 @@ public class Jeu implements Runnable {
         }
     }
 
+    public double getCapaciteMaximaleErgol() {
+        double capaciteMax = 0;
+        if (reservoirs != null) {
+            for (Reservoir reservoir : reservoirs) {
+                if (reservoir != null) {
+                    Double quantiteTotal = reservoir.getQuantiteTotal();
+                    if (quantiteTotal != null) {
+                        capaciteMax += quantiteTotal;
+                    }
+                }
+            }
+        }
+        return capaciteMax > 0 ? capaciteMax : 1000.0; // Valeur par défaut si aucun réservoir valide
+    }
+
+    public double calculerQuantiteTotaleErgol(String nomErgol) {
+        double total = 0;
+        if (reservoirs != null) {
+            for (Reservoir reservoir : reservoirs) {
+                if (reservoir != null && 
+                    reservoir.getErgol() != null && 
+                    reservoir.getErgol().getNom().equals(nomErgol)) {
+                    Double quantite = reservoir.getQuantite();
+                    if (quantite != null) {
+                        total += quantite;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+    public void ajouterReservoir(ReservoirPose reservoir) {
+        if (reservoir != null) {
+            if (reservoirs == null) {
+                reservoirs = new ArrayList<>();
+            }
+            reservoirs.add(reservoir);
+        }
+    }   
+
+    public List<ReservoirPose> getReservoirs(){
+        return reservoirs;
+    }
+
+    public void effectuerAchatCarburant(Jeu jeu, CarburantAchetable carburantAchetable, Reservoir reservoir) {
+    // Effectuer l'achat de carburant
+        carburantAchetable.effectuerAchat(jeu);
+
+    // Ajouter l'ergol au réservoir
+        String nomCarburant = carburantAchetable.getCarburant().getNom();
+        double quantiteAajouter = carburantAchetable.getQuantite();
+    
+    // Mettre à jour la quantité de carburant dans le réservoir
+        reservoir.ajouterErgol(quantiteAajouter);
+    }
+    
+    public void retirerErgol(String nom, double quantite) {
+        synchronized (carburantPosseder) {
+            double quantiteActuelle = carburantPosseder.getOrDefault(nom, 0.0);
+            if (quantiteActuelle >= quantite) {
+                double nouvelleQuantite = quantiteActuelle - quantite;
+                carburantPosseder.put(nom, nouvelleQuantite);
+                GameServer.setEtatJeu("Mise à jour du carburant: " + nom);
+            } else {
+                System.out.println("Quantité insuffisante de " + nom);
+            }
+        }
+    }
+
     public void vendre(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
             objectAcheter.remove(objectAchetable);
         }
     }
-
 
     public synchronized void ajouterArgent(int montant) {
         this.argent += montant;
@@ -182,14 +269,6 @@ public class Jeu implements Runnable {
         return null;
     }
 
-    private Programme getProgrammeEnCours() {
-        // Retourne le premier programme trouvé, ou null s'il n'y en a pas
-        if (getProgrammes().isEmpty()) {
-            return null;
-        }
-        return getProgrammes().get(0);
-    }
-
     @Override
     public void run() {
         while (!estFinie()) {
@@ -197,6 +276,15 @@ public class Jeu implements Runnable {
             try {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
+
+                synchronized (carburantPosseder) {
+                    Set<String> carburantsAConsommer = new HashSet<>(carburantPosseder.keySet());
+        
+                    for (String nomCarburant : carburantsAConsommer) {
+                        retirerErgol(nomCarburant, 10);
+                    }
+                }
+
             } finally {
                 researchLock.unlock();
             }

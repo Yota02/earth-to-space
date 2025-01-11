@@ -164,4 +164,69 @@ public class Booster {
             return booster;
         }
     }
+
+
+    public String getNom() {
+        return nom;
+    }
+
+    public Double getTaille() {
+        return taille;
+    }
+
+    public Double getDiametre() {
+        return diametre;
+    }
+
+    public Double getPoidsAVide() {
+        return poidsAVide;
+    }
+
+    public Double getAltitudeMax() {
+        return altitudeMax;
+    }
+
+    public Double getVitesseMax() {
+        return VitesseMax;
+    }
+
+    public List<Moteur> getMoteur() {
+        return moteur;
+    }
+
+    public List<Reservoir> getReservoirs() {
+        return reservoirs;
+    }
+
+    public Boolean getEstPrototype() {
+        return estPrototype;
+    }
+
+    public Boolean getEstReetulisable() {
+        return estReetulisable;
+    }
+
+    public Boolean getASystèmeAutoDestruction() {
+        return aSystèmeAutoDestruction;
+    }
+
+    public int getEtat() {
+        return etat;
+    }
+
+    public Double getPoids() {
+        return poids;
+    }
+
+    public Double getVitesse() {
+        return vitesse;
+    }
+
+    public Boolean getNécessiteMaintenance() {
+        return nécessiteMaintenance;
+    }
+
+    public List<String> getHistoriquesLancement() {
+        return historiquesLancement;
+    }
 }

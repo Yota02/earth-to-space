@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
 import HomeView from '../views/HomeView.vue';
 import AboutView from '../views/AboutView.vue';
 import ResearcheView from '../views/ResearcheView.vue';
@@ -6,6 +7,7 @@ import ShopView from '../views/ShopView.vue';
 import ProgrammeView from '../views/ProgrammeView.vue';
 import ProgrammeDetails from "../views/ProgrammeDetail.vue";
 import LanceurView from '../views/LanceurView.vue';
+import ErgolView from '../views/ErgolView.vue';
 
 const routes = [
   {
@@ -34,11 +36,15 @@ const routes = [
     component: LanceurView
   },
   {
+    path: '/ergol',
+    name: 'ergol',
+    component: ErgolView
+  },
+  {
     path: '/programme',
     name: 'programme',
     component: ProgrammeView
   },
-  ,
   {
     path: "/programme-details",
     name: "ProgrammeDetails",

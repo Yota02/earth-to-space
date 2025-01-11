@@ -3,17 +3,17 @@ package back.booster.reservoir;
 import back.Metaux.Materiaux;
 import back.moteur.Ergol;
 
-public class Reservoir {
+public abstract class Reservoir {
 
     // Le nom du réservoir pour l'identifier de manière unique
     private String nom;
-    
+
     // L'ergol ou carburant utilisé dans le réservoir (référence à une autre classe Ergol)
     private Ergol Ergol;
 
     // Quantité actuelle d'ergol ou carburant dans le réservoir (en litres ou kilogrammes)
     private Double quantite;
-    
+
     // La capacité totale du réservoir en termes de quantité d'ergol (en litres ou kilogrammes)
     private Double quantiteTotal;
 
@@ -25,13 +25,13 @@ public class Reservoir {
 
     // La pression interne actuelle du réservoir (peut être un paramètre clé de sécurité)
     private Double pressionInterne;
-    
+
     // La pression maximale que le réservoir peut supporter sans risque de défaillance
     private Double capaciteMaxPression;
 
     // La température interne actuelle du réservoir (importante pour la gestion du carburant)
     private Double temperatureInterne;
-    
+
     // La température maximale que le réservoir peut supporter en toute sécurité
     private Double temperatureMax;
 
@@ -50,7 +50,35 @@ public class Reservoir {
     // Taille générale du réservoir (peut être utilisée pour l'encombrement ou la capacité)
     private Double taille;
 
-    private Reservoir(Builder builder) {
+    public Ergol getErgol() {
+        return this.Ergol;
+    }
+    
+    public Double getQuantiteTotal() {
+        return quantiteTotal != null ? quantiteTotal : 1000.0;
+    }
+
+    public Double getQuantite() {
+        return quantite != null ? quantite : 0.0;
+    }
+
+    public void ajouterErgol(double quantiteAjoutee) {
+        if (this.quantite == null) {
+            this.quantite = 0.0;
+        }
+        
+        if (this.quantiteTotal == null) {
+            this.quantiteTotal = 1000.0;
+        }
+        
+        if (quantite + quantiteAjoutee <= quantiteTotal) {
+            quantite += quantiteAjoutee;
+        } else {
+            System.out.println("Impossible d'ajouter l'ergol : dépassement de la capacité du réservoir.");
+        }
+    }
+
+    protected Reservoir(Builder<?> builder) {
         this.nom = builder.nom;
         this.Ergol = builder.Ergol;
         this.quantite = builder.quantite;
@@ -68,7 +96,7 @@ public class Reservoir {
         this.taille = builder.taille;
     }
 
-    public static class Builder {
+    public static abstract class Builder<T extends Builder<T>> {
 
         private String nom;
         private Ergol Ergol;
@@ -94,83 +122,83 @@ public class Reservoir {
 
         private Double taille;
 
-        public Builder setNom(String nom) {
+        public T setNom(String nom) {
             this.nom = nom;
-            return this;
+            return self();
         }
 
-        public Builder setErgol(Ergol Ergol) {
+        public T setErgol(Ergol Ergol) {
             this.Ergol = Ergol;
-            return this;
+            return self();
         }
 
-        public Builder setQuantite(Double quantite) {
+        public T setQuantite(Double quantite) {
             this.quantite = quantite;
-            return this;
+            return self();
         }
 
-        public Builder setQuantiteTotal(Double quantiteTotal) {
+        public T setQuantiteTotal(Double quantiteTotal) {
             this.quantiteTotal = quantiteTotal;
-            return this;
+            return self();
         }
 
-        public Builder setPoidsVide(Double poidsVide) {
+        public T setPoidsVide(Double poidsVide) {
             this.poidsVide = poidsVide;
-            return this;
+            return self();
         }
 
-        public Builder setDimensions(String dimensions) {
+        public T setDimensions(String dimensions) {
             this.dimensions = dimensions;
-            return this;
+            return self();
         }
 
-        public Builder setPressionInterne(Double pressionInterne) {
+        public T setPressionInterne(Double pressionInterne) {
             this.pressionInterne = pressionInterne;
-            return this;
+            return self();
         }
 
-        public Builder setCapaciteMaxPression(Double capaciteMaxPression) {
+        public T setCapaciteMaxPression(Double capaciteMaxPression) {
             this.capaciteMaxPression = capaciteMaxPression;
-            return this;
+            return self();
         }
 
-        public Builder setTemperatureInterne(Double temperatureInterne) {
+        public T setTemperatureInterne(Double temperatureInterne) {
             this.temperatureInterne = temperatureInterne;
-            return this;
+            return self();
         }
 
-        public Builder setTemperatureMax(Double temperatureMax) {
+        public T setTemperatureMax(Double temperatureMax) {
             this.temperatureMax = temperatureMax;
-            return this;
+            return self();
         }
 
-        public Builder setMatiereReservoir(Materiaux matiereReservoir) {
+        public T setMatiereReservoir(Materiaux matiereReservoir) {
             this.matiereReservoir = matiereReservoir;
-            return this;
+            return self();
         }
 
-        public Builder setEtatReservoir(Boolean etatReservoir) {
+        public T setEtatReservoir(Boolean etatReservoir) {
             this.etatReservoir = etatReservoir;
-            return this;
+            return self();
         }
 
-        public Builder setIsolationThermique(boolean isolationThermique) {
+        public T setIsolationThermique(boolean isolationThermique) {
             this.IsolationThermique = isolationThermique;
-            return this;
+            return self();
         }
 
-        public Builder setDebitSortie(Double debitSortie) {
+        public T setDebitSortie(Double debitSortie) {
             this.debitSortie = debitSortie;
-            return this;
+            return self();
         }
 
-        public Builder setTaille(Double taille) {
+        public T setTaille(Double taille) {
             this.taille = taille;
-            return this;
+            return self();
         }
 
-        public Reservoir build() {
-            return new Reservoir(this);
-        }
+        protected abstract T self();
+
+        public abstract Reservoir build();
     }
 }

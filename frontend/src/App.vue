@@ -7,9 +7,12 @@
         <li><router-link to="/programme">Programme</router-link></li>
         <li><router-link to="/researche">Researche</router-link></li>
         <li><router-link to="/lanceur"> Lanceur </router-link></li>
+        <li><router-link to="/ergol"> Ergol </router-link></li>
       </ul>
     </nav>
+
     <router-view /> 
+
   </div>
 </template>
 

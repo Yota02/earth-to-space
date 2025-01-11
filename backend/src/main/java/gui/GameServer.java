@@ -81,22 +81,69 @@ public class GameServer {
         try {
             lock.lock();
             JSONObject gameState = new JSONObject();
+            
+            // Ajout des données de base
             gameState.put("etatJeu", etatJeu);
             gameState.put("argent", jeu.getArgent());
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
+
+            // Création de l'array d'objets achetables avec vérification
+            List<ObjectAchetable> objects = jeu.getObjectAchetables();
+            if (objects != null) {
+                JSONArray objectsArray = new JSONArray();
+                
+                for (ObjectAchetable obj : objects) {
+                    if (obj != null) {
+                        JSONObject objJson = new JSONObject();
+                        objJson.put("nom", obj.getNom());
+                        objJson.put("prix", obj.getPrix());
+                        objJson.put("estAchetable", obj.getEstAchetable());
+
+                        if (obj instanceof CarburantAchetable) {
+                            CarburantAchetable carburant = (CarburantAchetable) obj;
+                            objJson.put("type", "carburant");
+                            objJson.put("quantite", carburant.getQuantite());
+                            // Récupération de la quantité en stock depuis le jeu
+                            String nomCarburant = carburant.getCarburant().getNom();
+                            double quantiteStock = jeu.getQuantiteCarburant(nomCarburant);
+                            objJson.put("quantiteStock", quantiteStock);
+                            // Capacité maximale depuis les réservoirs
+                            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol());
+                        } else {
+                            objJson.put("type", "objet");
+                        }
+
+                        objectsArray.put(objJson);
+                    }
+                }
+                gameState.put("objectsAchetables", objectsArray);
+            } else {
+                // Si pas d'objets, mettre un tableau vide plutôt que null
+                gameState.put("objectsAchetables", new JSONArray());
+            }
+
+            // Ajout des autres données
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
-            gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
+            gameState.put("carburant", new JSONObject(jeu.getCarburants()));
 
             String gameStateStr = gameState.toString();
 
+            // Log pour debug
+            System.out.println("Sending game state: " + gameStateStr);
+
             for (Session session : clients) {
                 if (session.isOpen()) {
-                    session.getBasicRemote().sendText(gameStateStr);
+                    try {
+                        session.getBasicRemote().sendText(gameStateStr);
+                    } catch (IOException e) {
+                        System.err.println("Erreur d'envoi pour la session " + session.getId() + ": " + e.getMessage());
+                    }
                 }
             }
 
         } catch (Exception e) {
+            System.err.println("Erreur lors de l'envoi de l'état du jeu: " + e.getMessage());
             e.printStackTrace();
         } finally {
             lock.unlock();
@@ -105,22 +152,22 @@ public class GameServer {
 
     public static String convertObjectsToJson(List<ObjectAchetable> objects) {
         JSONArray objectsArray = new JSONArray();
-        for (ObjectAchetable obj : jeu.getObjectAchetables()) {
+        for (ObjectAchetable obj : objects) {
             JSONObject objJson = new JSONObject();
             objJson.put("nom", obj.getNom());
             objJson.put("prix", obj.getPrix());
             objJson.put("estAchetable", obj.getEstAchetable());
-
+    
             if (obj instanceof CarburantAchetable) {
                 CarburantAchetable carburant = (CarburantAchetable) obj;
                 objJson.put("type", "carburant");
                 objJson.put("quantite", carburant.getQuantite());
-                double quantiteStock = jeu.getQuantiteCarburant(carburant.getCarburant().getNom());
-                objJson.put("quantiteStock", quantiteStock);
+                objJson.put("capaciteMax", carburant.getCapaciteMax());
+                objJson.put("quantiteStock", carburant.getQuantiteStock());
             } else {
                 objJson.put("type", "objet");
             }
-
+    
             objectsArray.put(objJson);
         }
         return objectsArray.toString();
@@ -150,16 +197,12 @@ public class GameServer {
             boosterJson.put("nom", booster.getNom());
             boosterJson.put("taille", booster.getTaille());
             boosterJson.put("diametre", booster.getDiametre());
-            boosterJson.put("poidsTotal", booster.getPoidsTotal());
-            boosterJson.put("altitudeMax", booster.getAltitudeMax());
-            boosterJson.put("carburantRestant", booster.getCarburantRestant());    
+            boosterJson.put("altitudeMax", booster.getAltitudeMax());    
             jsonArray.put(boosterJson);
         }
         return jsonArray.toString();
     }
     
-    
-
     public static void addClient(Session session) {
         if (session != null && session.isOpen()) {
             clients.add(session);
@@ -180,15 +223,9 @@ public class GameServer {
     }
 
     public static void removeClient(Session session) {
-        if (session != null) {
-            clients.remove(session);
-            try {
-                if (session.isOpen()) {
-                    session.close();
-                }
-            } catch (IOException e) {
-                System.err.println("Erreur lors de la fermeture de la session " + session.getId() + ": " + e.getMessage());
-            }
+        if (session != null && session.isOpen()) {
+            clients.add(session);
+            sendGameStateToClients(); 
         }
     }
 }
