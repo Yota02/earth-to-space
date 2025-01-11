@@ -1,8 +1,8 @@
-package back.booster;
+package back.fusee.booster;
 
 import java.util.List;
 
-import back.booster.reservoir.Reservoir;
+import back.fusee.reservoir.Reservoir;
 import back.moteur.Moteur;
 
 public class Booster {

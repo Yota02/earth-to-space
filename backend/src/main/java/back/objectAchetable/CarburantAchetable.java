@@ -1,7 +1,7 @@
 package back.objectAchetable;
 
 import back.Jeu;
-import back.booster.reservoir.Reservoir;
+import back.fusee.reservoir.Reservoir;
 import back.moteur.Ergol;
 
 public class CarburantAchetable extends ObjectAchetable {

@@ -1,8 +1,8 @@
-package back.booster.reservoir;
+package back.fusee.reservoir;
 
-public class ReservoirPose extends Reservoir{
+public class ReservoirFusee extends Reservoir {
 
-    private ReservoirPose(Builder builder) {
+    private ReservoirFusee(Builder builder) {
         super(builder);
     }
     
@@ -14,8 +14,9 @@ public class ReservoirPose extends Reservoir{
         }
 
         @Override
-        public ReservoirPose build() {
-            return new ReservoirPose(this);
+        public ReservoirFusee build() {
+            return new ReservoirFusee(this);
         }
     }
+    
 }

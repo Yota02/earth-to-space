@@ -127,25 +127,34 @@ public class WebSocketClient {
         if (programmeEnCours != null) {
             response.put("programme", new JSONObject()
                     .put("nom", programmeEnCours.getNom())
-                    .put("objectif", programmeEnCours.getObjectif()));
+                    .put("objectif", programmeEnCours.getObjectif())
+                    .put("budget", programmeEnCours.getBudget())
+                    .put("dureePrevu", programmeEnCours.getDureePrevu()));
         } else {
             response.put("programme", JSONObject.NULL);
         }
         session.getBasicRemote().sendText(response.toString());
     }
-
+    
     private void handleCreerUnProgramme(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-        if (jsonMessage.has("nom") && jsonMessage.has("objectif")) {
+        if (jsonMessage.has("nom") && jsonMessage.has("objectif") && 
+            jsonMessage.has("budget") && jsonMessage.has("dureePrevu")) {
+            
             String nom = jsonMessage.getString("nom");
             String objectif = jsonMessage.getString("objectif");
-            GameServer.jeu.creerUnProgramme(nom, objectif);
+            Double budget = jsonMessage.getDouble("budget");
+            int dureePrevu = jsonMessage.getInt("dureePrevu");
+    
+            GameServer.jeu.creerUnProgramme(nom, objectif, budget, dureePrevu);
             response.put("action", "programmeCree");
             response.put("nom", nom);
             response.put("objectif", objectif);
+            response.put("budget", budget);
+            response.put("dureePrevu", dureePrevu);
             session.getBasicRemote().sendText(response.toString());
         } else {
-            response.put("error", "Missing 'nom' or 'objectif' fields for action 'creerUnProgramme'");
+            response.put("error", "Missing required fields for action 'creerUnProgramme'");
             session.getBasicRemote().sendText(response.toString());
         }
     }

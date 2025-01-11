@@ -1,4 +1,4 @@
-package back.booster.reservoir;
+package back.fusee.reservoir;
 
 import back.Metaux.Materiaux;
 import back.moteur.Ergol;

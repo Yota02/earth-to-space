@@ -1,8 +1,8 @@
 package back;
 
-import back.booster.Booster;
-import back.booster.reservoir.Reservoir;
-import back.booster.reservoir.ReservoirPose;
+import back.fusee.booster.Booster;
+import back.fusee.reservoir.Reservoir;
+import back.fusee.reservoir.ReservoirPose;
 import back.moteur.Ergol;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireObject;
@@ -206,10 +206,19 @@ public class Jeu implements Runnable {
         return pointsRecherche;
     }
 
-    public void creerUnProgramme(String nom, String objectif){
-        programmes.add(new Programme(nom, objectif));
-        System.out.println("Nouveau programme " + nom + " " + objectif);
-    }   
+    public void creerUnProgramme(String nom, String objectif, double budget, int dureePrevu) {
+        // Vérification des doublons
+        for (Programme programme : programmes) {
+            if (programme.getNom().equalsIgnoreCase(nom)) {
+                System.out.println("Erreur : Un programme avec le nom '" + nom + "' existe déjà.");
+                return;
+            }
+        }
+        
+        // Ajout du programme
+        programmes.add(new Programme(nom, objectif, budget, dureePrevu));
+        System.out.println("Nouveau programme créé : " + nom + " - Objectif : " + objectif + " - budget : " +  budget + " - durePrevu : " + dureePrevu);
+    }
 
     public void demarrerRecherche(String rechercheName) {
         System.out.println("Recherche de : " + rechercheName);
@@ -265,6 +274,8 @@ public class Jeu implements Runnable {
 
     @Override
     public void run() {
+        creerUnProgramme("StarShip", "Lune", 1000, 1);
+
         while (!estFinie()) {
             researchLock.lock();
             try {

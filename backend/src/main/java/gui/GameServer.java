@@ -10,7 +10,7 @@ import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
 import back.Jeu;
-import back.booster.Booster;
+import back.fusee.booster.Booster;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -35,8 +35,6 @@ public class GameServer {
 
         System.out.println("Pour s'y connecter : http://localhost:4242");
         Server server = new Server("0.0.0.0", 3232, "/", new HashMap<>(), WebSocketClient.class);
-
-        
 
         try {
             server.start();
@@ -105,11 +103,9 @@ public class GameServer {
                             CarburantAchetable carburant = (CarburantAchetable) obj;
                             objJson.put("type", "carburant");
                             objJson.put("quantite", carburant.getQuantite());
-                            // Récupération de la quantité en stock depuis le jeu
                             String nomCarburant = carburant.getCarburant().getNom();
                             double quantiteStock = jeu.getQuantiteCarburant(nomCarburant);
                             objJson.put("quantiteStock", quantiteStock);
-                            // Capacité maximale depuis les réservoirs
                             objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol());
                         } else {
                             objJson.put("type", "objet");
