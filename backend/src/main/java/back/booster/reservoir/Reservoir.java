@@ -8,56 +8,119 @@ public abstract class Reservoir {
     // Le nom du réservoir pour l'identifier de manière unique
     private String nom;
 
-    // L'ergol ou carburant utilisé dans le réservoir (référence à une autre classe Ergol)
+    // L'ergol ou carburant utilisé dans le réservoir (référence à une autre classe
+    // Ergol)
     private Ergol Ergol;
 
-    // Quantité actuelle d'ergol ou carburant dans le réservoir (en litres ou kilogrammes)
+    // Quantité actuelle d'ergol ou carburant dans le réservoir (en litres ou
+    // kilogrammes)
     private Double quantite;
 
-    // La capacité totale du réservoir en termes de quantité d'ergol (en litres ou kilogrammes)
+    // La capacité totale du réservoir en termes de quantité d'ergol (en litres ou
+    // kilogrammes)
     private Double quantiteTotal;
 
-    // Le poids du réservoir lorsqu'il est vide (important pour les calculs de masse totale)
+    // Le poids du réservoir lorsqu'il est vide (important pour les calculs de masse
+    // totale)
     private Double poidsVide;
 
     // Dimensions du réservoir (par exemple, longueur, diamètre, forme)
     private String dimensions;
 
-    // La pression interne actuelle du réservoir (peut être un paramètre clé de sécurité)
+    // La pression interne actuelle du réservoir (peut être un paramètre clé de
+    // sécurité)
     private Double pressionInterne;
 
-    // La pression maximale que le réservoir peut supporter sans risque de défaillance
+    // La pression maximale que le réservoir peut supporter sans risque de
+    // défaillance
     private Double capaciteMaxPression;
 
-    // La température interne actuelle du réservoir (importante pour la gestion du carburant)
+    // La température interne actuelle du réservoir (importante pour la gestion du
+    // carburant)
     private Double temperatureInterne;
 
     // La température maximale que le réservoir peut supporter en toute sécurité
     private Double temperatureMax;
 
-    // Le matériau du réservoir, qui influence ses propriétés physiques (par exemple, inox, titane)
+    // Le matériau du réservoir, qui influence ses propriétés physiques (par
+    // exemple, inox, titane)
     private Materiaux matiereReservoir;
 
     // L'état du réservoir : vrai s'il est fonctionnel, faux s'il y a un problème
     private Boolean etatReservoir;
 
-    // Indique si le réservoir possède une isolation thermique (utile pour maintenir la température interne stable)
+    // Indique si le réservoir possède une isolation thermique (utile pour maintenir
+    // la température interne stable)
     private boolean IsolationThermique;
 
-    // Le débit de carburant sortant du réservoir, en fonction du moteur et de la propulsion
+    // Le débit de carburant sortant du réservoir, en fonction du moteur et de la
+    // propulsion
     private Double debitSortie;
 
-    // Taille générale du réservoir (peut être utilisée pour l'encombrement ou la capacité)
+    // Taille générale du réservoir (peut être utilisée pour l'encombrement ou la
+    // capacité)
     private Double taille;
 
-    public void setErgol(Ergol ergol){
+    public String getNom() {
+        return nom;
+    }
+
+    public Double getPoidsVide() {
+        return poidsVide;
+    }
+
+    public String getDimensions() {
+        return dimensions;
+    }
+
+    public Double getPressionInterne() {
+        return pressionInterne;
+    }
+
+    public Double getCapaciteMaxPression() {
+        return capaciteMaxPression;
+    }
+
+    public Double getTemperatureInterne() {
+        return temperatureInterne;
+    }
+
+    public Double getTemperatureMax() {
+        return temperatureMax;
+    }
+
+    public Materiaux getMatiereReservoir() {
+        return matiereReservoir;
+    }
+
+    public Boolean getEtatReservoir() {
+        return etatReservoir;
+    }
+
+    public boolean isIsolationThermique() {
+        return IsolationThermique;
+    }
+
+    public Double getDebitSortie() {
+        return debitSortie;
+    }
+
+    public Double getTaille() {
+        return taille;
+    }
+
+    public void setErgol(Ergol ergol) {
         this.Ergol = ergol;
+    }
+
+    public Double getPoidsAvide() {
+        return poidsVide;
     }
 
     public Ergol getErgol() {
         return this.Ergol;
     }
-    
+
     public Double getQuantiteTotal() {
         return quantiteTotal != null ? quantiteTotal : 1000.0;
     }
@@ -70,11 +133,11 @@ public abstract class Reservoir {
         if (this.quantite == null) {
             this.quantite = 0.0;
         }
-        
+
         if (this.quantiteTotal == null) {
             this.quantiteTotal = 1000.0;
         }
-        
+
         if (quantite + quantiteAjoutee <= quantiteTotal) {
             quantite += quantiteAjoutee;
         } else {

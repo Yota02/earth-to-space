@@ -165,7 +165,6 @@ public class Booster {
         }
     }
 
-
     public String getNom() {
         return nom;
     }
@@ -179,7 +178,16 @@ public class Booster {
     }
 
     public Double getPoidsAVide() {
-        return poidsAVide;
+        Double rep = poidsAVide;
+        for(Moteur m : moteur ){
+            rep += m.getPoids();
+        }
+
+        for(Reservoir r : reservoirs){
+            rep += r.getPoidsAvide();
+        }
+
+        return rep;
     }
 
     public Double getAltitudeMax() {
@@ -210,6 +218,10 @@ public class Booster {
         return aSystèmeAutoDestruction;
     }
 
+    public void ajouterSystemeAutoDestruction(){
+        this.aSystèmeAutoDestruction = true;
+    }
+
     public int getEtat() {
         return etat;
     }
@@ -229,4 +241,9 @@ public class Booster {
     public List<String> getHistoriquesLancement() {
         return historiquesLancement;
     }
+
+    public void ajouterLancementAHistorique(String mission){
+        historiquesLancement.add(mission);
+    }
+
 }
