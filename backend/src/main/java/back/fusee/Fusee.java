@@ -1,89 +1,135 @@
 package back.fusee;
 
-import java.time.LocalDate;
+import java.util.List;
 
-import back.moteur.Moteur;
+import back.booster.Booster;
+import back.chargeUtile.ChargeUtile;
 
-public abstract class Fusee {
+public class Fusee {
 
-    public String nom;
-    float taille;
-    float diametre;
+    private String nom;
+    private double taille;
+    private double diametre;
 
-    public float poidsTotal;
-    float altitudeMax;
+    private double poidsTotal;
+    private float altitudeMax;
 
-    public Moteur moteur;
-    public float carburantRestant;
-    float poidChargeUtile;
+    private List<Booster> boosters;
+    private Booster boosterPrincipal;
 
-    public boolean systemeSecurite;
-    LocalDate dateLancement;
 
-    public String destination;
-    String typeMission;
-    int etat;
+    private List<ChargeUtile> poidChargeUtiles;
 
-    protected Fusee(Builder builder) {
+    private boolean systemeSecurite;
+
+    private int etat;
+
+    // Constructeur privé pour forcer l'utilisation du Builder
+    private Fusee(Builder builder) {
         this.nom = builder.nom;
         this.taille = builder.taille;
         this.diametre = builder.diametre;
         this.poidsTotal = builder.poidsTotal;
         this.altitudeMax = builder.altitudeMax;
-        this.moteur = builder.moteur;
-        this.carburantRestant = builder.carburantRestant;
-        this.poidChargeUtile = builder.poidChargeUtile;
+        this.boosters = builder.boosters;
+        this.boosterPrincipal = builder.boosterPrincipal;
+        this.poidChargeUtiles = builder.poidChargeUtiles;
         this.systemeSecurite = builder.systemeSecurite;
-        this.dateLancement = builder.dateLancement;
-        this.destination = builder.destination;
-        this.typeMission = builder.typeMission;
         this.etat = builder.etat;
     }
 
-    public abstract void decoler();
-    public abstract void exploser();
-    public abstract void atterir();
-    public abstract void orbite();
-
-    public void afficherDetails() {
-        System.out.println("Fusée : " + nom);
-        System.out.println("Taille : " + taille + " m");
-        System.out.println("Poids total : " + poidsTotal + " kg");
-        System.out.println("Moteur : " + moteur.toString());
-        System.out.println("Carburant : " + moteur.carburant.getNom());
+    public void decoler() {
+        System.out.println("Décollage de la fusée " + nom + "...");
     }
 
-    public static class Builder {
-        public String nom;
-        public float taille;
-        public float diametre;
-        public float poidsTotal;
-        public float altitudeMax;
-        public Moteur moteur;
-        public float carburantRestant;
-        public float poidChargeUtile;
-        public boolean systemeSecurite;
-        public LocalDate dateLancement;
-        public String destination;
-        public String typeMission;
-        public int etat;
+    public void exploser() {
+        System.out.println("Boom... Fusée " + nom + " a explosé...");
+    }
 
-        public Builder nom(String nom) {
+    public void atterir() {
+        System.out.println("Fusée " + nom + " a atterri...");
+    }
+
+    public void orbite() {
+        System.out.println("La fusée " + nom + " est en orbite.");
+    }
+
+    // Getters
+    public String getNom() {
+        return nom;
+    }
+
+    public double getTaille() {
+        return taille + boosterPrincipal.getTaille();
+    }
+
+    public double getDiametre() {
+        return boosterPrincipal.getTaille();
+    }
+
+    public double getPoidsTotal() {
+        return poidsTotal = boosterPrincipal.getPoids();
+    }
+
+    public float getAltitudeMax() {
+        return altitudeMax;
+    }
+
+    public List<Booster> getBoosters() {
+        return boosters;
+    }
+
+    public List<ChargeUtile> getPoidChargeUtiles() {
+        return poidChargeUtiles;
+    }
+
+    public boolean isSystemeSecurite() {
+        return systemeSecurite;
+    }
+
+    public int getEtat() {
+        return etat;
+    }
+
+    // Classe Builder
+    public static class Builder {
+        private String nom;
+        private double taille;
+        private double diametre;
+
+        private double poidsTotal;
+        private float altitudeMax;
+
+        private Booster boosterPrincipal;
+
+        private List<Booster> boosters;
+
+        private List<ChargeUtile> poidChargeUtiles;
+
+        private boolean systemeSecurite;
+
+        private int etat;
+
+        public Builder(String nom) {
             this.nom = nom;
-            return this;
         }
 
-        public Builder taille(float taille) {
+        public Builder taille(double taille) {
             this.taille = taille;
             return this;
         }
 
-        public Builder diametre(float diametre) {
+        public Builder diametre(double diametre) {
             this.diametre = diametre;
             return this;
         }
 
-        public Builder poidsTotal(float poidsTotal) {
+        public Builder boosterPricip(Booster boosterPrincip) {
+            this.boosterPrincipal = boosterPrincip;
+            return this;
+        }
+
+        public Builder poidsTotal(double poidsTotal) {
             this.poidsTotal = poidsTotal;
             return this;
         }
@@ -93,38 +139,18 @@ public abstract class Fusee {
             return this;
         }
 
-        public Builder moteur(Moteur moteur) {
-            this.moteur = moteur;
+        public Builder boosters(List<Booster> boosters) {
+            this.boosters = boosters;
             return this;
         }
 
-        public Builder carburantRestant(float carburantRestant) {
-            this.carburantRestant = carburantRestant;
-            return this;
-        }
-
-        public Builder poidChargeUtile(float poidChargeUtile) {
-            this.poidChargeUtile = poidChargeUtile;
+        public Builder poidChargeUtiles(List<ChargeUtile> poidChargeUtiles) {
+            this.poidChargeUtiles = poidChargeUtiles;
             return this;
         }
 
         public Builder systemeSecurite(boolean systemeSecurite) {
             this.systemeSecurite = systemeSecurite;
-            return this;
-        }
-
-        public Builder dateLancement(LocalDate dateLancement) {
-            this.dateLancement = dateLancement;
-            return this;
-        }
-
-        public Builder destination(String destination) {
-            this.destination = destination;
-            return this;
-        }
-
-        public Builder typeMission(String typeMission) {
-            this.typeMission = typeMission;
             return this;
         }
 
@@ -134,7 +160,7 @@ public abstract class Fusee {
         }
 
         public Fusee build() {
-            return new fuseeTier1(this); 
+            return new Fusee(this);
         }
     }
 }
