@@ -36,6 +36,8 @@ public class GameServer {
         System.out.println("Pour s'y connecter : http://localhost:4242");
         Server server = new Server("0.0.0.0", 3232, "/", new HashMap<>(), WebSocketClient.class);
 
+        
+
         try {
             server.start();
             new Thread(jeu).start();

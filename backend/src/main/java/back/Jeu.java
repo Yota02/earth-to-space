@@ -161,14 +161,8 @@ public class Jeu implements Runnable {
     }
 
     public void effectuerAchatCarburant(Jeu jeu, CarburantAchetable carburantAchetable, Reservoir reservoir) {
-    // Effectuer l'achat de carburant
         carburantAchetable.effectuerAchat(jeu);
-
-    // Ajouter l'ergol au réservoir
-        String nomCarburant = carburantAchetable.getCarburant().getNom();
         double quantiteAajouter = carburantAchetable.getQuantite();
-    
-    // Mettre à jour la quantité de carburant dans le réservoir
         reservoir.ajouterErgol(quantiteAajouter);
     }
     
