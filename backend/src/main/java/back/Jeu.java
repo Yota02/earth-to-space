@@ -65,11 +65,11 @@ public class Jeu implements Runnable {
         this.carburantPosseder = new HashMap<>();
 
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
-    .setNom("Reservoir 1")
-    .setErgol(Ergol.OXYGEN)
-    .setQuantite(0.0)
-    .setQuantiteTotal(1000.0)  // Définir explicitement la capacité totale
-    .build();
+            .setNom("Reservoir 1")
+            .setErgol(Ergol.OXYGEN)
+            .setQuantite(0.0)
+            .setQuantiteTotal(1000.0) 
+            .build();
 
         this.reservoirs = new ArrayList<>();
 
@@ -276,14 +276,6 @@ public class Jeu implements Runnable {
             try {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
-
-                synchronized (carburantPosseder) {
-                    Set<String> carburantsAConsommer = new HashSet<>(carburantPosseder.keySet());
-        
-                    for (String nomCarburant : carburantsAConsommer) {
-                        retirerErgol(nomCarburant, 10);
-                    }
-                }
 
             } finally {
                 researchLock.unlock();

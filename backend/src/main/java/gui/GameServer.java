@@ -118,19 +118,14 @@ public class GameServer {
                 }
                 gameState.put("objectsAchetables", objectsArray);
             } else {
-                // Si pas d'objets, mettre un tableau vide plutôt que null
                 gameState.put("objectsAchetables", new JSONArray());
             }
 
-            // Ajout des autres données
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
             gameState.put("carburant", new JSONObject(jeu.getCarburants()));
 
             String gameStateStr = gameState.toString();
-
-            // Log pour debug
-            System.out.println("Sending game state: " + gameStateStr);
 
             for (Session session : clients) {
                 if (session.isOpen()) {

@@ -50,6 +50,10 @@ public abstract class Reservoir {
     // Taille générale du réservoir (peut être utilisée pour l'encombrement ou la capacité)
     private Double taille;
 
+    public void setErgol(Ergol ergol){
+        this.Ergol = ergol;
+    }
+
     public Ergol getErgol() {
         return this.Ergol;
     }
