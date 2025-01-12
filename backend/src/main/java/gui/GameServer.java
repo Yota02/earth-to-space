@@ -119,6 +119,7 @@ public class GameServer {
             JSONObject objJson = new JSONObject();
             objJson.put("nom", carburant.getNom());
             objJson.put("prix", carburant.getPrix());
+            objJson.put("type", carburant.getCarburant());
             objJson.put("estAchetable", carburant.getEstAchetable());
             objJson.put("quantite", carburant.getQuantite());
             objJson.put("capaciteMax", carburant.getCapaciteMax());

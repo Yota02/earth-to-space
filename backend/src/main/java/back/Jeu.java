@@ -192,6 +192,7 @@ public class Jeu implements Runnable {
     }
 
     public void ajouterReservoir(ReservoirPose reservoir) {
+        System.out.println("Ajout d'un nouveau reservoir");
         if (reservoir != null) {
             if (reservoirs == null) {
                 reservoirs = new ArrayList<>();

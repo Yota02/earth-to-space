@@ -98,9 +98,9 @@ export default {
 
           if (Array.isArray(data.carburants)) {
             data.carburants.forEach(fuel => {
-        fuel.quantiteStock = fuel.quantiteStock || 0;  // Définit 0 si non défini
-        fuel.capaciteMax = fuel.capaciteMax || 100;    // Définit 100 si non défini
-      });
+              fuel.quantiteStock = fuel.quantiteStock || 0;  // Définit 0 si non défini
+              fuel.capaciteMax = fuel.capaciteMax || 100;    // Définit 100 si non défini
+            });
 
             this.gameData.carburants = data.carburants;
           } else {
@@ -143,10 +143,13 @@ export default {
     },
 
     handleAddReservoir(fuelType) {
+      console.log("HandleAddReservoir");
+
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({
           action: 'addReservoir',
-          fuelType: fuelType
+          fuelType: fuelType,  // Ici on envoie fuelType tel quel
+          fuelTypeName: fuelType.nom  // Si vous souhaitez également envoyer le nom de l'ergol
         }));
       }
     }
