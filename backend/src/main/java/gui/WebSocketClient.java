@@ -53,9 +53,8 @@ public class WebSocketClient {
                     break;
                 
                 case "addReservoir":
-                    System.out.println("La");
-
                     String fuelType = jsonMessage.getString("fuelType");
+
                     handleAddReservoir(session, fuelType);
                     break;
 
@@ -95,35 +94,45 @@ public class WebSocketClient {
     }
 
     private void handleAddReservoir(Session session, String fuelTypeName) throws IOException {
-        Ergol ergol = null;
-    
-        // Recherche de l'ergol basé sur le nom
-        for (Ergol e : Ergol.values()) {
-            if (e.getNom().equalsIgnoreCase(fuelTypeName)) {
-                ergol = e;
-                break;
+        JSONObject response = new JSONObject();
+        
+        try {
+            // Validation du type de carburant en utilisant le nom de l'énumération
+            Ergol ergol = null;
+            try {
+                ergol = Ergol.valueOf(fuelTypeName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                response.put("error", "Type de carburant non supporté: " + fuelTypeName);
+                session.getBasicRemote().sendText(response.toString());
+                return;
             }
+        
+            // Création du réservoir avec des valeurs par défaut
+            ReservoirPose newReservoir = new ReservoirPose.Builder()
+                .setNom("Réservoir d'" + ergol.getNom() + " " + (GameServer.jeu.getReservoirs().size() + 1))
+                .setErgol(ergol)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
+        
+            // Ajout du réservoir au jeu
+            GameServer.jeu.ajouterReservoir(newReservoir);
+            
+            // Création de la réponse de succès
+            response.put("action", "reservoirAdded");
+            response.put("nom", newReservoir.getNom());
+            response.put("type", ergol.name());
+            response.put("capacite", newReservoir.getQuantiteTotal());
+            session.getBasicRemote().sendText(response.toString());
+            
+            // Mise à jour de l'état du jeu pour tous les clients
+            GameServer.sendGameStateToClients();
+            
+        } catch (Exception e) {
+            response.put("error", "Erreur lors de l'ajout du réservoir: " + e.getMessage());
+            session.getBasicRemote().sendText(response.toString());
         }
-    
-        if (ergol == null) {
-            JSONObject errorResponse = new JSONObject();
-            errorResponse.put("error", "Type de carburant non supporté: " + fuelTypeName);
-            session.getBasicRemote().sendText(errorResponse.toString());
-            return;
-        }
-    
-        // Création du réservoir
-        ReservoirPose newReservoir = new ReservoirPose.Builder()
-            .setNom("Réservoir d'" + ergol.getNom() + " " + (GameServer.jeu.getReservoirs().size() + 1))
-            .setErgol(ergol)
-            .setQuantite(0.0)
-            .setQuantiteTotal(1000.0)
-            .build();
-    
-        GameServer.jeu.ajouterReservoir(newReservoir);
     }
-    
-    
 
     private void handleActionWithName(String action, String name, Session session, JSONObject response) throws IOException {
         switch (action) {
@@ -159,7 +168,9 @@ public class WebSocketClient {
                 break;
 
             case "buyCarburant":
+            
                 CarburantAchetable carburantToBuy = GameServer.jeu.findCarburantByName(name);
+
                 if (carburantToBuy != null) {
                     if (GameServer.jeu.getArgent() >= carburantToBuy.getPrix()) {
                         GameServer.jeu.effectuerAchatCarburant(carburantToBuy, carburantToBuy.getCarburant());
@@ -222,7 +233,9 @@ public class WebSocketClient {
 
     private void handleGetCarburantQuantite(JSONObject jsonMessage, Session session) throws IOException {
         String nom = jsonMessage.getString("nom");
-        double quantite = GameServer.jeu.getQuantiteCarburant(GameServer.jeu.findCarburantByName(nom));
+
+        double quantite = GameServer.jeu.getQuantiteCarburant(GameServer.jeu.findErgolByName(nom));
+
         JSONObject response = new JSONObject();
         response.put("action", "updateCarburantQuantite");
         response.put("nom", nom);
@@ -231,7 +244,6 @@ public class WebSocketClient {
     }
 
     private Programme getProgrammeEnCours() {
-        // Retourne le premier programme trouvé, ou null s'il n'y en a pas
         if (GameServer.jeu.getProgrammes().isEmpty()) {
             return null;
         }

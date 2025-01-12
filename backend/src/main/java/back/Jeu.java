@@ -143,30 +143,31 @@ public class Jeu implements Runnable {
     
         double quantiteAajouter = carburantAchetable.getQuantite();
         for (Reservoir r : reservoirs) {
-            double quantiteDisponibleDansReservoir = r.getQuantiteTotal() - r.getQuantite();
-            if (quantiteAajouter <= quantiteDisponibleDansReservoir) {
-                // Si la quantité à ajouter peut tenir dans ce réservoir, on ajoute et on termine
-                r.ajouterErgol(quantiteAajouter);
-                break;
-            } else {
-                // Sinon, on remplit ce réservoir à capacité maximale et on passe au suivant
-                r.ajouterErgol(quantiteDisponibleDansReservoir);
-                quantiteAajouter -= quantiteDisponibleDansReservoir;
+            if (r.getErgol().equals(ergol)) {
+                double quantiteDisponibleDansReservoir = r.getQuantiteTotal() - r.getQuantite();
+                if (quantiteAajouter <= quantiteDisponibleDansReservoir) {
+                    r.ajouterErgol(quantiteAajouter);
+                    break;
+                } else {
+                    r.ajouterErgol(quantiteDisponibleDansReservoir);
+                    quantiteAajouter -= quantiteDisponibleDansReservoir;
+                }
             }
         }
-
+    
         retirerArgent(carburantAchetable.getPrix());
     }
     
-
-    public double getCapaciteMaximaleErgol() {
+    public double getCapaciteMaximaleErgol(Ergol ergol) {
         double capaciteMax = 0;
         if (reservoirs != null) {
             for (Reservoir reservoir : reservoirs) {
                 if (reservoir != null) {
-                    Double quantiteTotal = reservoir.getQuantiteTotal();
-                    if (quantiteTotal != null) {
-                        capaciteMax += quantiteTotal;
+                    if(reservoir.getErgol().equals(ergol)){
+                        Double quantiteTotal = reservoir.getQuantiteTotal();
+                        if (quantiteTotal != null) {
+                            capaciteMax += quantiteTotal;
+                        }
                     }
                 }
             }
@@ -192,12 +193,11 @@ public class Jeu implements Runnable {
     }
 
     public void ajouterReservoir(ReservoirPose reservoir) {
-        System.out.println("Ajout d'un nouveau reservoir");
         if (reservoir != null) {
-            if (reservoirs == null) {
-                reservoirs = new ArrayList<>();
+            if(reservoir.getPrix() <= this.getArgent()){
+                reservoirs.add(reservoir);
+                retirerArgent(reservoir.getPrix());
             }
-            reservoirs.add(reservoir);
         }
     }   
 
@@ -333,6 +333,15 @@ public class Jeu implements Runnable {
         }
         return null;
     }
+
+    public Ergol findErgolByName(String name) {
+        for (CarburantAchetable carburantAchetable : carburantAchetables) {
+            if (carburantAchetable.getNom().equals(name)) {
+                return carburantAchetable.getCarburant();
+            }
+        }
+        return null;
+    }
     
     @Override
     public void run() {
@@ -368,7 +377,7 @@ public class Jeu implements Runnable {
         return null;
     }
 
-    public double getQuantiteCarburant(CarburantAchetable name) {
+    public double getQuantiteCarburant(Ergol name) {
         double quantite = 0.0;
         for(ReservoirPose r : getReservoirs()){
             if(r.getErgol().equals(name)){

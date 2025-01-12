@@ -10,6 +10,7 @@ import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
 import back.fusee.booster.Booster;
+import back.fusee.reservoir.ReservoirPose;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -25,7 +26,7 @@ public class GameServer {
     static JeuWebsocket jeu;
 
     public static void main(String[] args) throws IOException, DeploymentException {
-        String[] nomsJoueurs = {"Joueur"};
+        String[] nomsJoueurs = { "Joueur" };
         jeu = new JeuWebsocket(nomsJoueurs);
 
         HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
@@ -80,7 +81,7 @@ public class GameServer {
         try {
             lock.lock();
             JSONObject gameState = new JSONObject();
-            
+
             // Ajout des données de base
             gameState.put("etatJeu", etatJeu);
             gameState.put("argent", jeu.getArgent());
@@ -92,6 +93,8 @@ public class GameServer {
 
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
+
+            gameState.put("reservoirs", convertReservoirsToJson(jeu.getReservoirs()));
 
             String gameStateStr = gameState.toString();
 
@@ -112,7 +115,20 @@ public class GameServer {
             lock.unlock();
         }
     }
-    
+
+    public static String convertReservoirsToJson(List<ReservoirPose> reservoirs) {
+        JSONArray jsonArray = new JSONArray();
+        for (ReservoirPose reservoir : reservoirs) {
+            JSONObject reservoirJson = new JSONObject();
+            reservoirJson.put("nom", reservoir.getNom());
+            reservoirJson.put("type", reservoir.getErgol().getNom());
+            reservoirJson.put("quantite", reservoir.getQuantite());
+            reservoirJson.put("capacite", reservoir.getQuantiteTotal());
+            jsonArray.put(reservoirJson);
+        }
+        return jsonArray.toString();
+    }
+
     public static String convertCarburantToJson(List<CarburantAchetable> carburants) {
         JSONArray objectsArray = new JSONArray();
         for (CarburantAchetable carburant : carburants) {
@@ -122,8 +138,10 @@ public class GameServer {
             objJson.put("type", carburant.getCarburant());
             objJson.put("estAchetable", carburant.getEstAchetable());
             objJson.put("quantite", carburant.getQuantite());
-            objJson.put("capaciteMax", carburant.getCapaciteMax());
-            objJson.put("quantiteStock", carburant.getQuantiteStock());
+
+            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol(carburant.getCarburant()));
+            objJson.put("quantiteStock", jeu.getQuantiteCarburant(carburant.getCarburant()));
+
             objectsArray.put(objJson);
         }
         return objectsArray.toString();
@@ -165,12 +183,12 @@ public class GameServer {
             boosterJson.put("nom", booster.getNom());
             boosterJson.put("taille", booster.getTaille());
             boosterJson.put("diametre", booster.getDiametre());
-            boosterJson.put("altitudeMax", booster.getAltitudeMax());    
+            boosterJson.put("altitudeMax", booster.getAltitudeMax());
             jsonArray.put(boosterJson);
         }
         return jsonArray.toString();
     }
-    
+
     public static void addClient(Session session) {
         if (session != null && session.isOpen()) {
             clients.add(session);
@@ -184,7 +202,8 @@ public class GameServer {
 
                 session.getBasicRemote().sendText(gameState.toString());
             } catch (Exception e) {
-                System.err.println("Erreur lors de l'initialisation du client " + session.getId() + ": " + e.getMessage());
+                System.err.println(
+                        "Erreur lors de l'initialisation du client " + session.getId() + ": " + e.getMessage());
                 removeClient(session);
             }
         }
@@ -193,7 +212,7 @@ public class GameServer {
     public static void removeClient(Session session) {
         if (session != null && session.isOpen()) {
             clients.add(session);
-            sendGameStateToClients(); 
+            sendGameStateToClients();
         }
     }
 }

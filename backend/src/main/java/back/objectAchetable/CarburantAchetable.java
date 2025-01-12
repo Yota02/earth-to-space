@@ -5,20 +5,16 @@ import back.fusee.reservoir.Reservoir;
 import back.moteur.Ergol;
 
 public class CarburantAchetable {
-    private final Ergol carburant;
-    private final double quantite;
-    private final Double capaciteMax;
-    private Double quantiteStock;
+    private Ergol carburant;
+    private double quantite;
 
-    private final int prix;
-    private final String nom;
-    private final Boolean estAchetable;
+    private int prix;
+    private String nom;
+    private Boolean estAchetable;
 
     private CarburantAchetable(Builder builder) {
         this.carburant = builder.carburant;
         this.quantite = builder.quantite;
-        this.capaciteMax = builder.capaciteMax;
-        this.quantiteStock = builder.quantiteStock != null ? builder.quantiteStock : 0.0;
         this.prix = builder.prix;
         this.nom = builder.nom;
         this.estAchetable = builder.estAchetable;
@@ -30,14 +26,6 @@ public class CarburantAchetable {
 
     public double getQuantite() {
         return quantite;
-    }
-
-    public Double getCapaciteMax() {
-        return capaciteMax;
-    }
-
-    public Double getQuantiteStock() {
-        return quantiteStock;
     }
 
     public int getPrix() {
@@ -60,7 +48,7 @@ public class CarburantAchetable {
      */
     public void effectuerAchat(Jeu jeu) {
         // Calcul de la capacité disponible
-        double capaciteDisponible = jeu.getCapaciteMaximaleErgol() - jeu.calculerQuantiteTotaleErgol(carburant.getNom());
+        double capaciteDisponible = jeu.getCapaciteMaximaleErgol(this.getCarburant()) - jeu.calculerQuantiteTotaleErgol(carburant.getNom());
 
         if (capaciteDisponible < quantite) {
             throw new IllegalStateException("Capacité de stockage insuffisante pour " + carburant.getNom());
@@ -70,6 +58,7 @@ public class CarburantAchetable {
         double quantiteRestante = quantite;
         for (Reservoir reservoir : jeu.getReservoirs()) {
             if (reservoir.getErgol().equals(carburant)) {
+                
                 double espaceDisponible = reservoir.getQuantiteTotal() - reservoir.getQuantite();
                 if (espaceDisponible > 0) {
                     double quantiteAAjouter = Math.min(quantiteRestante, espaceDisponible);
@@ -88,15 +77,13 @@ public class CarburantAchetable {
             throw new IllegalStateException("Impossible d'ajouter toute la quantité au stockage.");
         }
 
-        // Mise à jour de la quantité en stock
-        this.quantiteStock = jeu.calculerQuantiteTotaleErgol(carburant.getNom());
+        jeu.calculerQuantiteTotaleErgol(carburant.getNom());
     }
 
     public static class Builder {
         private Ergol carburant;
         private double quantite;
-        private Double capaciteMax;
-        private Double quantiteStock;
+
         private int prix;
         private String nom;
         private Boolean estAchetable;
@@ -129,22 +116,6 @@ public class CarburantAchetable {
                 throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
             }
             this.quantite = quantite;
-            return this;
-        }
-
-        public Builder setCapaciteMax(Double capaciteMax) {
-            if (capaciteMax != null && capaciteMax <= 0) {
-                throw new IllegalArgumentException("La capacité maximale doit être supérieure à 0.");
-            }
-            this.capaciteMax = capaciteMax;
-            return this;
-        }
-
-        public Builder setQuantiteStock(Double quantiteStock) {
-            if (quantiteStock != null && quantiteStock < 0) {
-                throw new IllegalArgumentException("La quantité en stock ne peut pas être négative.");
-            }
-            this.quantiteStock = quantiteStock;
             return this;
         }
 
