@@ -5,6 +5,7 @@ import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirPose;
 import back.moteur.Ergol;
 import back.objectAchetable.CarburantAchetable;
+import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;
@@ -36,8 +37,8 @@ public class Jeu implements Runnable {
     private ExecutorService executorService;
 
     // Carburant
-    private Map<String, Double> carburantPosseder;
     private List<ReservoirPose> reservoirs;
+    private List<CarburantAchetable> carburantAchetables;
 
     //Programmes
     private List<Programme> programmes;
@@ -60,15 +61,13 @@ public class Jeu implements Runnable {
     // Gestionaire
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
+    private GestionnaireCarburant gestionnaireCarburant;
     private final Lock researchLock;
 
     public Jeu(String[] nomsJoueurs) {
         this.argent = 1000;
         this.pointsRecherche = 0;
         this.date = LocalDate.of(2000, 1, 1);
-
-
-        this.carburantPosseder = new HashMap<>();
 
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
             .setNom("Reservoir 1")
@@ -77,9 +76,25 @@ public class Jeu implements Runnable {
             .setQuantiteTotal(1000.0) 
             .build();
 
+        ReservoirPose reservoir2 = new ReservoirPose.Builder()
+            .setNom("Reservoir 2")
+            .setErgol(Ergol.HYDROGENE)
+            .setQuantite(0.0)
+            .setQuantiteTotal(1000.0) 
+            .build();
+        
+        ReservoirPose reservoir3 = new ReservoirPose.Builder()
+            .setNom("Reservoir 3")
+            .setErgol(Ergol.METHANES)
+            .setQuantite(0.0)
+            .setQuantiteTotal(1000.0) 
+            .build();
+
         this.reservoirs = new ArrayList<>();
 
         ajouterReservoir(reservoir1);
+        ajouterReservoir(reservoir2);
+        ajouterReservoir(reservoir3);
 
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
@@ -88,9 +103,7 @@ public class Jeu implements Runnable {
 
         this.objectTotals = new ArrayList<>();
         this.objectAcheter = new ArrayList<>();
-
         this.programmes = new ArrayList<>();
-
         this.lanceurs = new ArrayList<>();
 
         this.executorService = Executors.newSingleThreadExecutor();
@@ -104,10 +117,10 @@ public class Jeu implements Runnable {
         gestionnaireObject = new GestionnaireObject();
         gestionnaireObject.initialiserObject();
         this.objectAchetables = gestionnaireObject.getObjects();
-    }
 
-    public Map<String, Double> getCarburants() {
-        return carburantPosseder;
+        gestionnaireCarburant = new GestionnaireCarburant();
+        gestionnaireCarburant.initialisationCarburant();
+        this.carburantAchetables = gestionnaireCarburant.getObjects();
     }
 
     private void incrementerDate() {
@@ -124,6 +137,27 @@ public class Jeu implements Runnable {
             }
         }
     }
+
+    public void effectuerAchatCarburant(CarburantAchetable carburantAchetable, Ergol ergol) {
+        carburantAchetable.effectuerAchat(this);
+    
+        double quantiteAajouter = carburantAchetable.getQuantite();
+        for (Reservoir r : reservoirs) {
+            double quantiteDisponibleDansReservoir = r.getQuantiteTotal() - r.getQuantite();
+            if (quantiteAajouter <= quantiteDisponibleDansReservoir) {
+                // Si la quantité à ajouter peut tenir dans ce réservoir, on ajoute et on termine
+                r.ajouterErgol(quantiteAajouter);
+                break;
+            } else {
+                // Sinon, on remplit ce réservoir à capacité maximale et on passe au suivant
+                r.ajouterErgol(quantiteDisponibleDansReservoir);
+                quantiteAajouter -= quantiteDisponibleDansReservoir;
+            }
+        }
+
+        retirerArgent(carburantAchetable.getPrix());
+    }
+    
 
     public double getCapaciteMaximaleErgol() {
         double capaciteMax = 0;
@@ -170,25 +204,33 @@ public class Jeu implements Runnable {
         return reservoirs;
     }
 
-    public void effectuerAchatCarburant(Jeu jeu, CarburantAchetable carburantAchetable, Reservoir reservoir) {
-        carburantAchetable.effectuerAchat(jeu);
-        double quantiteAajouter = carburantAchetable.getQuantite();
-        reservoir.ajouterErgol(quantiteAajouter);
-    }
-    
-    public void retirerErgol(String nom, double quantite) {
-        synchronized (carburantPosseder) {
-            double quantiteActuelle = carburantPosseder.getOrDefault(nom, 0.0);
-            if (quantiteActuelle >= quantite) {
-                double nouvelleQuantite = quantiteActuelle - quantite;
-                carburantPosseder.put(nom, nouvelleQuantite);
-                GameServer.setEtatJeu("Mise à jour du carburant: " + nom);
-            } else {
-                System.out.println("Quantité insuffisante de " + nom);
+    public void retirerErgol(Ergol nom, double quantite) {
+        double quantiteRetiree = 0.0;
+        for (Reservoir r : reservoirs) {
+            if (r.getErgol().equals(nom)) {
+                double quantiteDisponible = r.getQuantite();
+
+                if (quantiteRetiree + quantiteDisponible <= quantite) {
+                    // Si la quantité demandée est plus grande que ce qu'il y a dans ce réservoir
+                    r.retirerErgol(quantiteDisponible);
+                    quantiteRetiree += quantiteDisponible;
+                } else {
+                    // Si la quantité demandée est partiellement disponible, on retire juste ce qu'il faut
+                    r.retirerErgol(quantite - quantiteRetiree);
+                    quantiteRetiree = quantite;  
+                    break;  
+                }
+            }
+
+            if (quantiteRetiree >= quantite) {
+                break;
             }
         }
+        if (quantiteRetiree < quantite) {
+            System.out.println("Impossible de retirer toute la quantité d'ergol demandée.");
+        }
     }
-
+    
     public void vendre(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
             objectAcheter.remove(objectAchetable);
@@ -282,6 +324,15 @@ public class Jeu implements Runnable {
         return null;
     }
 
+    public CarburantAchetable findCarburantByName(String name) {
+        for (CarburantAchetable carburantAchetable : carburantAchetables) {
+            if (carburantAchetable.getNom().equals(name)) {
+                return carburantAchetable;
+            }
+        }
+        return null;
+    }
+    
     @Override
     public void run() {
         creerUnProgramme("StarShip", "Lune", 1000, 1);
@@ -314,6 +365,20 @@ public class Jeu implements Runnable {
             }
         }
         return null;
+    }
+
+    public double getQuantiteCarburant(CarburantAchetable name) {
+        double quantite = 0.0;
+        for(ReservoirPose r : getReservoirs()){
+            if(r.getErgol().equals(name)){
+                quantite += r.getQuantite();
+            }
+        }
+        return quantite;
+    }
+
+    public List<CarburantAchetable> getCarburantAchetables(){
+        return carburantAchetables;
     }
 
     private void notifierClient(Recherche recherche) {
@@ -361,12 +426,6 @@ public class Jeu implements Runnable {
         this.objectAcheter = objectAcheter;
     }
 
-    public double getQuantiteCarburant(String name) {
-        synchronized (carburantPosseder) {
-            return carburantPosseder.getOrDefault(name, 0.0);
-        }
-    }
-
     public String lireLigne() {
         return scanner.nextLine();
     }
@@ -409,14 +468,6 @@ public class Jeu implements Runnable {
 
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
-    }
-
-    public Map<String, Double> getCarburantPosseder() {
-        return carburantPosseder;
-    }
-
-    public void setCarburantPosseder(Map<String, Double> carburantPosseder) {
-        this.carburantPosseder = carburantPosseder;
     }
 
     public void setRecherchesTotal(List<Recherche> recherchesTotal) {

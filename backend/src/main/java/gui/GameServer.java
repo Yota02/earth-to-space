@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
-import back.Jeu;
 import back.fusee.booster.Booster;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
@@ -88,41 +87,11 @@ public class GameServer {
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
             gameState.put("date", jeu.getDate());
 
-            // Création de l'array d'objets achetables avec vérification
-            List<ObjectAchetable> objects = jeu.getObjectAchetables();
-            if (objects != null) {
-                JSONArray objectsArray = new JSONArray();
-                
-                for (ObjectAchetable obj : objects) {
-                    if (obj != null) {
-                        JSONObject objJson = new JSONObject();
-                        objJson.put("nom", obj.getNom());
-                        objJson.put("prix", obj.getPrix());
-                        objJson.put("estAchetable", obj.getEstAchetable());
-
-                        if (obj instanceof CarburantAchetable) {
-                            CarburantAchetable carburant = (CarburantAchetable) obj;
-                            objJson.put("type", "carburant");
-                            objJson.put("quantite", carburant.getQuantite());
-                            String nomCarburant = carburant.getCarburant().getNom();
-                            double quantiteStock = jeu.getQuantiteCarburant(nomCarburant);
-                            objJson.put("quantiteStock", quantiteStock);
-                            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol());
-                        } else {
-                            objJson.put("type", "objet");
-                        }
-
-                        objectsArray.put(objJson);
-                    }
-                }
-                gameState.put("objectsAchetables", objectsArray);
-            } else {
-                gameState.put("objectsAchetables", new JSONArray());
-            }
+            gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
+            gameState.put("carburants", new JSONArray(convertCarburantToJson(jeu.getCarburantAchetables())));
 
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
-            gameState.put("carburant", new JSONObject(jeu.getCarburants()));
 
             String gameStateStr = gameState.toString();
 
@@ -143,6 +112,21 @@ public class GameServer {
             lock.unlock();
         }
     }
+    
+    public static String convertCarburantToJson(List<CarburantAchetable> carburants) {
+        JSONArray objectsArray = new JSONArray();
+        for (CarburantAchetable carburant : carburants) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("nom", carburant.getNom());
+            objJson.put("prix", carburant.getPrix());
+            objJson.put("estAchetable", carburant.getEstAchetable());
+            objJson.put("quantite", carburant.getQuantite());
+            objJson.put("capaciteMax", carburant.getCapaciteMax());
+            objJson.put("quantiteStock", carburant.getQuantiteStock());
+            objectsArray.put(objJson);
+        }
+        return objectsArray.toString();
+    }
 
     public static String convertObjectsToJson(List<ObjectAchetable> objects) {
         JSONArray objectsArray = new JSONArray();
@@ -151,17 +135,6 @@ public class GameServer {
             objJson.put("nom", obj.getNom());
             objJson.put("prix", obj.getPrix());
             objJson.put("estAchetable", obj.getEstAchetable());
-    
-            if (obj instanceof CarburantAchetable) {
-                CarburantAchetable carburant = (CarburantAchetable) obj;
-                objJson.put("type", "carburant");
-                objJson.put("quantite", carburant.getQuantite());
-                objJson.put("capaciteMax", carburant.getCapaciteMax());
-                objJson.put("quantiteStock", carburant.getQuantiteStock());
-            } else {
-                objJson.put("type", "objet");
-            }
-    
             objectsArray.put(objJson);
         }
         return objectsArray.toString();
