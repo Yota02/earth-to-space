@@ -1,76 +1,145 @@
 <template>
   <div id="app">
-    <nav>
-      <ul>
-        <li><router-link to="/">Home</router-link></li>
-        <li><router-link to="/shop">Shop</router-link></li>
-        <li><router-link to="/programme">Programme</router-link></li>
-        <li><router-link to="/researche">Researche</router-link></li>
-        <li><router-link to="/lanceur"> Lanceur </router-link></li>
-        <li><router-link to="/ergol"> Ergol </router-link></li>
-      </ul>
+    <!-- Display component -->
+    <AffichageArgent class="affichage-argent" />
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="navbar-container">
+        <button class="navbar-toggle" @click="toggleMenu">
+          ☰
+        </button>
+        <ul :class="['navbar-menu', { 'navbar-menu-active': menuOpen }]">
+          <li><router-link to="/" @click="closeMenu">Home</router-link></li>
+          <li><router-link to="/shop" @click="closeMenu">Shop</router-link></li>
+          <li><router-link to="/programme" @click="closeMenu">Programme</router-link></li>
+          <li><router-link to="/researche" @click="closeMenu">Researche</router-link></li>
+          <li><router-link to="/lanceur" @click="closeMenu">Lanceur</router-link></li>
+          <li><router-link to="/ergol" @click="closeMenu">Ergol</router-link></li>
+        </ul>
+      </div>
     </nav>
 
-    <router-view /> 
-
+    <!-- Main content -->
+    <router-view />
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
+import AffichageArgent from "./components/affichageUIDroit.vue";
+
+const menuOpen = ref(false);
+
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+};
+
+const closeMenu = () => {
+  menuOpen.value = false;
+};
 </script>
 
 <style>
+/* General styles */
 #app {
   font-family: Arial, sans-serif;
-  text-align: center;
   margin: 0;
   padding: 0;
   background-color: #f9f9f9;
 }
 
-h1 {
-  font-size: 2.5rem;
-  color: #333;
-  margin-top: 20px;
-}
-
-nav {
-  margin-top: 20px;
+/* Navbar styles */
+.navbar {
+  position: sticky;
+  top: 0;
   background-color: #007BFF;
-  padding: 10px 0;
+  color: #fff;
+  padding: 10px 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.navbar-container {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;  /* Align navbar content to the right */
+  align-items: center;
 }
 
-nav ul li {
-  margin: 0 15px;
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
 }
 
-nav ul li a {
+.navbar-brand a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Navbar menu */
+.navbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-menu li a {
   text-decoration: none;
   color: #fff;
   font-weight: bold;
-  transition: color 0.3s;
+  transition: color 0.3s ease-in-out;
 }
 
-nav ul li a:hover {
+.navbar-menu li a:hover {
   color: #FFD700;
 }
 
-router-view {
-  margin: 20px auto;
-  padding: 20px;
-  max-width: 800px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: block;
+  }
+
+  .navbar-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #007BFF;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    display: none;
+    gap: 10px;
+    padding: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .navbar-menu-active {
+    display: flex;
+  }
 }
 
+/* Affichage argent styles */
+.affichage-argent {
+  position: absolute; 
+  top: 10px;   /* Place it slightly below the very top */
+  left: 10px;  /* Align to the left */
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #007BFF;
+  color: white;
+  z-index: 1100;  /* Ensures it stays above the navbar */
+}
 </style>

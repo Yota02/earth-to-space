@@ -15,6 +15,7 @@ import gui.GameServer;
 import javax.websocket.Session;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,6 +54,9 @@ public class Jeu implements Runnable {
     private List<ObjectAchetable> objectTotals;
     private List<ObjectAchetable> objectAcheter;
 
+    //Date 
+    private LocalDate date;
+
     // Gestionaire
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
@@ -61,6 +65,8 @@ public class Jeu implements Runnable {
     public Jeu(String[] nomsJoueurs) {
         this.argent = 1000;
         this.pointsRecherche = 0;
+        this.date = LocalDate.of(2000, 1, 1);
+
 
         this.carburantPosseder = new HashMap<>();
 
@@ -102,6 +108,10 @@ public class Jeu implements Runnable {
 
     public Map<String, Double> getCarburants() {
         return carburantPosseder;
+    }
+
+    private void incrementerDate() {
+        date = date.plusDays(1);
     }
 
     public void acheter(ObjectAchetable objectAchetable) {
@@ -281,6 +291,7 @@ public class Jeu implements Runnable {
             try {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
+                incrementerDate();
 
             } finally {
                 researchLock.unlock();
@@ -316,6 +327,10 @@ public class Jeu implements Runnable {
                 }
             }
         }
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     public List<Recherche> getRecherchesTotal() {

@@ -86,6 +86,7 @@ public class GameServer {
             gameState.put("etatJeu", etatJeu);
             gameState.put("argent", jeu.getArgent());
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
+            gameState.put("date", jeu.getDate());
 
             // Création de l'array d'objets achetables avec vérification
             List<ObjectAchetable> objects = jeu.getObjectAchetables();
