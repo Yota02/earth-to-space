@@ -3,6 +3,9 @@
     <h1 class="text-3xl font-bold text-center mb-8">Ergol</h1>
     <AffichageStockageErgol />
   </div>
+
+
+
 </template>
 
 <script>
@@ -14,4 +17,5 @@ export default {
     AffichageStockageErgol
   }
 };
+
 </script>

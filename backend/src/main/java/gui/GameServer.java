@@ -9,8 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
-import back.Jeu;
 import back.fusee.booster.Booster;
+import back.fusee.reservoir.ReservoirPose;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -26,7 +26,7 @@ public class GameServer {
     static JeuWebsocket jeu;
 
     public static void main(String[] args) throws IOException, DeploymentException {
-        String[] nomsJoueurs = {"Joueur"};
+        String[] nomsJoueurs = { "Joueur" };
         jeu = new JeuWebsocket(nomsJoueurs);
 
         HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
@@ -81,48 +81,20 @@ public class GameServer {
         try {
             lock.lock();
             JSONObject gameState = new JSONObject();
-            
+
             // Ajout des données de base
             gameState.put("etatJeu", etatJeu);
             gameState.put("argent", jeu.getArgent());
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
             gameState.put("date", jeu.getDate());
 
-            // Création de l'array d'objets achetables avec vérification
-            List<ObjectAchetable> objects = jeu.getObjectAchetables();
-            if (objects != null) {
-                JSONArray objectsArray = new JSONArray();
-                
-                for (ObjectAchetable obj : objects) {
-                    if (obj != null) {
-                        JSONObject objJson = new JSONObject();
-                        objJson.put("nom", obj.getNom());
-                        objJson.put("prix", obj.getPrix());
-                        objJson.put("estAchetable", obj.getEstAchetable());
-
-                        if (obj instanceof CarburantAchetable) {
-                            CarburantAchetable carburant = (CarburantAchetable) obj;
-                            objJson.put("type", "carburant");
-                            objJson.put("quantite", carburant.getQuantite());
-                            String nomCarburant = carburant.getCarburant().getNom();
-                            double quantiteStock = jeu.getQuantiteCarburant(nomCarburant);
-                            objJson.put("quantiteStock", quantiteStock);
-                            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol());
-                        } else {
-                            objJson.put("type", "objet");
-                        }
-
-                        objectsArray.put(objJson);
-                    }
-                }
-                gameState.put("objectsAchetables", objectsArray);
-            } else {
-                gameState.put("objectsAchetables", new JSONArray());
-            }
+            gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
+            gameState.put("carburants", new JSONArray(convertCarburantToJson(jeu.getCarburantAchetables())));
 
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
-            gameState.put("carburant", new JSONObject(jeu.getCarburants()));
+
+            gameState.put("reservoirs", convertReservoirsToJson(jeu.getReservoirs()));
 
             String gameStateStr = gameState.toString();
 
@@ -144,6 +116,37 @@ public class GameServer {
         }
     }
 
+    public static String convertReservoirsToJson(List<ReservoirPose> reservoirs) {
+        JSONArray jsonArray = new JSONArray();
+        for (ReservoirPose reservoir : reservoirs) {
+            JSONObject reservoirJson = new JSONObject();
+            reservoirJson.put("nom", reservoir.getNom());
+            reservoirJson.put("type", reservoir.getErgol().getNom());
+            reservoirJson.put("quantite", reservoir.getQuantite());
+            reservoirJson.put("capacite", reservoir.getQuantiteTotal());
+            jsonArray.put(reservoirJson);
+        }
+        return jsonArray.toString();
+    }
+
+    public static String convertCarburantToJson(List<CarburantAchetable> carburants) {
+        JSONArray objectsArray = new JSONArray();
+        for (CarburantAchetable carburant : carburants) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("nom", carburant.getNom());
+            objJson.put("prix", carburant.getPrix());
+            objJson.put("type", carburant.getCarburant());
+            objJson.put("estAchetable", carburant.getEstAchetable());
+            objJson.put("quantite", carburant.getQuantite());
+
+            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol(carburant.getCarburant()));
+            objJson.put("quantiteStock", jeu.getQuantiteCarburant(carburant.getCarburant()));
+
+            objectsArray.put(objJson);
+        }
+        return objectsArray.toString();
+    }
+
     public static String convertObjectsToJson(List<ObjectAchetable> objects) {
         JSONArray objectsArray = new JSONArray();
         for (ObjectAchetable obj : objects) {
@@ -151,17 +154,6 @@ public class GameServer {
             objJson.put("nom", obj.getNom());
             objJson.put("prix", obj.getPrix());
             objJson.put("estAchetable", obj.getEstAchetable());
-    
-            if (obj instanceof CarburantAchetable) {
-                CarburantAchetable carburant = (CarburantAchetable) obj;
-                objJson.put("type", "carburant");
-                objJson.put("quantite", carburant.getQuantite());
-                objJson.put("capaciteMax", carburant.getCapaciteMax());
-                objJson.put("quantiteStock", carburant.getQuantiteStock());
-            } else {
-                objJson.put("type", "objet");
-            }
-    
             objectsArray.put(objJson);
         }
         return objectsArray.toString();
@@ -191,12 +183,12 @@ public class GameServer {
             boosterJson.put("nom", booster.getNom());
             boosterJson.put("taille", booster.getTaille());
             boosterJson.put("diametre", booster.getDiametre());
-            boosterJson.put("altitudeMax", booster.getAltitudeMax());    
+            boosterJson.put("altitudeMax", booster.getAltitudeMax());
             jsonArray.put(boosterJson);
         }
         return jsonArray.toString();
     }
-    
+
     public static void addClient(Session session) {
         if (session != null && session.isOpen()) {
             clients.add(session);
@@ -210,7 +202,8 @@ public class GameServer {
 
                 session.getBasicRemote().sendText(gameState.toString());
             } catch (Exception e) {
-                System.err.println("Erreur lors de l'initialisation du client " + session.getId() + ": " + e.getMessage());
+                System.err.println(
+                        "Erreur lors de l'initialisation du client " + session.getId() + ": " + e.getMessage());
                 removeClient(session);
             }
         }
@@ -219,7 +212,7 @@ public class GameServer {
     public static void removeClient(Session session) {
         if (session != null && session.isOpen()) {
             clients.add(session);
-            sendGameStateToClients(); 
+            sendGameStateToClients();
         }
     }
 }

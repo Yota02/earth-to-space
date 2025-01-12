@@ -145,6 +145,14 @@ public abstract class Reservoir {
         }
     }
 
+    public void retirerErgol(double quantiteAjoutee) {
+        if (quantite - quantiteAjoutee >= quantiteTotal) {
+            quantite -= quantiteAjoutee;
+        } else {
+            System.out.println("Impossible de retirer l'ergol");
+        }
+    }
+
     protected Reservoir(Builder<?> builder) {
         this.nom = builder.nom;
         this.Ergol = builder.Ergol;

@@ -25,10 +25,10 @@ public abstract class ObjectAchetable {
         return estAchetable;
     }
 
-    // Méthode abstraite pour l'achat
+    // Abstract method for purchasing
     public abstract void effectuerAchat(Jeu jeu);
 
-    // Builder générique avec covariant pour les sous-classes
+    // Generic builder with covariant return type for subclasses
     public static abstract class Builder<T extends Builder<T>> {
         private int prix;
         private String nom;
@@ -49,7 +49,10 @@ public abstract class ObjectAchetable {
             return self();
         }
 
+        // Ensure that each builder returns the correct type
         protected abstract T self();
+
+        // Update the build method to return ObjectAchetable instead of a specific type
         public abstract ObjectAchetable build();
     }
 }
