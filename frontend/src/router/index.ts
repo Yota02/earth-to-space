@@ -5,7 +5,7 @@ import AboutView from '../views/AboutView.vue';
 import ResearcheView from '../views/ResearcheView.vue';
 import ShopView from '../views/ShopView.vue';
 import ProgrammeView from '../views/ProgrammeView.vue';
-import ProgrammeDetails from "../views/ProgrammeDetail.vue";
+import ProgrammeDetails from "../views/Detail/ProgrammeDetail.vue";
 import LanceurView from '../views/LanceurView.vue';
 import ErgolView from '../views/ErgolView.vue';
 

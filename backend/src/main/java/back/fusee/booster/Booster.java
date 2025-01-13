@@ -3,6 +3,7 @@ package back.fusee.booster;
 import java.util.List;
 
 import back.fusee.reservoir.Reservoir;
+import back.fusee.reservoir.ReservoirFusee;
 import back.moteur.Moteur;
 
 public class Booster {
@@ -12,12 +13,15 @@ public class Booster {
     public Double taille;
     public Double diametre;
     public Double poidsAVide;
+
+
     public Double altitudeMax;
     public Double VitesseMax;
 
     // Element compose
     public List<Moteur> moteur;
-    public List<Reservoir> reservoirs;
+    public List<ReservoirFusee> reservoirs;
+    
 
     // Spécification spécial
     public Boolean estPrototype;
@@ -44,14 +48,13 @@ public class Booster {
         private Double VitesseMax;
 
         private List<Moteur> moteur;
-        private List<Reservoir> reservoirs;
+        private List<ReservoirFusee> reservoirs;
 
         private Boolean estPrototype;
         private Boolean estReetulisable;
         private Boolean aSystèmeAutoDestruction;
 
         private int etat;
-        private Double poids;
         private Double vitesse;
         private Boolean nécessiteMaintenance;
 
@@ -97,7 +100,7 @@ public class Booster {
             return this;
         }
 
-        public Builder reservoirs(List<Reservoir> reservoirs) {
+        public Builder reservoirs(List<ReservoirFusee> reservoirs) {
             this.reservoirs = reservoirs;
             return this;
         }
@@ -119,11 +122,6 @@ public class Booster {
 
         public Builder etat(int etat) {
             this.etat = etat;
-            return this;
-        }
-
-        public Builder poids(Double poids) {
-            this.poids = poids;
             return this;
         }
 
@@ -157,7 +155,6 @@ public class Booster {
             booster.estReetulisable = this.estReetulisable;
             booster.aSystèmeAutoDestruction = this.aSystèmeAutoDestruction;
             booster.etat = this.etat;
-            booster.poids = this.poids;
             booster.vitesse = this.vitesse;
             booster.nécessiteMaintenance = this.nécessiteMaintenance;
             booster.historiquesLancement = this.historiquesLancement;
@@ -187,6 +184,21 @@ public class Booster {
             rep += r.getPoidsAvide();
         }
 
+        this.poidsAVide = rep;
+        return rep;
+    }
+
+    public Double getPoids() {
+        Double rep = poidsAVide;
+        for(Moteur m : moteur ){
+            rep += m.getPoids();
+        }
+
+        for(Reservoir r : reservoirs){
+            rep += r.getPoids();
+        }
+
+        this.poids = rep;
         return rep;
     }
 
@@ -202,7 +214,7 @@ public class Booster {
         return moteur;
     }
 
-    public List<Reservoir> getReservoirs() {
+    public List<ReservoirFusee> getReservoirs() {
         return reservoirs;
     }
 
@@ -224,10 +236,6 @@ public class Booster {
 
     public int getEtat() {
         return etat;
-    }
-
-    public Double getPoids() {
-        return poids;
     }
 
     public Double getVitesse() {

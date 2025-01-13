@@ -4,6 +4,7 @@ import java.util.List;
 
 import back.chargeUtile.ChargeUtile;
 import back.fusee.booster.Booster;
+import back.moteur.Moteur;
 
 public class Fusee {
 
@@ -12,11 +13,10 @@ public class Fusee {
     private double diametre;
 
     private double poidsTotal;
-    private float altitudeMax;
+    private double altitudeMax;
 
-    private List<Booster> boosters;
+    // private List<Booster> boosters;
     private Booster boosterPrincipal;
-
 
     private List<ChargeUtile> poidChargeUtiles;
 
@@ -25,17 +25,17 @@ public class Fusee {
     private int etat;
 
     // Constructeur privé pour forcer l'utilisation du Builder
-    private Fusee(Builder builder) {
-        this.nom = builder.nom;
-        this.taille = builder.taille;
-        this.diametre = builder.diametre;
-        this.poidsTotal = builder.poidsTotal;
-        this.altitudeMax = builder.altitudeMax;
-        this.boosters = builder.boosters;
-        this.boosterPrincipal = builder.boosterPrincipal;
-        this.poidChargeUtiles = builder.poidChargeUtiles;
-        this.systemeSecurite = builder.systemeSecurite;
-        this.etat = builder.etat;
+    public Fusee(String nom, double taille, Booster boosterPrincipal, List<ChargeUtile> poidChargeUtiles,  boolean systemeSecurite) {
+        this.nom = nom;
+        this.taille = taille;
+        this.diametre = getDiametre();
+        this.poidsTotal = getPoidsTotal();
+        this.altitudeMax = getAltitudeMax();
+        //this.boosters = boosters;
+        this.boosterPrincipal = boosterPrincipal;
+        this.poidChargeUtiles = poidChargeUtiles;
+        this.systemeSecurite = systemeSecurite;
+        this.etat = 0;
     }
 
     public void decoler() {
@@ -68,15 +68,16 @@ public class Fusee {
     }
 
     public double getPoidsTotal() {
-        return poidsTotal = boosterPrincipal.getPoids();
+        return boosterPrincipal.getPoids();
     }
 
-    public float getAltitudeMax() {
-        return altitudeMax;
-    }
-
-    public List<Booster> getBoosters() {
-        return boosters;
+    public double getAltitudeMax() {
+        double rep = 0;
+        for(Moteur m : boosterPrincipal.getMoteur()){
+            rep += m.getPousseeMax();
+        }
+        rep -= poidsTotal;
+        return rep;
     }
 
     public List<ChargeUtile> getPoidChargeUtiles() {
@@ -91,76 +92,4 @@ public class Fusee {
         return etat;
     }
 
-    // Classe Builder
-    public static class Builder {
-        private String nom;
-        private double taille;
-        private double diametre;
-
-        private double poidsTotal;
-        private float altitudeMax;
-
-        private Booster boosterPrincipal;
-
-        private List<Booster> boosters;
-
-        private List<ChargeUtile> poidChargeUtiles;
-
-        private boolean systemeSecurite;
-
-        private int etat;
-
-        public Builder(String nom) {
-            this.nom = nom;
-        }
-
-        public Builder taille(double taille) {
-            this.taille = taille;
-            return this;
-        }
-
-        public Builder diametre(double diametre) {
-            this.diametre = diametre;
-            return this;
-        }
-
-        public Builder boosterPricip(Booster boosterPrincip) {
-            this.boosterPrincipal = boosterPrincip;
-            return this;
-        }
-
-        public Builder poidsTotal(double poidsTotal) {
-            this.poidsTotal = poidsTotal;
-            return this;
-        }
-
-        public Builder altitudeMax(float altitudeMax) {
-            this.altitudeMax = altitudeMax;
-            return this;
-        }
-
-        public Builder boosters(List<Booster> boosters) {
-            this.boosters = boosters;
-            return this;
-        }
-
-        public Builder poidChargeUtiles(List<ChargeUtile> poidChargeUtiles) {
-            this.poidChargeUtiles = poidChargeUtiles;
-            return this;
-        }
-
-        public Builder systemeSecurite(boolean systemeSecurite) {
-            this.systemeSecurite = systemeSecurite;
-            return this;
-        }
-
-        public Builder etat(int etat) {
-            this.etat = etat;
-            return this;
-        }
-
-        public Fusee build() {
-            return new Fusee(this);
-        }
-    }
 }

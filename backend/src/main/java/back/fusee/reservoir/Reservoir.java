@@ -24,6 +24,9 @@ public abstract class Reservoir {
     // totale)
     private Double poidsVide;
 
+    // Le poids du réservoir réel
+    private Double poids;
+
     // Dimensions du réservoir (par exemple, longueur, diamètre, forme)
     private String dimensions;
 
@@ -60,6 +63,10 @@ public abstract class Reservoir {
     // Taille générale du réservoir (peut être utilisée pour l'encombrement ou la
     // capacité)
     private Double taille;
+
+    public Double getPoids() {
+        return quantite * Ergol.getPoid() + getPoidsAvide();
+    }
 
     public String getNom() {
         return nom;

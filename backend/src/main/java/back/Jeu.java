@@ -1,5 +1,7 @@
 package back;
 
+import back.chargeUtile.ChargeUtile;
+import back.fusee.Fusee;
 import back.fusee.booster.Booster;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirPose;
@@ -45,6 +47,8 @@ public class Jeu implements Runnable {
 
     // Boosters
     private List<Booster> lanceurs;
+
+    private List<Fusee> fusees;
 
     // Collections pour les recherches
     private List<Recherche> recherchesTotal;
@@ -105,6 +109,7 @@ public class Jeu implements Runnable {
         this.objectAcheter = new ArrayList<>();
         this.programmes = new ArrayList<>();
         this.lanceurs = new ArrayList<>();
+        this.fusees = new ArrayList<>();
 
         this.executorService = Executors.newSingleThreadExecutor();
 
@@ -347,6 +352,15 @@ public class Jeu implements Runnable {
     public void run() {
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
+        Booster b1 = new Booster();
+        List<ChargeUtile> l1 = new ArrayList<>();
+        ChargeUtile c1 = new ChargeUtile(100, "Jambon", 100);
+        l1.add(c1);
+
+        Fusee f1 = new Fusee("StarShip1", 1000, b1, l1, false);
+
+        fusees.add(f1);
+
         while (!estFinie()) {
             researchLock.lock();
             try {
@@ -422,6 +436,10 @@ public class Jeu implements Runnable {
 
     public List<ObjectAchetable> getObjectTotals() {
         return objectTotals;
+    }
+
+    public List<Fusee> getFusees() {
+        return fusees;
     }
 
     public void setObjectTotals(List<ObjectAchetable> objectTotals) {

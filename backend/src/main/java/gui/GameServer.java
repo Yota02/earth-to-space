@@ -9,8 +9,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
+import back.chargeUtile.ChargeUtile;
+import back.fusee.Fusee;
 import back.fusee.booster.Booster;
+import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
+import back.moteur.Moteur;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -95,6 +99,7 @@ public class GameServer {
             gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
 
             gameState.put("reservoirs", convertReservoirsToJson(jeu.getReservoirs()));
+            gameState.put("fusees", convertFuseeToJson(jeu.getFusees()));
 
             String gameStateStr = gameState.toString();
 
@@ -147,6 +152,32 @@ public class GameServer {
         return objectsArray.toString();
     }
 
+    public static String convertFuseeToJson(List<Fusee> fusees) {
+        JSONArray objectsArray = new JSONArray();
+        for (Fusee fusee : fusees) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("nom", fusee.getNom());
+            objJson.put("taille", fusee.getTaille());
+            objJson.put("diametre", fusee.getDiametre());
+            objJson.put("poidsTotal", fusee.getPoidsTotal());
+            objJson.put("altitudeMax", fusee.getAltitudeMax());
+            objJson.put("systemeSecurite", fusee.isSystemeSecurite());
+            objJson.put("etat", fusee.getEtat());
+
+            JSONArray chargesArray = new JSONArray();
+            for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
+                JSONObject chargeJson = new JSONObject();
+                chargeJson.put("nom", charge.getNom());
+                chargeJson.put("poids", charge.getPoids());
+                chargesArray.put(chargeJson);
+            }
+            objJson.put("poidChargeUtiles", chargesArray);
+
+            objectsArray.put(objJson);
+        }
+        return objectsArray.toString();
+    }
+
     public static String convertObjectsToJson(List<ObjectAchetable> objects) {
         JSONArray objectsArray = new JSONArray();
         for (ObjectAchetable obj : objects) {
@@ -178,14 +209,57 @@ public class GameServer {
 
     public static String convertLanceurToJson(List<Booster> boosters) {
         JSONArray jsonArray = new JSONArray();
+
         for (Booster booster : boosters) {
             JSONObject boosterJson = new JSONObject();
             boosterJson.put("nom", booster.getNom());
             boosterJson.put("taille", booster.getTaille());
             boosterJson.put("diametre", booster.getDiametre());
+            boosterJson.put("poidsAVide", booster.getPoidsAVide());
+            boosterJson.put("poids", booster.getPoids());
             boosterJson.put("altitudeMax", booster.getAltitudeMax());
+            boosterJson.put("vitesseMax", booster.getVitesseMax());
+            boosterJson.put("estPrototype", booster.getEstPrototype());
+            boosterJson.put("estReetulisable", booster.getEstReetulisable());
+            boosterJson.put("aSystemeAutoDestruction", booster.getASystèmeAutoDestruction());
+
+            // Ajouter l'historique des lancements sous forme de tableau JSON
+            JSONArray historiquesLancementJson = new JSONArray();
+            if (booster.getHistoriquesLancement() != null) {
+                for (String lancement : booster.getHistoriquesLancement()) {
+                    historiquesLancementJson.put(lancement);
+                }
+            }
+            boosterJson.put("historiquesLancement", historiquesLancementJson);
+
+            // Ajouter les moteurs (si disponibles)
+            JSONArray moteursJson = new JSONArray();
+            if (booster.getMoteur() != null) {
+                for (Moteur moteur : booster.getMoteur()) {
+                    JSONObject moteurJson = new JSONObject();
+                    moteurJson.put("nom", moteur.getNom());
+                    moteurJson.put("poids", moteur.getPoids());
+                    moteursJson.put(moteurJson);
+                }
+            }
+            boosterJson.put("moteurs", moteursJson);
+
+            // Ajouter les réservoirs (si disponibles)
+            JSONArray reservoirsJson = new JSONArray();
+            if (booster.getReservoirs() != null) {
+                for (ReservoirFusee reservoir : booster.getReservoirs()) {
+                    JSONObject reservoirJson = new JSONObject();
+                    reservoirJson.put("nom", reservoir.getNom());
+                    reservoirJson.put("poidsAVide", reservoir.getPoidsAvide());
+                    reservoirJson.put("poids", reservoir.getPoids());
+                    reservoirsJson.put(reservoirJson);
+                }
+            }
+            boosterJson.put("reservoirs", reservoirsJson);
+
             jsonArray.put(boosterJson);
         }
+
         return jsonArray.toString();
     }
 

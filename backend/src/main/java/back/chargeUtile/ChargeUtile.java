@@ -1,22 +1,22 @@
 package back.chargeUtile;
 
-public abstract class ChargeUtile {
+public class ChargeUtile {
 
-    protected float poids;
-    protected String nom;
-    protected float volume;
+    private double poids;
+    private String nom;
+    private double volume;
 
-    public ChargeUtile(float poids, String nom, float volume) {
+    public ChargeUtile(double poids, String nom, double volume) {
         this.poids = poids;
         this.nom = nom;
         this.volume = volume;
     }
 
-    public float getPoids() {
+    public double getPoids() {
         return poids;
     }
 
-    public void setPoids(float poids) {
+    public void setPoids(double poids) {
         this.poids = poids;
     }
 
@@ -28,11 +28,11 @@ public abstract class ChargeUtile {
         this.nom = nom;
     }
 
-    public float getVolume() {
+    public double getVolume() {
         return volume;
     }
 
-    public void setVolume(float volume) {
+    public void setVolume(double volume) {
         this.volume = volume;
     }
 }
