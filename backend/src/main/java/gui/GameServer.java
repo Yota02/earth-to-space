@@ -96,7 +96,7 @@ public class GameServer {
             gameState.put("carburants", new JSONArray(convertCarburantToJson(jeu.getCarburantAchetables())));
 
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
-            gameState.put("lanceurs", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
+            gameState.put("boosters", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
 
             gameState.put("reservoirs", convertReservoirsToJson(jeu.getReservoirs()));
             gameState.put("fusees", convertFuseeToJson(jeu.getFusees()));
@@ -172,7 +172,6 @@ public class GameServer {
                 chargesArray.put(chargeJson);
             }
             objJson.put("poidChargeUtiles", chargesArray);
-
             objectsArray.put(objJson);
         }
         return objectsArray.toString();
@@ -259,7 +258,6 @@ public class GameServer {
 
             jsonArray.put(boosterJson);
         }
-
         return jsonArray.toString();
     }
 

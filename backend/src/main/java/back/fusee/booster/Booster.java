@@ -1,5 +1,6 @@
 package back.fusee.booster;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import back.fusee.reservoir.Reservoir;
@@ -7,13 +8,12 @@ import back.fusee.reservoir.ReservoirFusee;
 import back.moteur.Moteur;
 
 public class Booster {
-    
+
     // Spécification basique
     public String nom;
     public Double taille;
     public Double diametre;
     public Double poidsAVide;
-
 
     public Double altitudeMax;
     public Double VitesseMax;
@@ -21,7 +21,6 @@ public class Booster {
     // Element compose
     public List<Moteur> moteur;
     public List<ReservoirFusee> reservoirs;
-    
 
     // Spécification spécial
     public Boolean estPrototype;
@@ -37,131 +36,44 @@ public class Booster {
     // Historique
     List<String> historiquesLancement;
 
-    // Builder pour la classe Booster
-    public static class Builder {
-
-        private String nom;
-        private Double taille;
-        private Double diametre;
-        private Double poidsAVide;
-        private Double altitudeMax;
-        private Double VitesseMax;
-
-        private List<Moteur> moteur;
-        private List<ReservoirFusee> reservoirs;
-
-        private Boolean estPrototype;
-        private Boolean estReetulisable;
-        private Boolean aSystèmeAutoDestruction;
-
-        private int etat;
-        private Double vitesse;
-        private Boolean nécessiteMaintenance;
-
-        private List<String> historiquesLancement;
-
-        // Constructeur du Builder
-        public Builder() {
-        }
-
-        // Méthodes de construction pour chaque attribut
-        public Builder nom(String nom) {
-            this.nom = nom;
-            return this;
-        }
-
-        public Builder taille(Double taille) {
-            this.taille = taille;
-            return this;
-        }
-
-        public Builder diametre(Double diametre) {
-            this.diametre = diametre;
-            return this;
-        }
-
-        public Builder poidsAVide(Double poidsAVide) {
-            this.poidsAVide = poidsAVide;
-            return this;
-        }
-
-        public Builder altitudeMax(Double altitudeMax) {
-            this.altitudeMax = altitudeMax;
-            return this;
-        }
-
-        public Builder VitesseMax(Double VitesseMax) {
-            this.VitesseMax = VitesseMax;
-            return this;
-        }
-
-        public Builder moteur(List<Moteur> moteur) {
-            this.moteur = moteur;
-            return this;
-        }
-
-        public Builder reservoirs(List<ReservoirFusee> reservoirs) {
-            this.reservoirs = reservoirs;
-            return this;
-        }
-
-        public Builder estPrototype(Boolean estPrototype) {
-            this.estPrototype = estPrototype;
-            return this;
-        }
-
-        public Builder estReetulisable(Boolean estReetulisable) {
-            this.estReetulisable = estReetulisable;
-            return this;
-        }
-
-        public Builder aSystèmeAutoDestruction(Boolean aSystèmeAutoDestruction) {
-            this.aSystèmeAutoDestruction = aSystèmeAutoDestruction;
-            return this;
-        }
-
-        public Builder etat(int etat) {
-            this.etat = etat;
-            return this;
-        }
-
-        public Builder vitesse(Double vitesse) {
-            this.vitesse = vitesse;
-            return this;
-        }
-
-        public Builder nécessiteMaintenance(Boolean nécessiteMaintenance) {
-            this.nécessiteMaintenance = nécessiteMaintenance;
-            return this;
-        }
-
-        public Builder historiquesLancement(List<String> historiquesLancement) {
-            this.historiquesLancement = historiquesLancement;
-            return this;
-        }
-
-        // Méthode pour construire un objet Booster
-        public Booster build() {
-            Booster booster = new Booster();
-            booster.nom = this.nom;
-            booster.taille = this.taille;
-            booster.diametre = this.diametre;
-            booster.poidsAVide = this.poidsAVide;
-            booster.altitudeMax = this.altitudeMax;
-            booster.VitesseMax = this.VitesseMax;
-            booster.moteur = this.moteur;
-            booster.reservoirs = this.reservoirs;
-            booster.estPrototype = this.estPrototype;
-            booster.estReetulisable = this.estReetulisable;
-            booster.aSystèmeAutoDestruction = this.aSystèmeAutoDestruction;
-            booster.etat = this.etat;
-            booster.vitesse = this.vitesse;
-            booster.nécessiteMaintenance = this.nécessiteMaintenance;
-            booster.historiquesLancement = this.historiquesLancement;
-            return booster;
-        }
+    // Constructeur
+    public Booster(String nom, Double taille, Double diametre, Double poidsAVide, 
+                   Double altitudeMax, Double VitesseMax, List<Moteur> moteur, 
+                   List<ReservoirFusee> reservoirs, Boolean estPrototype, 
+                   Boolean estReetulisable, Boolean aSystèmeAutoDestruction, 
+                   int etat, Double vitesse, Boolean nécessiteMaintenance, 
+                   List<String> historiquesLancement) {
+        this.nom = nom;
+        this.taille = taille;
+        this.diametre = diametre;
+        this.poidsAVide = poidsAVide;
+        this.altitudeMax = altitudeMax;
+        this.VitesseMax = VitesseMax;
+        this.moteur = moteur;
+        this.reservoirs = reservoirs;
+        this.estPrototype = estPrototype;
+        this.estReetulisable = estReetulisable;
+        this.aSystèmeAutoDestruction = aSystèmeAutoDestruction;
+        this.etat = etat;
+        this.poids = calculerPoids();
+        this.vitesse = vitesse;
+        this.nécessiteMaintenance = nécessiteMaintenance;
+        this.historiquesLancement = historiquesLancement != null ? historiquesLancement : new ArrayList<>();
     }
 
+    // Méthode de calcul du poids total
+    private Double calculerPoids() {
+        Double totalPoids = poidsAVide;
+        for (Moteur m : moteur) {
+            totalPoids += m.getPoids();
+        }
+        for (Reservoir r : reservoirs) {
+            totalPoids += r.getPoidsAvide();
+        }
+        return totalPoids;
+    }
+
+    // Getters
     public String getNom() {
         return nom;
     }
@@ -175,31 +87,11 @@ public class Booster {
     }
 
     public Double getPoidsAVide() {
-        Double rep = poidsAVide;
-        for(Moteur m : moteur ){
-            rep += m.getPoids();
-        }
-
-        for(Reservoir r : reservoirs){
-            rep += r.getPoidsAvide();
-        }
-
-        this.poidsAVide = rep;
-        return rep;
+        return poidsAVide;
     }
 
     public Double getPoids() {
-        Double rep = poidsAVide;
-        for(Moteur m : moteur ){
-            rep += m.getPoids();
-        }
-
-        for(Reservoir r : reservoirs){
-            rep += r.getPoids();
-        }
-
-        this.poids = rep;
-        return rep;
+        return poids;
     }
 
     public Double getAltitudeMax() {
@@ -230,10 +122,6 @@ public class Booster {
         return aSystèmeAutoDestruction;
     }
 
-    public void ajouterSystemeAutoDestruction(){
-        this.aSystèmeAutoDestruction = true;
-    }
-
     public int getEtat() {
         return etat;
     }
@@ -250,7 +138,7 @@ public class Booster {
         return historiquesLancement;
     }
 
-    public void ajouterLancementAHistorique(String mission){
+    public void ajouterLancementAHistorique(String mission) {
         historiquesLancement.add(mission);
     }
 

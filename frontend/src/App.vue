@@ -21,9 +21,12 @@
     </nav>
 
     <!-- Main content -->
-    <router-view />
+    <div class="main-content">
+      <router-view />
+    </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref } from "vue";
@@ -41,13 +44,17 @@ const closeMenu = () => {
 </script>
 
 <style>
-/* General styles */
-#app {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f9f9f9;
+.main-content {
+  display: flex; /* Activer Flexbox */
+  flex-direction: column; /* Permet d'empiler les enfants verticalement */
+  justify-content: center; /* Centre verticalement */
+  align-items: center; /* Centre horizontalement */
+  flex-grow: 1; /* Permet à la section de prendre tout l'espace disponible */
+  min-height: calc(100vh - 60px); /* Ajuster en fonction de la hauteur de la navbar */
+  padding: 20px; /* Ajout d'espace autour si nécessaire */
+  box-sizing: border-box;
 }
+
 
 /* Navbar styles */
 .navbar {

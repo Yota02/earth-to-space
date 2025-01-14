@@ -27,7 +27,7 @@ public class Moteur {
     protected String statutOperationnel; // "actif", "hors service", "en maintenance"
     protected Double tempsFonctionnement; // en secondes
 
-    protected Moteur(Builder<?> builder) {
+    protected Moteur(Builder builder) {
         this.nom = builder.nom;
         this.carburant = builder.carburant;
         this.rendement = builder.rendement;
@@ -137,7 +137,7 @@ public class Moteur {
                 ", tauxMelange=" + tauxMelange + ", pousseeMax=" + pousseeMax + " kN, consommationCarburant=" + consommationCarburant + " kg/s]";
     }
 
-    public static abstract class Builder<T extends Builder<T>> {
+    public static class Builder {
 
         private String nom;
         private Ergol carburant;
@@ -162,103 +162,103 @@ public class Moteur {
         private Double pousseeMax;
         private Double consommationCarburant;
 
-        public T nom(String nom) {
+        public Builder nom(String nom) {
             this.nom = nom;
-            return self();
+            return this;
         }
 
-        public T carburant(Ergol carburant) {
+        public Builder carburant(Ergol carburant) {
             this.carburant = carburant;
-            return self();
+            return this;
         }
 
-        public T rendement(Double rendement) {
+        public Builder rendement(Double rendement) {
             this.rendement = rendement;
-            return self();
+            return this;
         }
 
-        public T anneeFabrication(int anneeFabrication) {
+        public Builder anneeFabrication(int anneeFabrication) {
             this.anneeFabrication = anneeFabrication;
-            return self();
+            return this;
         }
 
-        public T nbFoisUtilise(int nbFoisUtilise) {
+        public Builder nbFoisUtilise(int nbFoisUtilise) {
             this.nbFoisUtilise = nbFoisUtilise;
-            return self();
+            return this;
         }
 
-        public T poids(Double poids) {
+        public Builder poids(Double poids) {
             this.poids = poids;
-            return self();
+            return this;
         }
 
-        public T diametre(Double diametre) {
+        public Builder diametre(Double diametre) {
             this.diametre = diametre;
-            return self();
+            return this;
         }
 
-        public T longueur(Double longueur) {
+        public Builder longueur(Double longueur) {
             this.longueur = longueur;
-            return self();
+            return this;
         }
 
-        public T pressionChambre(Double pressionChambre) {
+        public Builder pressionChambre(Double pressionChambre) {
             this.pressionChambre = pressionChambre;
-            return self();
+            return this;
         }
 
-        public T temperatureMax(Double temperatureMax) {
+        public Builder temperatureMax(Double temperatureMax) {
             this.temperatureMax = temperatureMax;
-            return self();
+            return this;
         }
 
-        public T tempsFonctionnement(Double tempsFonctionnement) {
+        public Builder tempsFonctionnement(Double tempsFonctionnement) {
             this.tempsFonctionnement = tempsFonctionnement;
-            return self();
+            return this;
         }
 
-        public T statutOperationnel(String statutOperationnel) {
+        public Builder statutOperationnel(String statutOperationnel) {
             this.statutOperationnel = statutOperationnel;
-            return self();
+            return this;
         }
 
-        public T fiabilite(Double fiabilite) {
+        public Builder fiabilite(Double fiabilite) {
             this.fiabilite = fiabilite;
-            return self();
+            return this;
         }
 
-        public T capaciteRedemarrage(Boolean capaciteRedemarrage) {
+        public Builder capaciteRedemarrage(Boolean capaciteRedemarrage) {
             this.capaciteRedemarrage = capaciteRedemarrage;
-            return self();
+            return this;
         }
 
-        public T temperatureCritique(Double temperatureCritique) {
+        public Builder temperatureCritique(Double temperatureCritique) {
             this.temperatureCritique = temperatureCritique;
-            return self();
+            return this;
         }
 
-        public T arretUrgence(Boolean arretUrgence) {
+        public Builder arretUrgence(Boolean arretUrgence) {
             this.arretUrgence = arretUrgence;
-            return self();
+            return this;
         }
 
-        public T tauxMelange(Double tauxMelange) {
+        public Builder tauxMelange(Double tauxMelange) {
             this.tauxMelange = tauxMelange;
-            return self();
+            return this;
         }
 
-        public T pousseeMax(Double pousseeMax) {
+        public Builder pousseeMax(Double pousseeMax) {
             this.pousseeMax = pousseeMax;
-            return self();
+            return this;
         }
 
-        public T consommationCarburant(Double consommationCarburant) {
+        public Builder consommationCarburant(Double consommationCarburant) {
             this.consommationCarburant = consommationCarburant;
-            return self();
+            return this;
         }
 
-        protected abstract T self();
-
-        public abstract Moteur build();
+        public Moteur build() {
+            return new Moteur(this);
+        }
     }
 }

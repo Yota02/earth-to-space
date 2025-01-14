@@ -8,6 +8,8 @@ import ProgrammeView from '../views/ProgrammeView.vue';
 import ProgrammeDetails from "../views/Detail/ProgrammeDetail.vue";
 import LanceurView from '../views/LanceurView.vue';
 import ErgolView from '../views/ErgolView.vue';
+import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue';
+import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
 
 const routes = [
   {
@@ -44,6 +46,16 @@ const routes = [
     path: '/programme',
     name: 'programme',
     component: ProgrammeView
+  },
+  {
+    path: '/fusee-details',
+    name: 'fuseeDetails',
+    component: FuseeDetails
+  },
+  {
+    path: '/booster-details',
+    name: 'boosterDetails',
+    component: BoosterDetails
   },
   {
     path: "/programme-details",

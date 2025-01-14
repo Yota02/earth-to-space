@@ -63,7 +63,6 @@ export default {
     this.socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("Données reçues :", data);
 
         this.gameData = {
           ...this.gameData,
@@ -85,7 +84,9 @@ export default {
     }
   },
 };
-</script><style scoped>
+</script>
+
+<style scoped>
 .game-ui-container {
   display: flex;
   flex-direction: column;

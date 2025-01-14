@@ -5,39 +5,63 @@ import java.util.List;
 import back.chargeUtile.ChargeUtile;
 import back.fusee.booster.Booster;
 import back.moteur.Moteur;
-
 public class Fusee {
-
     private String nom;
     private double taille;
     private double diametre;
-
     private double poidsTotal;
     private double altitudeMax;
-
-    // private List<Booster> boosters;
     private Booster boosterPrincipal;
-
     private List<ChargeUtile> poidChargeUtiles;
-
     private boolean systemeSecurite;
-
     private int etat;
 
-    // Constructeur privé pour forcer l'utilisation du Builder
-    public Fusee(String nom, double taille, Booster boosterPrincipal, List<ChargeUtile> poidChargeUtiles,  boolean systemeSecurite) {
+    public Fusee(String nom, double taille, Booster boosterPrincipal, List<ChargeUtile> poidChargeUtiles, boolean systemeSecurite) {
         this.nom = nom;
         this.taille = taille;
-        this.diametre = getDiametre();
-        this.poidsTotal = getPoidsTotal();
-        this.altitudeMax = getAltitudeMax();
-        //this.boosters = boosters;
-        this.boosterPrincipal = boosterPrincipal;
+        this.boosterPrincipal = boosterPrincipal; 
         this.poidChargeUtiles = poidChargeUtiles;
         this.systemeSecurite = systemeSecurite;
         this.etat = 0;
+        
+        // Calculate these after all fields are initialized
+        this.diametre = calculateDiametre();
+        this.poidsTotal = calculatePoidsTotal();
+        this.altitudeMax = calculateAltitudeMax();
     }
 
+    private double calculateDiametre() {
+        return boosterPrincipal != null ? boosterPrincipal.getDiametre() : 10.0;
+    }
+
+    private double calculatePoidsTotal() {
+        double total = 0;
+        if (boosterPrincipal != null) {
+            total += boosterPrincipal.getPoids();
+        }
+        if (poidChargeUtiles != null) {
+            for (ChargeUtile charge : poidChargeUtiles) {
+                total += charge.getPoids();
+            }
+        }
+        return total;
+    }
+
+    private double calculateAltitudeMax() {
+        if (boosterPrincipal == null || boosterPrincipal.getMoteur() == null) {
+            return 0.0;
+        }
+        
+        double totalPoussee = 0;
+        for (Moteur m : boosterPrincipal.getMoteur()) {
+            if (m != null) {
+                totalPoussee += m.getPousseeMax();
+            }
+        }
+        return totalPoussee - this.poidsTotal;
+    }
+
+    // Rest of your methods remain the same
     public void decoler() {
         System.out.println("Décollage de la fusée " + nom + "...");
     }
@@ -60,24 +84,19 @@ public class Fusee {
     }
 
     public double getTaille() {
-        return taille + boosterPrincipal.getTaille();
+        return taille;
     }
 
     public double getDiametre() {
-        return boosterPrincipal.getTaille();
-    }
+        return diametre;
+    }    
 
     public double getPoidsTotal() {
-        return boosterPrincipal.getPoids();
+        return poidsTotal;
     }
 
     public double getAltitudeMax() {
-        double rep = 0;
-        for(Moteur m : boosterPrincipal.getMoteur()){
-            rep += m.getPousseeMax();
-        }
-        rep -= poidsTotal;
-        return rep;
+        return altitudeMax;
     }
 
     public List<ChargeUtile> getPoidChargeUtiles() {
@@ -91,5 +110,4 @@ public class Fusee {
     public int getEtat() {
         return etat;
     }
-
 }

@@ -27,9 +27,6 @@ public abstract class Reservoir {
     // Le poids du réservoir réel
     private Double poids;
 
-    // Dimensions du réservoir (par exemple, longueur, diamètre, forme)
-    private String dimensions;
-
     // La pression interne actuelle du réservoir (peut être un paramètre clé de
     // sécurité)
     private Double pressionInterne;
@@ -74,10 +71,6 @@ public abstract class Reservoir {
 
     public Double getPoidsVide() {
         return poidsVide;
-    }
-
-    public String getDimensions() {
-        return dimensions;
     }
 
     public Double getPressionInterne() {
@@ -166,7 +159,6 @@ public abstract class Reservoir {
         this.quantite = builder.quantite;
         this.quantiteTotal = builder.quantiteTotal;
         this.poidsVide = builder.poidsVide;
-        this.dimensions = builder.dimensions;
         this.pressionInterne = builder.pressionInterne;
         this.capaciteMaxPression = builder.capaciteMaxPression;
         this.temperatureInterne = builder.temperatureInterne;
@@ -187,7 +179,6 @@ public abstract class Reservoir {
         private Double quantiteTotal;
 
         private Double poidsVide;
-        private String dimensions;
 
         private Double pressionInterne;
         private Double capaciteMaxPression;
@@ -226,11 +217,6 @@ public abstract class Reservoir {
 
         public T setPoidsVide(Double poidsVide) {
             this.poidsVide = poidsVide;
-            return self();
-        }
-
-        public T setDimensions(String dimensions) {
-            this.dimensions = dimensions;
             return self();
         }
 

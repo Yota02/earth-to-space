@@ -4,8 +4,10 @@ import back.chargeUtile.ChargeUtile;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
 import back.fusee.reservoir.Reservoir;
+import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.moteur.Ergol;
+import back.moteur.Moteur;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
@@ -33,7 +35,7 @@ public class Jeu implements Runnable {
     private int argent;
     private Integer pointsRecherche;
 
-    //element runnable
+    // element runnable
     private List<String> log;
     private Scanner scanner;
     private ExecutorService executorService;
@@ -42,7 +44,7 @@ public class Jeu implements Runnable {
     private List<ReservoirPose> reservoirs;
     private List<CarburantAchetable> carburantAchetables;
 
-    //Programmes
+    // Programmes
     private List<Programme> programmes;
 
     // Boosters
@@ -59,7 +61,7 @@ public class Jeu implements Runnable {
     private List<ObjectAchetable> objectTotals;
     private List<ObjectAchetable> objectAcheter;
 
-    //Date 
+    // Date
     private LocalDate date;
 
     // Gestionaire
@@ -74,25 +76,25 @@ public class Jeu implements Runnable {
         this.date = LocalDate.of(2000, 1, 1);
 
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
-            .setNom("Reservoir 1")
-            .setErgol(Ergol.OXYGEN)
-            .setQuantite(0.0)
-            .setQuantiteTotal(1000.0) 
-            .build();
+                .setNom("Reservoir 1")
+                .setErgol(Ergol.OXYGEN)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
 
         ReservoirPose reservoir2 = new ReservoirPose.Builder()
-            .setNom("Reservoir 2")
-            .setErgol(Ergol.HYDROGENE)
-            .setQuantite(0.0)
-            .setQuantiteTotal(1000.0) 
-            .build();
-        
+                .setNom("Reservoir 2")
+                .setErgol(Ergol.HYDROGENE)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
+
         ReservoirPose reservoir3 = new ReservoirPose.Builder()
-            .setNom("Reservoir 3")
-            .setErgol(Ergol.METHANES)
-            .setQuantite(0.0)
-            .setQuantiteTotal(1000.0) 
-            .build();
+                .setNom("Reservoir 3")
+                .setErgol(Ergol.METHANES)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
 
         this.reservoirs = new ArrayList<>();
 
@@ -134,7 +136,7 @@ public class Jeu implements Runnable {
 
     public void acheter(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
-            if(getArgent() >= objectAchetable.getPrix()) {
+            if (getArgent() >= objectAchetable.getPrix()) {
                 objectAchetable.effectuerAchat(this);
                 retirerArgent(objectAchetable.getPrix());
             } else {
@@ -145,7 +147,7 @@ public class Jeu implements Runnable {
 
     public void effectuerAchatCarburant(CarburantAchetable carburantAchetable, Ergol ergol) {
         carburantAchetable.effectuerAchat(this);
-    
+
         double quantiteAajouter = carburantAchetable.getQuantite();
         for (Reservoir r : reservoirs) {
             if (r.getErgol().equals(ergol)) {
@@ -159,16 +161,16 @@ public class Jeu implements Runnable {
                 }
             }
         }
-    
+
         retirerArgent(carburantAchetable.getPrix());
     }
-    
+
     public double getCapaciteMaximaleErgol(Ergol ergol) {
         double capaciteMax = 0;
         if (reservoirs != null) {
             for (Reservoir reservoir : reservoirs) {
                 if (reservoir != null) {
-                    if(reservoir.getErgol().equals(ergol)){
+                    if (reservoir.getErgol().equals(ergol)) {
                         Double quantiteTotal = reservoir.getQuantiteTotal();
                         if (quantiteTotal != null) {
                             capaciteMax += quantiteTotal;
@@ -184,9 +186,9 @@ public class Jeu implements Runnable {
         double total = 0;
         if (reservoirs != null) {
             for (Reservoir reservoir : reservoirs) {
-                if (reservoir != null && 
-                    reservoir.getErgol() != null && 
-                    reservoir.getErgol().getNom().equals(nomErgol)) {
+                if (reservoir != null &&
+                        reservoir.getErgol() != null &&
+                        reservoir.getErgol().getNom().equals(nomErgol)) {
                     Double quantite = reservoir.getQuantite();
                     if (quantite != null) {
                         total += quantite;
@@ -199,14 +201,14 @@ public class Jeu implements Runnable {
 
     public void ajouterReservoir(ReservoirPose reservoir) {
         if (reservoir != null) {
-            if(reservoir.getPrix() <= this.getArgent()){
+            if (reservoir.getPrix() <= this.getArgent()) {
                 reservoirs.add(reservoir);
                 retirerArgent(reservoir.getPrix());
             }
         }
-    }   
+    }
 
-    public List<ReservoirPose> getReservoirs(){
+    public List<ReservoirPose> getReservoirs() {
         return reservoirs;
     }
 
@@ -221,10 +223,11 @@ public class Jeu implements Runnable {
                     r.retirerErgol(quantiteDisponible);
                     quantiteRetiree += quantiteDisponible;
                 } else {
-                    // Si la quantité demandée est partiellement disponible, on retire juste ce qu'il faut
+                    // Si la quantité demandée est partiellement disponible, on retire juste ce
+                    // qu'il faut
                     r.retirerErgol(quantite - quantiteRetiree);
-                    quantiteRetiree = quantite;  
-                    break;  
+                    quantiteRetiree = quantite;
+                    break;
                 }
             }
 
@@ -236,7 +239,7 @@ public class Jeu implements Runnable {
             System.out.println("Impossible de retirer toute la quantité d'ergol demandée.");
         }
     }
-    
+
     public void vendre(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
             objectAcheter.remove(objectAchetable);
@@ -272,15 +275,17 @@ public class Jeu implements Runnable {
                 return;
             }
         }
-        
+
         // Ajout du programme
         programmes.add(new Programme(nom, objectif, budget, dureePrevu));
-        System.out.println("Nouveau programme créé : " + nom + " - Objectif : " + objectif + " - budget : " +  budget + " - durePrevu : " + dureePrevu);
+        System.out.println("Nouveau programme créé : " + nom + " - Objectif : " + objectif + " - budget : " + budget
+                + " - durePrevu : " + dureePrevu);
     }
 
     public void demarrerRecherche(String rechercheName) {
         System.out.println("Recherche de : " + rechercheName);
-        System.out.println("Recherches disponibles : " + recherchesTotal.stream().map(Recherche::getNom).collect(Collectors.toList()));
+        System.out.println("Recherches disponibles : "
+                + recherchesTotal.stream().map(Recherche::getNom).collect(Collectors.toList()));
 
         Recherche recherche = findRechercheByName(rechercheName);
         if (recherche != null) {
@@ -347,18 +352,74 @@ public class Jeu implements Runnable {
         }
         return null;
     }
-    
+
     @Override
     public void run() {
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
-        Booster b1 = new Booster();
-        List<ChargeUtile> l1 = new ArrayList<>();
-        ChargeUtile c1 = new ChargeUtile(100, "Jambon", 100);
-        l1.add(c1);
+        List<Moteur> moteurs = new ArrayList<>();
+        Moteur moteurFusee = new Moteur.Builder()
+                .nom("Moteur Fusion 3000")
+                .carburant(Ergol.HYDROGENE)
+                .rendement(95.0)
+                .anneeFabrication(2025)
+                .nbFoisUtilise(0)
+                .poids(3500.0)
+                .diametre(2.5)
+                .longueur(10.0)
+                .pressionChambre(250.0)
+                .temperatureMax(3500.0)
+                .tempsFonctionnement(0.0)
+                .statutOperationnel("actif")
+                .fiabilite(99.5)
+                .capaciteRedemarrage(true)
+                .temperatureCritique(3800.0)
+                .arretUrgence(false)
+                .tauxMelange(1.5)
+                .pousseeMax(3500.0)
+                .consommationCarburant(20.0)
+                .build();
 
-        Fusee f1 = new Fusee("StarShip1", 1000, b1, l1, false);
+        moteurs.add(moteurFusee);
 
+        List<ReservoirFusee> reservoirs = new ArrayList<>();
+        ReservoirFusee reservoirFusee = new ReservoirFusee.Builder()
+                .setNom("Réservoir Principal")
+                .setErgol(Ergol.HYDROGENE)
+                .setQuantite(500.0)
+                .setQuantiteTotal(1000.0)
+                .setPoidsVide(100.0)
+                .setPressionInterne(10.0)
+                .setCapaciteMaxPression(50.0)
+                .setTemperatureInterne(20.0)
+                .setTemperatureMax(100.0)
+                .setEtatReservoir(true)
+                .setIsolationThermique(true)
+                .setDebitSortie(20.0)
+                .setTaille(1.5)
+                .build();
+
+        reservoirs.add(reservoirFusee);
+
+        List<String> historiques = new ArrayList<>();
+        historiques.add("Lancement de la mission Mars");
+
+        Booster booster = new Booster(
+                "Booster Falcon", 20.0, 3.0, 5000.0, 100000.0, 25000.0, moteurs,
+                reservoirs, true, true, false, 1, 12000.0, false, historiques);
+
+        // Ajouter le booster à la liste des lanceurs
+        lanceurs.add(booster);
+
+        List<ChargeUtile> chargesUtiles = new ArrayList<>();
+        chargesUtiles.add(new ChargeUtile(100.0, "Satellite", 10.0));
+        chargesUtiles.add(new ChargeUtile(200.0, "Matériel scientifique", 15.0));
+
+        Fusee f1 = new Fusee("StarShip1", 1000, booster, chargesUtiles, false);
+
+        // Vider la liste des fusées avant d'ajouter la nouvelle
+        fusees.clear();
+        // Ajouter la fusée à la liste
         fusees.add(f1);
 
         while (!estFinie()) {
@@ -367,7 +428,6 @@ public class Jeu implements Runnable {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
                 incrementerDate();
-
             } finally {
                 researchLock.unlock();
             }
@@ -393,20 +453,21 @@ public class Jeu implements Runnable {
 
     public double getQuantiteCarburant(Ergol name) {
         double quantite = 0.0;
-        for(ReservoirPose r : getReservoirs()){
-            if(r.getErgol().equals(name)){
+        for (ReservoirPose r : getReservoirs()) {
+            if (r.getErgol().equals(name)) {
                 quantite += r.getQuantite();
             }
         }
         return quantite;
     }
 
-    public List<CarburantAchetable> getCarburantAchetables(){
+    public List<CarburantAchetable> getCarburantAchetables() {
         return carburantAchetables;
     }
 
     private void notifierClient(Recherche recherche) {
-        String message = "{ \"action\": \"updateResearch\", \"name\": \"" + recherche.getNom() + "\", \"etat\": \"" + recherche.getEtat() + "\", \"progression\": " + recherche.getProgression() + " }";
+        String message = "{ \"action\": \"updateResearch\", \"name\": \"" + recherche.getNom() + "\", \"etat\": \""
+                + recherche.getEtat() + "\", \"progression\": " + recherche.getProgression() + " }";
         for (Session session : GameServer.clients) {
             if (session.isOpen()) {
                 try {
