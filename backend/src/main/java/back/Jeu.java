@@ -467,6 +467,9 @@ public class Jeu implements Runnable {
                 incrementerDate();
                 if (date.getDayOfMonth() == date.lengthOfMonth()) { 
                     retirerArgent(coutSalaireTotal());
+                    for(int i = 0; i < new Random().nextInt(5) + 1;){
+                        marcheEmploi.add(new Personne());
+                    }
                 }
             } finally {
                 researchLock.unlock();
