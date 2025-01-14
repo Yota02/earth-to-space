@@ -10,6 +10,7 @@ import LanceurView from '../views/LanceurView.vue';
 import ErgolView from '../views/ErgolView.vue';
 import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue';
 import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
+import RessourceHumaines from '../views/RessourcesHumaineView.vue';
 
 const routes = [
   {
@@ -56,6 +57,11 @@ const routes = [
     path: '/booster-details',
     name: 'boosterDetails',
     component: BoosterDetails
+  },
+  {
+    path: '/Ressource-Humaines',
+    name: '/RessourceHumaines',
+    component: RessourceHumaines
   },
   {
     path: "/programme-details",

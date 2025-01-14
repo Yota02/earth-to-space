@@ -14,6 +14,7 @@
           <li><router-link to="/shop" @click="closeMenu">Shop</router-link></li>
           <li><router-link to="/programme" @click="closeMenu">Programme</router-link></li>
           <li><router-link to="/researche" @click="closeMenu">Researche</router-link></li>
+          <li><router-link to="/Ressource-Humaines" @click="closeMenu">Ressource Humaines</router-link></li>
           <li><router-link to="/lanceur" @click="closeMenu">Lanceur</router-link></li>
           <li><router-link to="/ergol" @click="closeMenu">Ergol</router-link></li>
         </ul>
@@ -45,16 +46,15 @@ const closeMenu = () => {
 
 <style>
 .main-content {
+  width: 100%;
   display: flex; /* Activer Flexbox */
   flex-direction: column; /* Permet d'empiler les enfants verticalement */
   justify-content: center; /* Centre verticalement */
   align-items: center; /* Centre horizontalement */
   flex-grow: 1; /* Permet à la section de prendre tout l'espace disponible */
   min-height: calc(100vh - 60px); /* Ajuster en fonction de la hauteur de la navbar */
-  padding: 20px; /* Ajout d'espace autour si nécessaire */
   box-sizing: border-box;
 }
-
 
 /* Navbar styles */
 .navbar {
@@ -140,7 +140,7 @@ const closeMenu = () => {
 
 /* Affichage argent styles */
 .affichage-argent {
-  position: absolute; 
+  position: fixed; 
   top: 10px;   /* Place it slightly below the very top */
   left: 10px;  /* Align to the left */
   padding: 10px 20px;

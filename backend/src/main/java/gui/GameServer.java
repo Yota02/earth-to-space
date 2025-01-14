@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
+import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
@@ -101,6 +102,9 @@ public class GameServer {
             gameState.put("reservoirs", new JSONArray(convertReservoirsToJson(jeu.getReservoirs())));
             gameState.put("fusees", new JSONArray(convertFuseeToJson(jeu.getFusees())));
 
+            //resourcesHuamines
+            gameState.put("employes", new JSONArray(convertEmployesToJson(jeu.getEmployes())));
+
             String gameStateStr = gameState.toString();
 
             for (Session session : clients) {
@@ -147,6 +151,20 @@ public class GameServer {
             objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol(carburant.getCarburant()));
             objJson.put("quantiteStock", jeu.getQuantiteCarburant(carburant.getCarburant()));
 
+            objectsArray.put(objJson);
+        }
+        return objectsArray.toString();
+    }
+
+    public static String convertEmployesToJson(List<Personne> employes) {
+        JSONArray objectsArray = new JSONArray();
+        for (Personne e : employes) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("prenom", e.getPrenom());
+            objJson.put("nom", e.getNom());
+            objJson.put("salaire", e.getSalaire());
+            objJson.put("age", e.getAge());
+            objJson.put("sexe", e.getSexe());
             objectsArray.put(objJson);
         }
         return objectsArray.toString();

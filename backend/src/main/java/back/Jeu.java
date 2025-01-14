@@ -425,9 +425,11 @@ public class Jeu implements Runnable {
         fusees.add(f1);
         fusees.add(f2); 
 
-        Personne p1 = new Personne();
-
-        employes.add(p1);
+        for(int i = 0; i < 10; i++){
+            Personne p1 = new Personne();
+            embaucherPersonne(p1);
+        }
+    
     }
 
     public void embaucherPersonne(Personne personne){
@@ -440,6 +442,7 @@ public class Jeu implements Runnable {
 
     @Override
     public void run() {
+        init();
         while (!estFinie()) {
             researchLock.lock();
             try {
@@ -511,6 +514,10 @@ public class Jeu implements Runnable {
 
     public List<Recherche> getRecherchesTotal() {
         return recherchesTotal;
+    }
+
+    public List<Personne> getEmployes() {
+        return employes;
     }
 
     public List<ObjectAchetable> getObjectAchetables() {

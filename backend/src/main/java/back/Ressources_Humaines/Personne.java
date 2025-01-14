@@ -43,6 +43,10 @@ public class Personne {
         return malade;
     }
 
+    public String getNom(){
+        return nom;
+    }
+
     public String getPrenom(){
         return prenom;
     }
