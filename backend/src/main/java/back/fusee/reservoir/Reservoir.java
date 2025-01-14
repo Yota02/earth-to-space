@@ -1,7 +1,7 @@
 package back.fusee.reservoir;
 
 import back.Metaux.Materiaux;
-import back.moteur.Ergol;
+import back.fusee.moteur.Ergol;
 
 public abstract class Reservoir {
 

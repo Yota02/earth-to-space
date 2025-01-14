@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import back.moteur.Ergol;
+import back.fusee.moteur.Ergol;
 
 public class GestionnaireCarburant {
     private final List<CarburantAchetable> CarburantAchetables = new ArrayList<>();

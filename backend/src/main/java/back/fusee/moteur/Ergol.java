@@ -1,4 +1,4 @@
-package back.moteur;
+package back.fusee.moteur;
 
 public enum Ergol {
 

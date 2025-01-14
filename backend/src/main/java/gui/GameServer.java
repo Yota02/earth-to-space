@@ -9,12 +9,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
 
-import back.chargeUtile.ChargeUtile;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
+import back.fusee.chargeUtile.ChargeUtile;
+import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
-import back.moteur.Moteur;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
@@ -88,17 +88,17 @@ public class GameServer {
 
             // Ajout des données de base
             gameState.put("etatJeu", etatJeu);
+            gameState.put("salaireTotal", jeu.coutSalaireTotal());
             gameState.put("argent", jeu.getArgent());
             gameState.put("pointsRecherche", jeu.getPointsRecherche());
             gameState.put("date", jeu.getDate());
 
+            //liste 
             gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
             gameState.put("carburants", new JSONArray(convertCarburantToJson(jeu.getCarburantAchetables())));
-
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("boosters", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
             gameState.put("reservoirs", new JSONArray(convertReservoirsToJson(jeu.getReservoirs())));
-
             gameState.put("fusees", new JSONArray(convertFuseeToJson(jeu.getFusees())));
 
             String gameStateStr = gameState.toString();

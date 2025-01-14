@@ -1,8 +1,8 @@
 package back.objectAchetable;
 
 import back.Jeu;
+import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.Reservoir;
-import back.moteur.Ergol;
 
 public class CarburantAchetable {
     private Ergol carburant;

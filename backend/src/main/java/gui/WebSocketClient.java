@@ -1,8 +1,8 @@
 package gui;
 
 import back.Jeu;
+import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
-import back.moteur.Ergol;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;

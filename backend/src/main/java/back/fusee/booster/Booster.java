@@ -3,9 +3,9 @@ package back.fusee.booster;
 import java.util.ArrayList;
 import java.util.List;
 
+import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
-import back.moteur.Moteur;
 
 public class Booster {
 

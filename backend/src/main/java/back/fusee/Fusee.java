@@ -2,9 +2,9 @@ package back.fusee;
 
 import java.util.List;
 
-import back.chargeUtile.ChargeUtile;
 import back.fusee.booster.Booster;
-import back.moteur.Moteur;
+import back.fusee.chargeUtile.ChargeUtile;
+import back.fusee.moteur.Moteur;
 public class Fusee {
     private String nom;
     private double taille;

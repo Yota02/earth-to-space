@@ -1,13 +1,14 @@
 package back;
 
-import back.chargeUtile.ChargeUtile;
+import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
+import back.fusee.chargeUtile.ChargeUtile;
+import back.fusee.moteur.Ergol;
+import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
-import back.moteur.Ergol;
-import back.moteur.Moteur;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
@@ -47,6 +48,9 @@ public class Jeu implements Runnable {
     // Programmes
     private List<Programme> programmes;
 
+    //resources Humaine
+    private List<Personne> employes;
+
     // Boosters
     private List<Booster> lanceurs;
 
@@ -75,33 +79,9 @@ public class Jeu implements Runnable {
         this.pointsRecherche = 0;
         this.date = LocalDate.of(2000, 1, 1);
 
-        ReservoirPose reservoir1 = new ReservoirPose.Builder()
-                .setNom("Reservoir 1")
-                .setErgol(Ergol.OXYGEN)
-                .setQuantite(0.0)
-                .setQuantiteTotal(1000.0)
-                .build();
-
-        ReservoirPose reservoir2 = new ReservoirPose.Builder()
-                .setNom("Reservoir 2")
-                .setErgol(Ergol.HYDROGENE)
-                .setQuantite(0.0)
-                .setQuantiteTotal(1000.0)
-                .build();
-
-        ReservoirPose reservoir3 = new ReservoirPose.Builder()
-                .setNom("Reservoir 3")
-                .setErgol(Ergol.METHANES)
-                .setQuantite(0.0)
-                .setQuantiteTotal(1000.0)
-                .build();
+        this.employes = new ArrayList<>();
 
         this.reservoirs = new ArrayList<>();
-
-        ajouterReservoir(reservoir1);
-        ajouterReservoir(reservoir2);
-        ajouterReservoir(reservoir3);
-
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
 
@@ -353,8 +333,32 @@ public class Jeu implements Runnable {
         return null;
     }
 
-    @Override
-    public void run() {
+    public void init(){
+        ReservoirPose reservoir1 = new ReservoirPose.Builder()
+                .setNom("Reservoir 1")
+                .setErgol(Ergol.OXYGEN)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
+
+        ReservoirPose reservoir2 = new ReservoirPose.Builder()
+                .setNom("Reservoir 2")
+                .setErgol(Ergol.HYDROGENE)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
+
+        ReservoirPose reservoir3 = new ReservoirPose.Builder()
+                .setNom("Reservoir 3")
+                .setErgol(Ergol.METHANES)
+                .setQuantite(0.0)
+                .setQuantiteTotal(1000.0)
+                .build();
+        
+        ajouterReservoir(reservoir1);
+        ajouterReservoir(reservoir2);
+        ajouterReservoir(reservoir3);
+
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
         List<Moteur> moteurs = new ArrayList<>();
@@ -419,8 +423,23 @@ public class Jeu implements Runnable {
         Fusee f2 = new Fusee("StarShip2", 1000, booster, chargesUtiles, true);
 
         fusees.add(f1);
-        fusees.add(f2);
+        fusees.add(f2); 
 
+        Personne p1 = new Personne();
+
+        employes.add(p1);
+    }
+
+    public void embaucherPersonne(Personne personne){
+        employes.add(personne);
+    }
+
+    public void licencierPersonne(Personne personne){
+        employes.add(personne);
+    }
+
+    @Override
+    public void run() {
         while (!estFinie()) {
             researchLock.lock();
             try {
@@ -439,6 +458,14 @@ public class Jeu implements Runnable {
                 break;
             }
         }
+    }
+
+    public int coutSalaireTotal(){
+        int rep = 0;
+        for(Personne p : employes){
+            rep += p.getSalaire();
+        }
+        return rep;
     }
 
     public ObjectAchetable findObjectByName(String name) {

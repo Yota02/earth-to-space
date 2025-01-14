@@ -1,7 +1,8 @@
 package back.usine;
 
 import back.fusee.Fusee;
-import back.moteur.Moteur;
+import back.fusee.moteur.Moteur;
+
 import java.time.LocalDate;
 
 public abstract class Usine {

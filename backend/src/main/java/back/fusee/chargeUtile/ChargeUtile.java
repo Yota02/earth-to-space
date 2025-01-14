@@ -1,4 +1,4 @@
-package back.chargeUtile;
+package back.fusee.chargeUtile;
 
 public class ChargeUtile {
 
