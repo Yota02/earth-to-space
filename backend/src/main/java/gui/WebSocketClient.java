@@ -1,6 +1,7 @@
 package gui;
 
 import back.Jeu;
+import back.Ressources_Humaines.Personne;
 import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
 import back.objectAchetable.CarburantAchetable;
@@ -51,10 +52,13 @@ public class WebSocketClient {
                 case "creerUnProgramme":
                     handleCreerUnProgramme(jsonMessage, session);
                     break;
-                
+
+                case "embaucherEmploye":
+                    handleEmbaucherEmploye(jsonMessage, session);
+                    break;
+
                 case "addReservoir":
                     String fuelType = jsonMessage.getString("fuelType");
-
                     handleAddReservoir(session, fuelType);
                     break;
 
@@ -95,7 +99,7 @@ public class WebSocketClient {
 
     private void handleAddReservoir(Session session, String fuelTypeName) throws IOException {
         JSONObject response = new JSONObject();
-        
+
         try {
             // Validation du type de carburant en utilisant le nom de l'énumération
             Ergol ergol = null;
@@ -106,35 +110,51 @@ public class WebSocketClient {
                 session.getBasicRemote().sendText(response.toString());
                 return;
             }
-        
+
             // Création du réservoir avec des valeurs par défaut
             ReservoirPose newReservoir = new ReservoirPose.Builder()
-                .setNom("Réservoir d'" + ergol.getNom() + " " + (GameServer.jeu.getReservoirs().size() + 1))
-                .setErgol(ergol)
-                .setQuantite(0.0)
-                .setQuantiteTotal(1000.0)
-                .build();
-        
+                    .setNom("Réservoir d'" + ergol.getNom() + " " + (GameServer.jeu.getReservoirs().size() + 1))
+                    .setErgol(ergol)
+                    .setQuantite(0.0)
+                    .setQuantiteTotal(1000.0)
+                    .build();
+
             // Ajout du réservoir au jeu
             GameServer.jeu.ajouterReservoir(newReservoir);
-            
+
             // Création de la réponse de succès
             response.put("action", "reservoirAdded");
             response.put("nom", newReservoir.getNom());
             response.put("type", ergol.name());
             response.put("capacite", newReservoir.getQuantiteTotal());
             session.getBasicRemote().sendText(response.toString());
-            
+
             // Mise à jour de l'état du jeu pour tous les clients
             GameServer.sendGameStateToClients();
-            
+
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'ajout du réservoir: " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
     }
 
-    private void handleActionWithName(String action, String name, Session session, JSONObject response) throws IOException {
+    private void handleEmbaucherEmploye(JSONObject jsonMessage, Session session) throws IOException {
+        JSONObject response = new JSONObject();
+
+        try {
+            JSONObject employeJson = jsonMessage.getJSONObject("employe");
+            int clePrimaire = employeJson.getInt("cleprimaire");
+            Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
+            GameServer.jeu.embaucherPersonne(personne);
+            GameServer.jeu.getMarcheEmploie().remove(personne);
+        } catch (Exception e) {
+            response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
+            session.getBasicRemote().sendText(response.toString());
+        }
+    }
+
+    private void handleActionWithName(String action, String name, Session session, JSONObject response)
+            throws IOException {
         switch (action) {
             case "startResearch":
                 GameServer.jeu.demarrerRecherche(name);
@@ -168,7 +188,7 @@ public class WebSocketClient {
                 break;
 
             case "buyCarburant":
-            
+
                 CarburantAchetable carburantToBuy = GameServer.jeu.findCarburantByName(name);
 
                 if (carburantToBuy != null) {
@@ -207,17 +227,17 @@ public class WebSocketClient {
         }
         session.getBasicRemote().sendText(response.toString());
     }
-    
+
     private void handleCreerUnProgramme(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-        if (jsonMessage.has("nom") && jsonMessage.has("objectif") && 
-            jsonMessage.has("budget") && jsonMessage.has("dureePrevu")) {
-            
+        if (jsonMessage.has("nom") && jsonMessage.has("objectif") &&
+                jsonMessage.has("budget") && jsonMessage.has("dureePrevu")) {
+
             String nom = jsonMessage.getString("nom");
             String objectif = jsonMessage.getString("objectif");
             Double budget = jsonMessage.getDouble("budget");
             int dureePrevu = jsonMessage.getInt("dureePrevu");
-    
+
             GameServer.jeu.creerUnProgramme(nom, objectif, budget, dureePrevu);
             response.put("action", "programmeCree");
             response.put("nom", nom);
@@ -247,6 +267,7 @@ public class WebSocketClient {
         if (GameServer.jeu.getProgrammes().isEmpty()) {
             return null;
         }
-        return GameServer.jeu.getProgrammes().get(0); // Vous pouvez ajuster cette logique si vous avez plusieurs programmes
+        return GameServer.jeu.getProgrammes().get(0); // Vous pouvez ajuster cette logique si vous avez plusieurs
+                                                      // programmes
     }
 }

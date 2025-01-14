@@ -10,7 +10,8 @@ import LanceurView from '../views/LanceurView.vue';
 import ErgolView from '../views/ErgolView.vue';
 import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue';
 import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
-import RessourceHumaines from '../views/RessourcesHumaineView.vue';
+import RessourceHumaines from '../views/RessourceHumaines/RessourcesHumaineView.vue';
+import MarcheEmploie from '../views/RessourceHumaines/MarcheEmploieView.vue';
 
 const routes = [
   {
@@ -67,6 +68,11 @@ const routes = [
     path: "/programme-details",
     name: "ProgrammeDetails",
     component: ProgrammeDetails,
+  },
+  {
+    path: "/MarcheEmploie",
+    name: "MarcheEmploie",
+    component: MarcheEmploie,
   },
   {
     path: '/:catchAll(.*)',  

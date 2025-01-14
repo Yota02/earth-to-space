@@ -50,6 +50,7 @@ public class Jeu implements Runnable {
 
     //resources Humaine
     private List<Personne> employes;
+    private List<Personne> marcheEmploi;
 
     // Boosters
     private List<Booster> lanceurs;
@@ -80,6 +81,7 @@ public class Jeu implements Runnable {
         this.date = LocalDate.of(2000, 1, 1);
 
         this.employes = new ArrayList<>();
+        this.marcheEmploi = new ArrayList<>();
 
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
@@ -429,6 +431,11 @@ public class Jeu implements Runnable {
             Personne p1 = new Personne();
             embaucherPersonne(p1);
         }
+
+        for(int i = 0; i < 10; i++){
+            Personne p1 = new Personne();
+            marcheEmploi.add(p1);
+        }
     
     }
 
@@ -440,6 +447,15 @@ public class Jeu implements Runnable {
         employes.add(personne);
     }
 
+    public Personne retrouverEmployeParId(int clePrimaire) {
+        for (Personne personne : marcheEmploi) {
+            if (personne.getClePrimaire() == clePrimaire) {
+                return personne;
+            }
+        }
+        return null;  
+    }
+
     @Override
     public void run() {
         init();
@@ -449,6 +465,9 @@ public class Jeu implements Runnable {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
                 incrementerDate();
+                if (date.getDayOfMonth() == date.lengthOfMonth()) { 
+                    retirerArgent(coutSalaireTotal());
+                }
             } finally {
                 researchLock.unlock();
             }
@@ -518,6 +537,10 @@ public class Jeu implements Runnable {
 
     public List<Personne> getEmployes() {
         return employes;
+    }
+
+    public List<Personne> getMarcheEmploie() {
+        return marcheEmploi;
     }
 
     public List<ObjectAchetable> getObjectAchetables() {

@@ -13,7 +13,6 @@
         </div>
      </div>
     
-
     <div class="stats-container">
       <div class="info-block">
         <div class="info-line">

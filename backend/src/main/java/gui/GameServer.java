@@ -103,7 +103,8 @@ public class GameServer {
             gameState.put("fusees", new JSONArray(convertFuseeToJson(jeu.getFusees())));
 
             //resourcesHuamines
-            gameState.put("employes", new JSONArray(convertEmployesToJson(jeu.getEmployes())));
+            gameState.put("employes", new JSONArray(convertPersonneToJson(jeu.getEmployes())));
+            gameState.put("marcheEmploie", new JSONArray(convertPersonneToJson(jeu.getMarcheEmploie())));
 
             String gameStateStr = gameState.toString();
 
@@ -155,11 +156,12 @@ public class GameServer {
         }
         return objectsArray.toString();
     }
-
-    public static String convertEmployesToJson(List<Personne> employes) {
+    
+    public static String convertPersonneToJson(List<Personne> employes) {
         JSONArray objectsArray = new JSONArray();
         for (Personne e : employes) {
             JSONObject objJson = new JSONObject();
+            objJson.put("cleprimaire", e.getClePrimaire());
             objJson.put("prenom", e.getPrenom());
             objJson.put("nom", e.getNom());
             objJson.put("salaire", e.getSalaire());

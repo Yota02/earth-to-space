@@ -2,7 +2,9 @@
     <div class="employe-container">
       <h1>Liste des Employés</h1>
       <h1> Salaire a payer : {{ salaireTotal }}</h1>
-      
+
+      <router-link to="/MarcheEmploie" @click="closeMenu"> Marche de l'employe  </router-link>
+
       <div class="employe-grid">
         <div 
           v-for="(employe, index) in employes" 

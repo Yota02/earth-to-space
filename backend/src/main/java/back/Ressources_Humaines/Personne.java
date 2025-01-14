@@ -4,6 +4,8 @@ import java.util.Random;
 
 public class Personne {
 
+    private static int compteurId = 0;  // Compteur statique pour générer des identifiants uniques
+    private int clePrimaire;
     private String nom;
     private String prenom;
     private int age;
@@ -37,6 +39,25 @@ public class Personne {
         }
 
         this.age = random.nextInt(63) + 18;
+        this.clePrimaire = generateClePrimaire();  // Assigner un identifiant unique
+    }
+
+    public Personne(String prenom, String nom, int age, String sexe) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.age = age;
+        this.sexe = sexe;
+        this.malade = false;
+        this.clePrimaire = generateClePrimaire();  // Assigner un identifiant unique
+    }
+
+    // Méthode pour générer un identifiant unique pour chaque Personne
+    private int generateClePrimaire() {
+        return ++compteurId;  // Incrémente le compteur pour chaque nouvelle personne
+    }
+
+    public int getClePrimaire() {
+        return clePrimaire;
     }
 
     public Boolean estMalade(){
@@ -61,5 +82,10 @@ public class Personne {
 
     public int getSalaire(){
         return 1200;
+    }
+
+    // Méthode pour afficher un résumé des informations de la personne
+    public String toString() {
+        return "ID: " + clePrimaire + ", Nom: " + prenom + " " + nom + ", Age: " + age + ", Sexe: " + sexe;
     }
 }
