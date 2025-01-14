@@ -97,9 +97,9 @@ public class GameServer {
 
             gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
             gameState.put("boosters", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
+            gameState.put("reservoirs", new JSONArray(convertReservoirsToJson(jeu.getReservoirs())));
 
-            gameState.put("reservoirs", convertReservoirsToJson(jeu.getReservoirs()));
-            gameState.put("fusees", convertFuseeToJson(jeu.getFusees()));
+            gameState.put("fusees", new JSONArray(convertFuseeToJson(jeu.getFusees())));
 
             String gameStateStr = gameState.toString();
 
@@ -161,9 +161,10 @@ public class GameServer {
             objJson.put("diametre", fusee.getDiametre());
             objJson.put("poidsTotal", fusee.getPoidsTotal());
             objJson.put("altitudeMax", fusee.getAltitudeMax());
+            objJson.put("boosterPrincipal", fusee.getBoosterPrincipal().getNom());
             objJson.put("systemeSecurite", fusee.isSystemeSecurite());
             objJson.put("etat", fusee.getEtat());
-
+            
             JSONArray chargesArray = new JSONArray();
             for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
                 JSONObject chargeJson = new JSONObject();

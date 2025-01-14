@@ -42,7 +42,6 @@ export default {
     };
   },
   mounted() {
-    // Initialisation du WebSocket
     this.socket = new WebSocket("ws://localhost:3232");
 
     this.socket.onmessage = (event) => {
@@ -62,7 +61,6 @@ export default {
     };
   },
   beforeUnmount() {
-    // Fermeture du WebSocket avant de détruire le composant
     if (this.socket) {
       this.socket.close();
     }

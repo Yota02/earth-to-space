@@ -58,7 +58,7 @@ public class Fusee {
                 totalPoussee += m.getPousseeMax();
             }
         }
-        return totalPoussee - this.poidsTotal;
+        return this.poidsTotal - totalPoussee;
     }
 
     // Rest of your methods remain the same
@@ -97,6 +97,10 @@ public class Fusee {
 
     public double getAltitudeMax() {
         return altitudeMax;
+    }
+
+    public Booster getBoosterPrincipal() {
+        return boosterPrincipal;
     }
 
     public List<ChargeUtile> getPoidChargeUtiles() {

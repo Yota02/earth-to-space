@@ -416,11 +416,10 @@ public class Jeu implements Runnable {
         chargesUtiles.add(new ChargeUtile(200.0, "Matériel scientifique", 15.0));
 
         Fusee f1 = new Fusee("StarShip1", 1000, booster, chargesUtiles, false);
+        Fusee f2 = new Fusee("StarShip2", 1000, booster, chargesUtiles, true);
 
-        // Vider la liste des fusées avant d'ajouter la nouvelle
-        fusees.clear();
-        // Ajouter la fusée à la liste
         fusees.add(f1);
+        fusees.add(f2);
 
         while (!estFinie()) {
             researchLock.lock();
