@@ -143,7 +143,7 @@ export default {
 
       websocket.value.onopen = () => {
         connectionStatus.value = "connected";
-        websocket.value.send(JSON.stringify({ action: "getProgrammeState" }));
+        websocket.value.send(JSON.stringify({ action: "getProgrammeState" })); 
       };
 
       websocket.value.onmessage = (event) => {
@@ -155,7 +155,6 @@ export default {
             }
           } else if (data.action === "programmeCree") {
             websocket.value.send(JSON.stringify({ action: "getProgrammeState" }));
-            // Reset form after successful creation
             formData.value = {
               nom: "",
               objectif: "",

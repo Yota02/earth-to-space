@@ -2,7 +2,7 @@ package back.Ressources_Humaines;
 
 import java.util.Random;
 
-public class Scientifique extends Personne {
+public class Scientifique extends PersonneSimple {
 
     private int talent; // sur 10
 

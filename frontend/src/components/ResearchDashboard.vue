@@ -1,10 +1,5 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto">
-    <!-- Affichage de l'argent -->
-    <div class="mb-8">
-      <p class="text-2xl font-bold">Argent: {{ gameData.argent }}</p>
-    </div>
-
     <!-- Affichage des pointsRecherche -->
     <div class="mb-8">
       <p class="text-2xl font-bold">Points de Recherche: {{ gameData.pointsRecherche }}</p>
@@ -68,7 +63,6 @@ export default {
 
   setup() {
     const gameData = reactive({
-      argent: 0,
       pointsRecherche: 0,
       recherches: []
     });
@@ -92,7 +86,6 @@ export default {
             return;
           }
 
-          gameData.argent = data.argent;
           gameData.pointsRecherche = data.pointsRecherche;
           gameData.recherches = data.recherches.map(recherche => ({
             ...recherche,

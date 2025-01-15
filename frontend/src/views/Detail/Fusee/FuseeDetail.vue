@@ -1,14 +1,20 @@
 <template>
   <div class="fusee-container">
     <h1>Liste des Fusées</h1>
+    
     <div v-for="fusee in fusees" :key="fusee.nom" class="fusee-details">
       <p><strong>Nom :</strong> {{ fusee.nom }}</p>
       <p><strong>Taille :</strong> {{ fusee.taille }}</p>
       <p><strong>Diamètre :</strong> {{ fusee.diametre }}</p>
       <p><strong>Poids Total :</strong> {{ fusee.poidsTotal }}</p>
       <p><strong>Altitude Max :</strong> {{ fusee.altitudeMax }} m</p>
-      <p><strong>Booster-Principal : </strong> <router-link to="/booster-details" @click="closeMenu">  {{ fusee.boosterPrincipal }} </router-link></p>
-
+      <p>
+        <strong>Booster-Principal : </strong>
+        <router-link to="/booster-details" @click="closeMenu">
+          {{ fusee.boosterPrincipal }}
+        </router-link>
+      </p>
+      
       <p>
         <strong>Système de Sécurité :</strong>
         <span
@@ -31,38 +37,61 @@
 </template>
 
 <script>
+import { ref, onMounted, onUnmounted } from "vue";
+
 export default {
   name: "FuseeList",
-  data() {
-    return {
-      fusees: [], // Liste des fusées
-      socket: null, // WebSocket
+  setup() {
+    const fusees = ref([]);
+    const websocket = ref(null);
+    const connectionStatus = ref("connecting");
+
+    const closeMenu = () => {
+      console.log("Fermeture du menu.");
     };
-  },
-  mounted() {
-    this.socket = new WebSocket("ws://localhost:3232");
 
-    this.socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+    onMounted(() => {
+      websocket.value = new WebSocket("ws://localhost:3232");
 
-        if (data.fusees) {
-          this.fusees = data.fusees;
+      websocket.value.onopen = () => {
+        connectionStatus.value = "connected";
+        websocket.value.send(JSON.stringify({ action: "getFuseesState" }));
+      };
+
+      websocket.value.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.action === "fuseesState") {
+            fusees.value = data.fusees || [];
+          }
+        } catch (error) {
+          console.error("Erreur lors du traitement des données WebSocket :", error);
         }
-      } catch (error) {
-        console.error("Erreur lors du traitement des données WebSocket :", error);
-      }
-    };
+      };
 
-    this.socket.onclose = () => {
-      console.log("WebSocket fermé.");
+      websocket.value.onerror = (error) => {
+        console.error("Erreur WebSocket :", error);
+        connectionStatus.value = "error";
+      };
+
+      websocket.value.onclose = () => {
+        connectionStatus.value = "disconnected";
+        console.log("WebSocket fermé");
+      };
+    });
+
+    onUnmounted(() => {
+      if (websocket.value) {
+        websocket.value.close();
+      }
+    });
+
+    return {
+      fusees,
+      connectionStatus,
+      closeMenu
     };
-  },
-  beforeUnmount() {
-    if (this.socket) {
-      this.socket.close();
-    }
-  },
+  }
 };
 </script>
 

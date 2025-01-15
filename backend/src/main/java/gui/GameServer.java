@@ -5,10 +5,8 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.websocket.DeploymentException;
 import javax.websocket.Session;
-
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
@@ -38,22 +36,19 @@ public class GameServer {
         httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
         httpServer.start();
 
-        System.out.println("Pour s'y connecter : http://localhost:4242");
         Server server = new Server("0.0.0.0", 3232, "/", new HashMap<>(), WebSocketClient.class);
 
         try {
             server.start();
             new Thread(jeu).start();
 
-            // Replace the scanner with simulated input for Docker environments
             while (true) {
-                String input = "default"; // Simulating input (replace this with any logic you want)
+                String input = "default"; 
                 if (input != null && !input.trim().isEmpty()) {
                     jeu.addInput(input);
                 }
 
-                // Sleep to simulate delay
-                Thread.sleep(1000); // Adjust the sleep time as needed
+                Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
             System.err.println("Error during input simulation: " + e.getMessage());
@@ -76,38 +71,22 @@ public class GameServer {
         try {
             lock.lock();
             etatJeu = nouvelEtat;
-            sendGameStateToClients();
+            sendGameStateToClients(nouvelEtat);
         } finally {
             lock.unlock();
         }
     }
 
-    public static void sendGameStateToClients() {
+    public static void sendGameStateToClients(String partToSend) {
         try {
             lock.lock();
             JSONObject gameState = new JSONObject();
-
-            // Ajout des données de base
             gameState.put("etatJeu", etatJeu);
-            gameState.put("salaireTotal", jeu.coutSalaireTotal());
             gameState.put("argent", jeu.getArgent());
-            gameState.put("pointsRecherche", jeu.getPointsRecherche());
             gameState.put("date", jeu.getDate());
-
-            //liste 
-            gameState.put("objectsAchetables", new JSONArray(convertObjectsToJson(jeu.getObjectAchetables())));
-            gameState.put("carburants", new JSONArray(convertCarburantToJson(jeu.getCarburantAchetables())));
-            gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
-            gameState.put("boosters", new JSONArray(convertLanceurToJson(jeu.getLanceurs())));
-            gameState.put("reservoirs", new JSONArray(convertReservoirsToJson(jeu.getReservoirs())));
-            gameState.put("fusees", new JSONArray(convertFuseeToJson(jeu.getFusees())));
-
-            //resourcesHuamines
-            gameState.put("employes", new JSONArray(convertPersonneToJson(jeu.getEmployes())));
-            gameState.put("marcheEmploie", new JSONArray(convertPersonneToJson(jeu.getMarcheEmploie())));
-
+    
             String gameStateStr = gameState.toString();
-
+    
             for (Session session : clients) {
                 if (session.isOpen()) {
                     try {
@@ -117,15 +96,43 @@ public class GameServer {
                     }
                 }
             }
-
+    
         } catch (Exception e) {
             System.err.println("Erreur lors de l'envoi de l'état du jeu: " + e.getMessage());
             e.printStackTrace();
         } finally {
             lock.unlock();
         }
-    }
+    }    
 
+    public static JSONArray convertMarcheEmploiToJson(Map<String, List<Personne>> marcheEmploi) {
+        JSONArray mainArray = new JSONArray();
+        
+        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
+            JSONObject categoryObject = new JSONObject();
+            String key = entry.getKey();
+            List<Personne> personnes = entry.getValue();
+            
+            JSONArray personnesArray = new JSONArray();
+            for (Personne personne : personnes) {
+                JSONObject personneJson = new JSONObject();
+                personneJson.put("cleprimaire", personne.getClePrimaire());
+                personneJson.put("prenom", personne.getPrenom());
+                personneJson.put("nom", personne.getNom());
+                personneJson.put("salaire", personne.getSalaire());
+                personneJson.put("age", personne.getAge());
+                personneJson.put("sexe", personne.getSexe());
+                personnesArray.put(personneJson);
+            }
+            
+            categoryObject.put("type", key);
+            categoryObject.put("personnes", personnesArray);
+            mainArray.put(categoryObject);
+        }
+    
+        return mainArray;
+    }
+    
     public static String convertReservoirsToJson(List<ReservoirPose> reservoirs) {
         JSONArray jsonArray = new JSONArray();
         for (ReservoirPose reservoir : reservoirs) {
@@ -290,9 +297,7 @@ public class GameServer {
                 JSONObject gameState = new JSONObject();
                 gameState.put("etatJeu", etatJeu);
                 gameState.put("argent", jeu.getArgent());
-                gameState.put("pointsRecherche", jeu.getPointsRecherche());
-                gameState.put("recherches", new JSONArray(convertResearchesToJson(jeu.getRecherchesTotal())));
-
+                
                 session.getBasicRemote().sendText(gameState.toString());
             } catch (Exception e) {
                 System.err.println(
@@ -304,8 +309,7 @@ public class GameServer {
 
     public static void removeClient(Session session) {
         if (session != null && session.isOpen()) {
-            clients.add(session);
-            sendGameStateToClients();
+            clients.remove(session);
         }
-    }
+    }   
 }

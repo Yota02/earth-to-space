@@ -1,18 +1,26 @@
 package gui;
 
-import back.Jeu;
 import back.Ressources_Humaines.Personne;
+import back.fusee.Fusee;
+import back.fusee.booster.Booster;
+import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
+import back.fusee.moteur.Moteur;
+import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @ServerEndpoint("/")
 public class WebSocketClient {
@@ -46,9 +54,25 @@ public class WebSocketClient {
                     break;
 
                 case "getProgrammeState":
-                    handleGetProgrammeState(session);
+                    handleGetProgrammeState(session); 
                     break;
 
+                case "getFuseesState":
+                    getFusees(session);
+                    break;
+
+                case "getBoostersState":
+                    getBoosters(session);
+                    break;
+
+                case "getMarcheEmploisState":
+                    getMarcheEmploie(session);
+                    break;
+                
+                case "getEmployesState":
+                    getEmployes(session);
+                    break;
+                    
                 case "creerUnProgramme":
                     handleCreerUnProgramme(jsonMessage, session);
                     break;
@@ -122,15 +146,13 @@ public class WebSocketClient {
             // Ajout du réservoir au jeu
             GameServer.jeu.ajouterReservoir(newReservoir);
 
-            // Création de la réponse de succès
             response.put("action", "reservoirAdded");
             response.put("nom", newReservoir.getNom());
             response.put("type", ergol.name());
             response.put("capacite", newReservoir.getQuantiteTotal());
             session.getBasicRemote().sendText(response.toString());
 
-            // Mise à jour de l'état du jeu pour tous les clients
-            GameServer.sendGameStateToClients();
+            GameServer.sendGameStateToClients("reservoirs");
 
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'ajout du réservoir: " + e.getMessage());
@@ -140,18 +162,35 @@ public class WebSocketClient {
 
     private void handleEmbaucherEmploye(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-
+    
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
             Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
-            GameServer.jeu.embaucherPersonne(personne);
-            GameServer.jeu.getMarcheEmploie().remove(personne);
+    
+            boolean removed = false;
+            for (List<Personne> liste : GameServer.jeu.getMarcheEmploie().values()) {
+                if (liste.remove(personne)) {
+                    removed = true;
+                    break;
+                }
+            }
+    
+            if (removed) {
+                GameServer.jeu.embaucherPersonne(personne);
+                response.put("action", "personneEmbauchee");
+                response.put("nom", personne.getNom());
+                session.getBasicRemote().sendText(response.toString());
+                GameServer.sendGameStateToClients("employes");
+            } else {
+                response.put("error", "Personne non trouvée dans le marché de l'emploi.");
+                session.getBasicRemote().sendText(response.toString());
+            }
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
-    }
+    }    
 
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
@@ -168,7 +207,7 @@ public class WebSocketClient {
                         response.put("action", "buyObjectSuccess");
                         response.put("name", objectToBuy.getNom());
                         session.getBasicRemote().sendText(response.toString());
-                        GameServer.sendGameStateToClients();
+                        GameServer.sendGameStateToClients(name);
                     } else {
                         response.put("error", "Not enough money to buy " + objectToBuy.getNom());
                         session.getBasicRemote().sendText(response.toString());
@@ -183,14 +222,12 @@ public class WebSocketClient {
                 ObjectAchetable objectToSell = GameServer.jeu.findObjectByName(name);
                 if (objectToSell != null) {
                     GameServer.jeu.vendre(objectToSell);
-                    GameServer.sendGameStateToClients();
+                    GameServer.sendGameStateToClients("objectsAchetables");
                 }
                 break;
 
             case "buyCarburant":
-
                 CarburantAchetable carburantToBuy = GameServer.jeu.findCarburantByName(name);
-
                 if (carburantToBuy != null) {
                     if (GameServer.jeu.getArgent() >= carburantToBuy.getPrix()) {
                         GameServer.jeu.effectuerAchatCarburant(carburantToBuy, carburantToBuy.getCarburant());
@@ -199,7 +236,7 @@ public class WebSocketClient {
                         response.put("name", carburantToBuy.getNom());
 
                         session.getBasicRemote().sendText(response.toString());
-                        GameServer.sendGameStateToClients();
+                        GameServer.sendGameStateToClients("carburants");
                     } else {
                         response.put("error", "Not enough money to buy " + carburantToBuy.getNom());
                         session.getBasicRemote().sendText(response.toString());
@@ -225,6 +262,159 @@ public class WebSocketClient {
         } else {
             response.put("programme", JSONObject.NULL);
         }
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getFusees(Session session) throws IOException {
+        List<Fusee> fusees = GameServer.jeu.getFusees();
+        
+        JSONArray fuseesArray = new JSONArray(); 
+        
+        for (Fusee fusee : fusees) {
+            if (fusee != null) {
+                JSONObject objJson = new JSONObject();
+                objJson.put("nom", fusee.getNom());
+                objJson.put("taille", fusee.getTaille());
+                objJson.put("diametre", fusee.getDiametre());
+                objJson.put("poidsTotal", fusee.getPoidsTotal());
+                objJson.put("altitudeMax", fusee.getAltitudeMax());
+                objJson.put("boosterPrincipal", fusee.getBoosterPrincipal().getNom());
+                objJson.put("systemeSecurite", fusee.isSystemeSecurite());
+                objJson.put("etat", fusee.getEtat());
+                
+                JSONArray chargesArray = new JSONArray();
+                for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
+                    JSONObject chargeJson = new JSONObject();
+                    chargeJson.put("nom", charge.getNom());
+                    chargeJson.put("poids", charge.getPoids());
+                    chargesArray.put(chargeJson);
+                }
+                objJson.put("poidChargeUtiles", chargesArray);
+                
+                fuseesArray.put(objJson); 
+            }
+        }
+        
+        JSONObject response = new JSONObject();
+        response.put("action", "fuseesState");
+        response.put("fusees", fuseesArray);
+        
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getBoosters(Session session) throws IOException {
+        List<Booster> boosters = GameServer.jeu.getLanceurs();
+
+        JSONArray jsonArray = new JSONArray();
+
+        for (Booster booster : boosters) {
+            JSONObject boosterJson = new JSONObject();
+            boosterJson.put("nom", booster.getNom());
+            boosterJson.put("taille", booster.getTaille());
+            boosterJson.put("diametre", booster.getDiametre());
+            boosterJson.put("poidsAVide", booster.getPoidsAVide());
+            boosterJson.put("poids", booster.getPoids());
+            boosterJson.put("altitudeMax", booster.getAltitudeMax());
+            boosterJson.put("vitesseMax", booster.getVitesseMax());
+            boosterJson.put("estPrototype", booster.getEstPrototype());
+            boosterJson.put("estReetulisable", booster.getEstReetulisable());
+            boosterJson.put("aSystemeAutoDestruction", booster.getASystèmeAutoDestruction());
+
+            JSONArray historiquesLancementJson = new JSONArray();
+            if (booster.getHistoriquesLancement() != null) {
+                for (String lancement : booster.getHistoriquesLancement()) {
+                    historiquesLancementJson.put(lancement);
+                }
+            }
+            boosterJson.put("historiquesLancement", historiquesLancementJson);
+
+            JSONArray moteursJson = new JSONArray();
+            if (booster.getMoteur() != null) {
+                for (Moteur moteur : booster.getMoteur()) {
+                    JSONObject moteurJson = new JSONObject();
+                    moteurJson.put("nom", moteur.getNom());
+                    moteurJson.put("poids", moteur.getPoids());
+                    moteursJson.put(moteurJson);
+                }
+            }
+            boosterJson.put("moteurs", moteursJson);
+
+            JSONArray reservoirsJson = new JSONArray();
+            if (booster.getReservoirs() != null) {
+                for (ReservoirFusee reservoir : booster.getReservoirs()) {
+                    JSONObject reservoirJson = new JSONObject();
+                    reservoirJson.put("nom", reservoir.getNom());
+                    reservoirJson.put("poidsAVide", reservoir.getPoidsAvide());
+                    reservoirJson.put("poids", reservoir.getPoids());
+                    reservoirsJson.put(reservoirJson);
+                }
+            }
+            boosterJson.put("reservoirs", reservoirsJson);
+
+            jsonArray.put(boosterJson);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "boostersState");
+        response.put("boosters", jsonArray);
+        
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getEmployes(Session session) throws IOException {
+        List<Personne> employes = GameServer.jeu.getEmployes();
+
+        JSONArray objectsArray = new JSONArray();
+        for (Personne e : employes) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("cleprimaire", e.getClePrimaire());
+            objJson.put("prenom", e.getPrenom());
+            objJson.put("nom", e.getNom());
+            objJson.put("salaire", e.getSalaire());
+            objJson.put("age", e.getAge());
+            objJson.put("sexe", e.getSexe());
+            objectsArray.put(objJson);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "employesState");
+        response.put("salaireTotal", GameServer.jeu.coutSalaireTotal());
+        response.put("employes", objectsArray);
+        
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getMarcheEmploie(Session session) throws IOException {
+        Map<String, List<Personne>> marcheEmploi = GameServer.jeu.getMarcheEmploie();
+
+        JSONArray mainArray = new JSONArray();
+        
+        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
+            JSONObject categoryObject = new JSONObject();
+            String key = entry.getKey();
+            List<Personne> personnes = entry.getValue();
+            
+            JSONArray personnesArray = new JSONArray();
+            for (Personne personne : personnes) {
+                JSONObject personneJson = new JSONObject();
+                personneJson.put("cleprimaire", personne.getClePrimaire());
+                personneJson.put("prenom", personne.getPrenom());
+                personneJson.put("nom", personne.getNom());
+                personneJson.put("salaire", personne.getSalaire());
+                personneJson.put("age", personne.getAge());
+                personneJson.put("sexe", personne.getSexe());
+                personnesArray.put(personneJson);
+            }
+            
+            categoryObject.put("type", key);
+            categoryObject.put("personnes", personnesArray);
+            mainArray.put(categoryObject);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "marcheEmploisState");
+        response.put("marcheEmploie", mainArray);
+        
         session.getBasicRemote().sendText(response.toString());
     }
 
@@ -267,7 +457,6 @@ public class WebSocketClient {
         if (GameServer.jeu.getProgrammes().isEmpty()) {
             return null;
         }
-        return GameServer.jeu.getProgrammes().get(0); // Vous pouvez ajuster cette logique si vous avez plusieurs
-                                                      // programmes
+        return GameServer.jeu.getProgrammes().get(0);
     }
 }

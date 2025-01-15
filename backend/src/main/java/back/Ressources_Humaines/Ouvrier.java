@@ -1,6 +1,6 @@
 package back.Ressources_Humaines;
 
-public class Ouvrier extends Personne{
+public class Ouvrier extends PersonneSimple {
 
     public Ouvrier(){
         super();

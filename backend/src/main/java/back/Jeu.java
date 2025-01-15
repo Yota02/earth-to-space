@@ -1,6 +1,9 @@
 package back;
 
+import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
+import back.Ressources_Humaines.PersonneSimple;
+import back.Ressources_Humaines.Scientifique;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
@@ -50,7 +53,7 @@ public class Jeu implements Runnable {
 
     //resources Humaine
     private List<Personne> employes;
-    private List<Personne> marcheEmploi;
+    private Map<String, List<Personne>> marcheEmploi;
 
     // Boosters
     private List<Booster> lanceurs;
@@ -73,6 +76,8 @@ public class Jeu implements Runnable {
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
+    //private GestionnaireMarcheEmploie gestionnaireMarcheEmploie; 
+
     private final Lock researchLock;
 
     public Jeu(String[] nomsJoueurs) {
@@ -81,11 +86,12 @@ public class Jeu implements Runnable {
         this.date = LocalDate.of(2000, 1, 1);
 
         this.employes = new ArrayList<>();
-        this.marcheEmploi = new ArrayList<>();
 
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
+
+        marcheEmploi = new HashMap<>();
 
         this.rechercheObtenue = Collections.synchronizedList(new ArrayList<>());
 
@@ -110,6 +116,16 @@ public class Jeu implements Runnable {
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
+    }
+
+    public void ajouterPersonne(Personne personne) {
+        String type = personne.getClass().getSimpleName();
+        marcheEmploi.putIfAbsent(type, new ArrayList<>());
+        marcheEmploi.get(type).add(personne);
+    }
+
+    public List<Personne> getPersonnesParType(String type) {
+        return marcheEmploi.getOrDefault(type, new ArrayList<>());
     }
 
     private void incrementerDate() {
@@ -428,13 +444,19 @@ public class Jeu implements Runnable {
         fusees.add(f2); 
 
         for(int i = 0; i < 10; i++){
-            Personne p1 = new Personne();
+            Personne p1 = new PersonneSimple();
             embaucherPersonne(p1);
         }
 
+        Personne chercheur1 = new Scientifique();
+        Personne ingenieur1 = new Ingenieur();
+
+        ajouterPersonne(chercheur1);
+        ajouterPersonne(ingenieur1);
+        
         for(int i = 0; i < 10; i++){
-            Personne p1 = new Personne();
-            marcheEmploi.add(p1);
+            Personne p1 = new PersonneSimple();
+            ajouterPersonne(p1);
         }
     
     }
@@ -448,13 +470,16 @@ public class Jeu implements Runnable {
     }
 
     public Personne retrouverEmployeParId(int clePrimaire) {
-        for (Personne personne : marcheEmploi) {
-            if (personne.getClePrimaire() == clePrimaire) {
-                return personne;
+        for (List<Personne> personnes : marcheEmploi.values()) {
+            for (Personne personne : personnes) {
+                if (personne.getClePrimaire() == clePrimaire) {
+                    return personne;
+                }
             }
         }
         return null;  
     }
+    
 
     @Override
     public void run() {
@@ -468,7 +493,7 @@ public class Jeu implements Runnable {
                 if (date.getDayOfMonth() == date.lengthOfMonth()) { 
                     retirerArgent(coutSalaireTotal());
                     for(int i = 0; i < new Random().nextInt(5) + 1;){
-                        marcheEmploi.add(new Personne());
+                        ajouterPersonne(new PersonneSimple());
                     }
                 }
             } finally {
@@ -542,7 +567,7 @@ public class Jeu implements Runnable {
         return employes;
     }
 
-    public List<Personne> getMarcheEmploie() {
+    public Map<String, List<Personne>> getMarcheEmploie() {
         return marcheEmploi;
     }
 

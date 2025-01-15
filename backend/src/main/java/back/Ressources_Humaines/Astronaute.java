@@ -1,5 +1,5 @@
 package back.Ressources_Humaines;
 
-public class Astronaute extends Personne{
+public class Astronaute extends PersonneSimple {
     
 }

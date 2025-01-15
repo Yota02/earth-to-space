@@ -2,7 +2,11 @@ FROM maven:3.8-openjdk-17
 
 WORKDIR /app
 COPY . .
+
+# Compile le projet
 RUN mvn clean package
+
+# Configure la JVM avec des paramètres de mémoire
 CMD ["java", "-jar", "target/space-inc-1.0-SNAPSHOT-jar-with-dependencies.jar"]
 
 EXPOSE 3232 4242

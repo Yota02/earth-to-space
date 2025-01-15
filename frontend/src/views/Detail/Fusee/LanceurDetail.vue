@@ -33,38 +33,56 @@
 </template>
 
 <script>
+import { ref, onMounted, onUnmounted } from "vue";
+
 export default {
   name: "BoosterList",
-  data() {
-    return {
-      boosters: [], // Liste des boosters
-      socket: null, // WebSocket
-    };
-  },
-  mounted() {
-    this.socket = new WebSocket("ws://localhost:3232");
+  setup() {
+    const boosters = ref([]);
+    const websocket = ref(null);
+    const connectionStatus = ref("connecting");
 
-    this.socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+    onMounted(() => {
+      websocket.value = new WebSocket("ws://localhost:3232");
 
-        if (data.boosters) {
-          this.boosters = data.boosters;
+      websocket.value.onopen = () => {
+        connectionStatus.value = "connected";
+        websocket.value.send(JSON.stringify({ action: "getBoostersState" }));
+      };
+
+      websocket.value.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.action === "boostersState") {
+            boosters.value = data.boosters || [];
+          }
+        } catch (error) {
+          console.error("Erreur lors du traitement des données WebSocket :", error);
         }
-      } catch (error) {
-        console.error("Erreur lors du traitement des données WebSocket :", error);
-      }
-    };
+      };
 
-    this.socket.onclose = () => {
-      console.log("WebSocket fermé.");
+      websocket.value.onerror = (error) => {
+        console.error("Erreur WebSocket :", error);
+        connectionStatus.value = "error";
+      };
+
+      websocket.value.onclose = () => {
+        connectionStatus.value = "disconnected";
+        console.log("WebSocket fermé");
+      };
+    });
+
+    onUnmounted(() => {
+      if (websocket.value) {
+        websocket.value.close();
+      }
+    });
+
+    return {
+      boosters,
+      connectionStatus
     };
-  },
-  beforeUnmount() {
-    if (this.socket) {
-      this.socket.close();
-    }
-  },
+  }
 };
 </script>
 
