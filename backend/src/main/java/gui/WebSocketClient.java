@@ -54,7 +54,7 @@ public class WebSocketClient {
                     break;
 
                 case "getProgrammeState":
-                    handleGetProgrammeState(session); 
+                    handleGetProgrammeState(session);
                     break;
 
                 case "getFuseesState":
@@ -68,17 +68,21 @@ public class WebSocketClient {
                 case "getMarcheEmploisState":
                     getMarcheEmploie(session);
                     break;
-                
+
                 case "getEmployesState":
                     getEmployes(session);
                     break;
-                    
+
                 case "creerUnProgramme":
                     handleCreerUnProgramme(jsonMessage, session);
                     break;
 
                 case "embaucherEmploye":
                     handleEmbaucherEmploye(jsonMessage, session);
+                    break;
+
+                case "licencierEmploye":
+                    handlelicencierEmploye(jsonMessage, session);
                     break;
 
                 case "addReservoir":
@@ -162,12 +166,12 @@ public class WebSocketClient {
 
     private void handleEmbaucherEmploye(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-    
+
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
             Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
-    
+
             boolean removed = false;
             for (List<Personne> liste : GameServer.jeu.getMarcheEmploie().values()) {
                 if (liste.remove(personne)) {
@@ -175,7 +179,7 @@ public class WebSocketClient {
                     break;
                 }
             }
-    
+
             if (removed) {
                 GameServer.jeu.embaucherPersonne(personne);
                 response.put("action", "personneEmbauchee");
@@ -190,7 +194,29 @@ public class WebSocketClient {
             response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
-    }    
+    }
+
+    private void handlelicencierEmploye(JSONObject jsonMessage, Session session) throws IOException {
+        JSONObject response = new JSONObject();
+
+        try {
+            JSONObject employeJson = jsonMessage.getJSONObject("employe");
+            int clePrimaire = employeJson.getInt("cleprimaire");
+            Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
+
+            GameServer.jeu.licencierPersonne(personne);
+            response.put("action", "personneLicencier");
+            response.put("nom", personne.getNom());
+            session.getBasicRemote().sendText(response.toString());
+            GameServer.sendGameStateToClients("employes");
+
+        } catch (Exception e) {
+            response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
+            session.getBasicRemote().sendText(response.toString());
+        }
+    }
+
+    
 
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
@@ -267,9 +293,9 @@ public class WebSocketClient {
 
     private void getFusees(Session session) throws IOException {
         List<Fusee> fusees = GameServer.jeu.getFusees();
-        
-        JSONArray fuseesArray = new JSONArray(); 
-        
+
+        JSONArray fuseesArray = new JSONArray();
+
         for (Fusee fusee : fusees) {
             if (fusee != null) {
                 JSONObject objJson = new JSONObject();
@@ -281,7 +307,7 @@ public class WebSocketClient {
                 objJson.put("boosterPrincipal", fusee.getBoosterPrincipal().getNom());
                 objJson.put("systemeSecurite", fusee.isSystemeSecurite());
                 objJson.put("etat", fusee.getEtat());
-                
+
                 JSONArray chargesArray = new JSONArray();
                 for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
                     JSONObject chargeJson = new JSONObject();
@@ -290,15 +316,15 @@ public class WebSocketClient {
                     chargesArray.put(chargeJson);
                 }
                 objJson.put("poidChargeUtiles", chargesArray);
-                
-                fuseesArray.put(objJson); 
+
+                fuseesArray.put(objJson);
             }
         }
-        
+
         JSONObject response = new JSONObject();
         response.put("action", "fuseesState");
         response.put("fusees", fuseesArray);
-        
+
         session.getBasicRemote().sendText(response.toString());
     }
 
@@ -357,43 +383,20 @@ public class WebSocketClient {
         JSONObject response = new JSONObject();
         response.put("action", "boostersState");
         response.put("boosters", jsonArray);
-        
+
         session.getBasicRemote().sendText(response.toString());
     }
 
     private void getEmployes(Session session) throws IOException {
-        List<Personne> employes = GameServer.jeu.getEmployes();
-
-        JSONArray objectsArray = new JSONArray();
-        for (Personne e : employes) {
-            JSONObject objJson = new JSONObject();
-            objJson.put("cleprimaire", e.getClePrimaire());
-            objJson.put("prenom", e.getPrenom());
-            objJson.put("nom", e.getNom());
-            objJson.put("salaire", e.getSalaire());
-            objJson.put("age", e.getAge());
-            objJson.put("sexe", e.getSexe());
-            objectsArray.put(objJson);
-        }
-
-        JSONObject response = new JSONObject();
-        response.put("action", "employesState");
-        response.put("salaireTotal", GameServer.jeu.coutSalaireTotal());
-        response.put("employes", objectsArray);
-        
-        session.getBasicRemote().sendText(response.toString());
-    }
-
-    private void getMarcheEmploie(Session session) throws IOException {
-        Map<String, List<Personne>> marcheEmploi = GameServer.jeu.getMarcheEmploie();
+        Map<String, List<Personne>> employes = GameServer.jeu.getMarcheEmploie();
 
         JSONArray mainArray = new JSONArray();
-        
-        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
+
+        for (Map.Entry<String, List<Personne>> entry : employes.entrySet()) {
             JSONObject categoryObject = new JSONObject();
             String key = entry.getKey();
             List<Personne> personnes = entry.getValue();
-            
+
             JSONArray personnesArray = new JSONArray();
             for (Personne personne : personnes) {
                 JSONObject personneJson = new JSONObject();
@@ -405,7 +408,42 @@ public class WebSocketClient {
                 personneJson.put("sexe", personne.getSexe());
                 personnesArray.put(personneJson);
             }
-            
+
+            categoryObject.put("type", key);
+            categoryObject.put("personnes", personnesArray);
+            mainArray.put(categoryObject);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "employesState");
+        response.put("salaireTotal", GameServer.jeu.coutSalaireTotal());
+        response.put("employes", mainArray);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getMarcheEmploie(Session session) throws IOException {
+        Map<String, List<Personne>> marcheEmploi = GameServer.jeu.getMarcheEmploie();
+
+        JSONArray mainArray = new JSONArray();
+
+        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
+            JSONObject categoryObject = new JSONObject();
+            String key = entry.getKey();
+            List<Personne> personnes = entry.getValue();
+
+            JSONArray personnesArray = new JSONArray();
+            for (Personne personne : personnes) {
+                JSONObject personneJson = new JSONObject();
+                personneJson.put("cleprimaire", personne.getClePrimaire());
+                personneJson.put("prenom", personne.getPrenom());
+                personneJson.put("nom", personne.getNom());
+                personneJson.put("salaire", personne.getSalaire());
+                personneJson.put("age", personne.getAge());
+                personneJson.put("sexe", personne.getSexe());
+                personnesArray.put(personneJson);
+            }
+
             categoryObject.put("type", key);
             categoryObject.put("personnes", personnesArray);
             mainArray.put(categoryObject);
@@ -414,7 +452,7 @@ public class WebSocketClient {
         JSONObject response = new JSONObject();
         response.put("action", "marcheEmploisState");
         response.put("marcheEmploie", mainArray);
-        
+
         session.getBasicRemote().sendText(response.toString());
     }
 

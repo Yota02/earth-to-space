@@ -52,7 +52,7 @@ public class Jeu implements Runnable {
     private List<Programme> programmes;
 
     //resources Humaine
-    private List<Personne> employes;
+    private Map<String, List<Personne>> employes;
     private Map<String, List<Personne>> marcheEmploi;
 
     // Boosters
@@ -85,7 +85,7 @@ public class Jeu implements Runnable {
         this.pointsRecherche = 0;
         this.date = LocalDate.of(2000, 1, 1);
 
-        this.employes = new ArrayList<>();
+        this.employes = new HashMap<>();
 
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
@@ -461,12 +461,42 @@ public class Jeu implements Runnable {
     
     }
 
-    public void embaucherPersonne(Personne personne){
-        employes.add(personne);
+    public void embaucherPersonne(Personne personne) {
+        String type = personne.getClass().getSimpleName();
+        
+        // Vérifier si la personne est dans le marché de l'emploi
+        if (marcheEmploi.containsKey(type) && marcheEmploi.get(type).contains(personne)) {
+            // Retirer la personne du marché de l'emploi
+            marcheEmploi.get(type).remove(personne);
+            
+            // Ajouter la personne à la liste des employés
+            employes.putIfAbsent(type, new ArrayList<>());
+            employes.get(type).add(personne);
+            
+            // Notifier le changement
+            System.out.println("Personne embauchée avec succès : " + personne.getNom());
+        } else {
+            System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
+        }
     }
-
-    public void licencierPersonne(Personne personne){
-        employes.add(personne);
+    
+    public void licencierPersonne(Personne personne) {
+        String type = personne.getClass().getSimpleName();
+        
+        // Vérifier si la personne est un employé
+        if (employes.containsKey(type) && employes.get(type).contains(personne)) {
+            // Retirer la personne de la liste des employés
+            employes.get(type).remove(personne);
+            
+            // Ajouter la personne au marché de l'emploi
+            marcheEmploi.putIfAbsent(type, new ArrayList<>());
+            marcheEmploi.get(type).add(personne);
+            
+            // Notifier le changement
+            System.out.println("Personne licenciée avec succès : " + personne.getNom());
+        } else {
+            System.out.println("Cette personne n'est pas un employé de l'entreprise");
+        }
     }
 
     public Personne retrouverEmployeParId(int clePrimaire) {
@@ -510,12 +540,14 @@ public class Jeu implements Runnable {
         }
     }
 
-    public int coutSalaireTotal(){
-        int rep = 0;
-        for(Personne p : employes){
-            rep += p.getSalaire();
+    public int coutSalaireTotal() {
+        int coutTotal = 0;
+        for (List<Personne> listeEmployes : employes.values()) {
+            for (Personne employe : listeEmployes) {
+                coutTotal += employe.getSalaire();
+            }
         }
-        return rep;
+        return coutTotal;
     }
 
     public ObjectAchetable findObjectByName(String name) {
@@ -563,7 +595,7 @@ public class Jeu implements Runnable {
         return recherchesTotal;
     }
 
-    public List<Personne> getEmployes() {
+    public Map<String, List<Personne>> getEmployes() {
         return employes;
     }
 
