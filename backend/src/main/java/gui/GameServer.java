@@ -3,9 +3,12 @@ package gui;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.locks.ReentrantLock;
-import javax.websocket.DeploymentException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
@@ -23,87 +26,201 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class GameServer {
-    public static final CopyOnWriteArrayList<Session> clients = new CopyOnWriteArrayList<>();
-    private static final ReentrantLock lock = new ReentrantLock();
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    
+    // Gestion des clients avec limite de taille
+    private static final Map<String, Session> clients = new ConcurrentHashMap<>(100);
+    
+    // Cache pour réduire la création d'objets
+    private static final Map<String, JSONObject> jsonCache = new ConcurrentHashMap<>();
+    
+    static volatile JeuWebsocket jeu;
+    private static volatile boolean isRunning = true;
     private static String etatJeu = "";
-    static JeuWebsocket jeu;
+    
+    // Limites et configurations
+    private static final int MAX_CLIENTS = 50;
+    private static final int CACHE_SIZE = 100;
+    private static final int MESSAGE_QUEUE_SIZE = 1000;
+    
+    // File d'attente pour les messages
+    private static final BlockingQueue<String> messageQueue = new ArrayBlockingQueue<>(MESSAGE_QUEUE_SIZE);
 
-    public static void main(String[] args) throws IOException, DeploymentException {
-        String[] nomsJoueurs = { "Joueur" };
-        jeu = new JeuWebsocket(nomsJoueurs);
+    public static void main(String[] args) {
+        try {
+            initialize();
+            startMessageProcessor();
+            Runtime.getRuntime().addShutdownHook(new Thread(GameServer::shutdown));
+        } catch (Exception e) {
+            System.err.println("Erreur critique au démarrage: " + e.getMessage());
+            shutdown();
+        }
+    }
 
+    private static void initialize() throws IOException {
+        // Initialisation du jeu
+        jeu = new JeuWebsocket(new String[]{"Joueur"});
+        
+        // Configuration du serveur HTTP
         HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
         httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
+        httpServer.setExecutor(executorService);
         httpServer.start();
 
-        Server server = new Server("0.0.0.0", 3232, "/", new HashMap<>(), WebSocketClient.class);
-
+        // Configuration du serveur WebSocket
+        Server server = new Server("0.0.0.0", 3232, "/", configureServerProperties(), WebSocketClient.class);
+        
         try {
             server.start();
-            new Thread(jeu).start();
+            executorService.submit(jeu);
+        } catch (Exception e) {
+            throw new IOException("Erreur de démarrage du serveur: " + e.getMessage());
+        }
+    }
 
-            while (true) {
-                String input = "default"; 
-                if (input != null && !input.trim().isEmpty()) {
-                    jeu.addInput(input);
+    private static Map<String, Object> configureServerProperties() {
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("org.glassfish.tyrus.incomingBufferSize", 8192);
+        properties.put("org.glassfish.tyrus.clientProperties.maxSessionIdleTimeout", 300000);
+        return properties;
+    }
+
+    private static void startMessageProcessor() {
+        executorService.submit(() -> {
+            while (isRunning) {
+                try {
+                    String message = messageQueue.poll(100, TimeUnit.MILLISECONDS);
+                    if (message != null) {
+                        processMessage(message);
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
-
-                Thread.sleep(1000);
             }
-        } catch (InterruptedException e) {
-            System.err.println("Error during input simulation: " + e.getMessage());
-        } finally {
+        });
+    }
+
+    private static void processMessage(String message) {
+        if (message == null || message.isEmpty()) return;
+        
+        try {
+            broadcast(createGameState());
+        } catch (Exception e) {
+            System.err.println("Erreur de traitement du message: " + e.getMessage());
+        }
+    }
+
+    public static void addClient(Session session) {
+        if (session == null || !session.isOpen()) return;
+        
+        if (clients.size() >= MAX_CLIENTS) {
             try {
-                server.stop();
-            } catch (Exception e) {
-                System.err.println("Erreur lors de l'arrêt du serveur: " + e.getMessage());
+                session.close();
+            } catch (IOException e) {
+                System.err.println("Erreur lors de la fermeture de la session: " + e.getMessage());
+            }
+            return;
+        }
+
+        clients.put(session.getId(), session);
+        sendInitialState(session);
+    }
+
+    private static void sendInitialState(Session session) {
+        try {
+            if (session.isOpen()) {
+                session.getBasicRemote().sendText(createGameState().toString());
+            }
+        } catch (Exception e) {
+            removeClient(session);
+        }
+    }
+
+    private static JSONObject createGameState() {
+        JSONObject state = new JSONObject();
+        state.put("argent", jeu.getArgent());
+        state.put("date", jeu.getDate());
+        return state;
+    }
+
+    private static void broadcast(JSONObject state) {
+        String stateStr = state.toString();
+        clients.values().removeIf(session -> !session.isOpen());
+        
+        for (Session session : clients.values()) {
+            try {
+                if (session.isOpen()) {
+                    session.getBasicRemote().sendText(stateStr);
+                }
+            } catch (IOException e) {
+                removeClient(session);
             }
         }
     }
 
+    public static void removeClient(Session session) {
+        if (session != null) {
+            clients.remove(session.getId());
+            try {
+                if (session.isOpen()) {
+                    session.close();
+                }
+            } catch (IOException e) {
+                System.err.println("Erreur lors de la fermeture de la session: " + e.getMessage());
+            }
+        }
+    }
+
+    public static void shutdown() {
+        isRunning = false;
+        clients.values().forEach(GameServer::removeClient);
+        clients.clear();
+        jsonCache.clear();
+        executorService.shutdownNow();
+        try {
+            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                System.err.println("L'executor ne s'est pas terminé proprement");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // Méthodes utilitaires pour la gestion de la mémoire
+    private static void cleanupResources() {
+        clients.values().removeIf(session -> !session.isOpen());
+        if (jsonCache.size() > CACHE_SIZE) {
+            jsonCache.clear();
+        }
+        System.gc(); // Suggestion de garbage collection
+    }
+    
     public static void addInput(String message) {
         if (message != null && !message.trim().isEmpty()) {
             jeu.addInput(message);
         }
     }
 
-    public static void setEtatJeu(String nouvelEtat) {
-        try {
-            lock.lock();
-            etatJeu = nouvelEtat;
-            sendGameStateToClients(nouvelEtat);
-        } finally {
-            lock.unlock();
+    public static void sendGameStateToClients(String partToSend) {
+        JSONObject gameState = new JSONObject();
+        gameState.put("etatJeu", etatJeu);
+        gameState.put("argent", jeu.getArgent());
+        gameState.put("date", jeu.getDate());
+        
+        String gameStateStr = gameState.toString();
+        
+        clients.values().removeIf(session -> !session.isOpen());
+        
+        for (Session session : clients.values()) {
+            try {
+                session.getBasicRemote().sendText(gameStateStr);
+            } catch (IOException e) {
+                System.err.println("Error sending game state: " + e.getMessage());
+                removeClient(session);
+            }
         }
     }
-
-    public static void sendGameStateToClients(String partToSend) {
-        try {
-            lock.lock();
-            JSONObject gameState = new JSONObject();
-            gameState.put("etatJeu", etatJeu);
-            gameState.put("argent", jeu.getArgent());
-            gameState.put("date", jeu.getDate());
-    
-            String gameStateStr = gameState.toString();
-    
-            for (Session session : clients) {
-                if (session.isOpen()) {
-                    try {
-                        session.getBasicRemote().sendText(gameStateStr);
-                    } catch (IOException e) {
-                        System.err.println("Erreur d'envoi pour la session " + session.getId() + ": " + e.getMessage());
-                    }
-                }
-            }
-    
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'envoi de l'état du jeu: " + e.getMessage());
-            e.printStackTrace();
-        } finally {
-            lock.unlock();
-        }
-    }    
 
     public static JSONArray convertMarcheEmploiToJson(Map<String, List<Personne>> marcheEmploi) {
         JSONArray mainArray = new JSONArray();
@@ -289,27 +406,8 @@ public class GameServer {
         return jsonArray.toString();
     }
 
-    public static void addClient(Session session) {
-        if (session != null && session.isOpen()) {
-            clients.add(session);
-
-            try {
-                JSONObject gameState = new JSONObject();
-                gameState.put("etatJeu", etatJeu);
-                gameState.put("argent", jeu.getArgent());
-                
-                session.getBasicRemote().sendText(gameState.toString());
-            } catch (Exception e) {
-                System.err.println(
-                        "Erreur lors de l'initialisation du client " + session.getId() + ": " + e.getMessage());
-                removeClient(session);
-            }
-        }
+    public static void setEtatJeu(String string) {
+        etatJeu = string;
     }
 
-    public static void removeClient(Session session) {
-        if (session != null && session.isOpen()) {
-            clients.remove(session);
-        }
-    }   
 }

@@ -21,9 +21,6 @@ import back.recherche.GestionnaireRecherche;
 import back.recherche.Recherche;
 import gui.GameServer;
 
-import javax.websocket.Session;
-
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -177,7 +174,7 @@ public class Jeu implements Runnable {
                 }
             }
         }
-        return capaciteMax > 0 ? capaciteMax : 1000.0; // Valeur par défaut si aucun réservoir valide
+        return capaciteMax > 0 ? capaciteMax : 1000.0; 
     }
 
     public double calculerQuantiteTotaleErgol(String nomErgol) {
@@ -301,10 +298,6 @@ public class Jeu implements Runnable {
                         double newProgress = Math.min(100.0, currentProgress + increment);
 
                         recherche.setProgression(newProgress);
-
-                        if (i % 10 == 0) {
-                            notifierClient(recherche);
-                        }
                     }
 
                     if (recherche.getProgression() == 100.0) {
@@ -312,11 +305,11 @@ public class Jeu implements Runnable {
                         rechercheObtenue.add(recherche);
                     }
 
-                    notifierClient(recherche);
+                
                 } catch (InterruptedException e) {
                     recherche.setEtat("échouée");
                     System.out.println("La recherche '" + rechercheName + "' a été interrompue.");
-                    notifierClient(recherche);
+           
                 }
             });
         } else {
@@ -430,7 +423,6 @@ public class Jeu implements Runnable {
                 "Booster Falcon", 20.0, 3.0, 5000.0, 100000.0, 25000.0, moteurs,
                 reservoirs, true, true, false, 1, 12000.0, false, historiques);
 
-        // Ajouter le booster à la liste des lanceurs
         lanceurs.add(booster);
 
         List<ChargeUtile> chargesUtiles = new ArrayList<>();
@@ -445,7 +437,8 @@ public class Jeu implements Runnable {
 
         for(int i = 0; i < 10; i++){
             Personne p1 = new PersonneSimple();
-            embaucherPersonne(p1);
+            String type = p1.getClass().getSimpleName();
+            employes.get(type).add(p1);
         }
 
         Personne chercheur1 = new Scientifique();
@@ -520,6 +513,7 @@ public class Jeu implements Runnable {
                 ajouterArgent(1000);
                 ajouterPointRecherche(1);
                 incrementerDate();
+                System.out.println(date.getDayOfMonth());
                 if (date.getDayOfMonth() == date.lengthOfMonth()) { 
                     retirerArgent(coutSalaireTotal());
                     for(int i = 0; i < new Random().nextInt(5) + 1;){
@@ -571,20 +565,6 @@ public class Jeu implements Runnable {
 
     public List<CarburantAchetable> getCarburantAchetables() {
         return carburantAchetables;
-    }
-
-    private void notifierClient(Recherche recherche) {
-        String message = "{ \"action\": \"updateResearch\", \"name\": \"" + recherche.getNom() + "\", \"etat\": \""
-                + recherche.getEtat() + "\", \"progression\": " + recherche.getProgression() + " }";
-        for (Session session : GameServer.clients) {
-            if (session.isOpen()) {
-                try {
-                    session.getBasicRemote().sendText(message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     public LocalDate getDate() {

@@ -1,8 +1,18 @@
 <template>
   <div class="employe-container">
-    <h1>Liste de vos Employés</h1>
+    <h1>Liste des Employés</h1>
+
+    <router-link to="/MarcheEmploie">
+      Marche Emploie
+    </router-link>
+
+    <!-- Status de connexion -->
+    <div v-if="!isConnected" class="connection-status error">
+      Connexion au serveur perdue. Tentative de reconnexion...
+    </div>
+
     <p v-if="salaireTotal !== null" class="salaire-total">
-      Coût salarial total: {{ salaireTotal }}€
+      Coût salarial total: {{ formatSalaire(salaireTotal) }}€
     </p>
 
     <!-- Indicateur de chargement -->
@@ -11,28 +21,18 @@
     </div>
 
     <!-- Liste des employés -->
-    <div v-else>
-      <div 
-        v-for="categorie in employes" 
-        :key="categorie.type" 
-        class="categorie-section"
-      >
+    <div v-else-if="employes.length > 0">
+      <div v-for="categorie in employes" :key="categorie.type" class="categorie-section">
         <h2>{{ categorie.type }}</h2>
         <div class="employe-grid">
-          <div 
-            v-for="personne in categorie.personnes" 
-            :key="personne.cleprimaire" 
-            class="employe-details"
-            @click="proposerLicenciement(personne)"
-            role="button"
-            tabindex="0"
-            :aria-label="'Cliquez pour licencier ' + personne.prenom + ' ' + personne.nom"
-          >
+          <div v-for="personne in categorie.personnes" :key="personne.cleprimaire" class="employe-details"
+            @click="proposerLicenciement(personne)" role="button" tabindex="0"
+            :aria-label="'Cliquez pour licencier ' + personne.prenom + ' ' + personne.nom">
             <p><strong>Prénom :</strong> {{ personne.prenom }}</p>
             <p><strong>Nom :</strong> {{ personne.nom }}</p>
             <p><strong>Âge :</strong> {{ personne.age }} ans</p>
             <p><strong>Salaire :</strong> {{ formatSalaire(personne.salaire) }}€</p>
-            <p><strong>Sexe :</strong> 
+            <p><strong>Sexe :</strong>
               <span v-if="personne.sexe === 'Homme'">🚹</span>
               <span v-if="personne.sexe === 'Femme'">🚺</span>
             </p>
@@ -41,16 +41,25 @@
       </div>
     </div>
 
+    <!-- Message si aucun employé -->
+    <div v-else-if="!isLoading" class="no-data">
+      Aucun employé trouvé
+    </div>
+
     <!-- Modal de confirmation de licenciement -->
-    <div v-if="employeSelectionne" class="modal">
+    <div v-if="employeSelectionne" class="modal" @click.self="annulerLicenciement">
       <div class="modal-content">
         <h3>Confirmation de licenciement</h3>
         <p>
           Êtes-vous sûr de vouloir licencier {{ employeSelectionne.prenom }} {{ employeSelectionne.nom }} ?
         </p>
         <div class="modal-buttons">
-          <button class="confirm-btn" @click="confirmerLicenciement">Confirmer le licenciement</button>
-          <button class="cancel-btn" @click="annulerLicenciement">Annuler</button>
+          <button class="confirm-btn" @click="confirmerLicenciement" :disabled="!isConnected">
+            Confirmer le licenciement
+          </button>
+          <button class="cancel-btn" @click="annulerLicenciement">
+            Annuler
+          </button>
         </div>
       </div>
     </div>
@@ -58,103 +67,112 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
-
 export default {
-  name: "EmployeList",
-  setup() {
-    const employes = ref([]);
-    const websocket = ref(null);
-    const employeSelectionne = ref(null);
-    const isLoading = ref(true);
-    const connectionStatus = ref('connecting');
-    const salaireTotal = ref(null);
-
-    const formatSalaire = (salaire) => {
-      return new Intl.NumberFormat('fr-FR').format(salaire);
+  data() {
+    return {
+      employes: [], // Liste des employés par catégories
+      isLoading: true, // Indicateur de chargement
+      salaireTotal: null, // Total des salaires
+      employeSelectionne: null, // Employé sélectionné pour licenciement
+      isConnected: false, // Statut de connexion WebSocket
+      socket: null, // Instance de WebSocket
+      reconnexionInterval: null, // Intervalle pour les tentatives de reconnexion
     };
+  },
+  methods: {
+    // Formatter les salaires
+    formatSalaire(salaire) {
+      return salaire.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+    },
 
-    const proposerLicenciement = (personne) => {
-      employeSelectionne.value = personne;
-    };
+    // Charger les données initiales
+    chargerEmployes(donnees) {
+      this.employes = donnees.categories || [];
+      this.salaireTotal = donnees.salaireTotal || 0;
+      this.isLoading = false;
+    },
 
-    const confirmerLicenciement = () => {
-      if (websocket.value && websocket.value.readyState === WebSocket.OPEN) {
-        websocket.value.send(
+    // Gestion des messages WebSocket
+    handleMessage(event) {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'EMPLOYES') {
+        this.chargerEmployes(data.payload);
+      } else if (data.type === 'LICENCIEMENT_CONFIRMATION') {
+        this.employes = this.employes.map((categorie) => ({
+          ...categorie,
+          personnes: categorie.personnes.filter(
+            (p) => p.cleprimaire !== data.payload.cleprimaire
+          ),
+        }));
+        this.salaireTotal -= data.payload.salaire;
+      }
+    },
+
+    connecterWebSocket() {
+      this.socket = new WebSocket('ws://localhost:3232');
+
+      this.socket.onopen = () => {
+        console.log('Connexion WebSocket établie');
+        this.isConnected = true;
+        clearInterval(this.reconnexionInterval);
+      };
+
+      this.socket.onmessage = this.handleMessage;
+
+      this.socket.onclose = () => {
+        console.error('Connexion WebSocket fermée');
+        this.isConnected = false;
+        this.tenterReconnexion();
+      };
+
+      this.socket.onerror = (error) => {
+        console.error('Erreur WebSocket', error);
+      };
+    },
+
+    // Tentative de reconnexion automatique
+    tenterReconnexion() {
+      if (!this.reconnexionInterval) {
+        this.reconnexionInterval = setInterval(() => {
+          console.log('Tentative de reconnexion...');
+          this.connecterWebSocket();
+        }, 5000);
+      }
+    },
+
+    // Proposer un licenciement
+    proposerLicenciement(personne) {
+      this.employeSelectionne = personne;
+    },
+
+    // Confirmer le licenciement
+    confirmerLicenciement() {
+      if (this.socket && this.isConnected) {
+        this.socket.send(
           JSON.stringify({
-            action: "licencierEmploye",
-            employe: {
-              cleprimaire: employeSelectionne.value.cleprimaire
-            }
+            type: 'LICENCIEMENT',
+            payload: this.employeSelectionne,
           })
         );
+        this.employeSelectionne = null;
       }
-      employeSelectionne.value = null;
-    };
+    },
 
-    const annulerLicenciement = () => {
-      employeSelectionne.value = null;
-    };
-
-    const handleWebSocketMessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        
-        if (data.action === "employesState") {
-          employes.value = data.employes;
-          salaireTotal.value = data.salaireTotal;
-          isLoading.value = false;
-        } else if (data.action === "personneLicencier") {
-          console.log(`L'employé ${data.nom} a été licencié.`);
-          websocket.value.send(JSON.stringify({ action: "getEmployesState" }));
-        } else if (data.error) {
-          console.error(`Erreur : ${data.error}`);
-        }
-      } catch (error) {
-        console.error("Erreur lors du traitement des données WebSocket :", error);
-      }
-    };
-
-    onMounted(() => {
-      websocket.value = new WebSocket("ws://localhost:8080");
-
-      websocket.value.onopen = () => {
-        connectionStatus.value = "connected";
-        websocket.value.send(JSON.stringify({ action: "getEmployesState" }));
-      };
-
-      websocket.value.onmessage = handleWebSocketMessage;
-
-      websocket.value.onerror = (error) => {
-        console.error("Erreur WebSocket :", error);
-        connectionStatus.value = "error";
-        isLoading.value = false;
-      };
-
-      websocket.value.onclose = () => {
-        connectionStatus.value = "disconnected";
-        console.log("WebSocket fermé");
-      };
-    });
-
-    onUnmounted(() => {
-      if (websocket.value) {
-        websocket.value.close();
-      }
-    });
-
-    return {
-      employes,
-      employeSelectionne,
-      isLoading,
-      connectionStatus,
-      salaireTotal,
-      proposerLicenciement,
-      confirmerLicenciement,
-      annulerLicenciement,
-      formatSalaire
-    };
-  }
+    // Annuler le licenciement
+    annulerLicenciement() {
+      this.employeSelectionne = null;
+    },
+  },
+  mounted() {
+    this.connecterWebSocket(); // Etablir la connexion au WebSocket dès le montage
+  },
+  beforeDestroy() {
+    if (this.socket) {
+      this.socket.close(); // Fermer la connexion WebSocket
+    }
+    clearInterval(this.reconnexionInterval);
+  },
 };
 </script>
 
@@ -162,6 +180,18 @@ export default {
 .employe-container {
   padding: 20px;
   font-family: Arial, sans-serif;
+}
+
+.connection-status {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.connection-status.error {
+  background-color: #ffe6e6;
+  color: #cc0000;
+  border: 1px solid #ffcccc;
 }
 
 .salaire-total {
@@ -176,6 +206,13 @@ export default {
   text-align: center;
   padding: 20px;
   color: #666;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
 }
 
 .categorie-section {
@@ -209,7 +246,7 @@ export default {
   border-color: #ff9999;
   cursor: pointer;
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .employe-details p {
@@ -236,7 +273,7 @@ export default {
   max-width: 400px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .modal-buttons {
@@ -255,12 +292,17 @@ button {
   transition: background-color 0.2s;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .confirm-btn {
   background-color: #dc3545;
   color: white;
 }
 
-.confirm-btn:hover {
+.confirm-btn:hover:not(:disabled) {
   background-color: #c82333;
 }
 

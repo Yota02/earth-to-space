@@ -26,7 +26,7 @@ import java.util.Map;
 public class WebSocketClient {
 
     @OnOpen
-    public void onOpen(Session session) {
+    public void onOpen(Session session) throws IOException {
         GameServer.addClient(session);
     }
 
@@ -116,7 +116,7 @@ public class WebSocketClient {
     }
 
     @OnClose
-    public void onClose(Session session) {
+    public void onClose(Session session) throws IOException {
         GameServer.removeClient(session);
     }
 
@@ -215,8 +215,6 @@ public class WebSocketClient {
             session.getBasicRemote().sendText(response.toString());
         }
     }
-
-    
 
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
