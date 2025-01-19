@@ -1,6 +1,5 @@
 package back;
 
-import back.Ressources_Humaines.GestionnaireRessources_Humaines;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
@@ -140,22 +139,27 @@ public class Jeu implements Runnable {
     }
 
     public void effectuerAchatCarburant(CarburantAchetable carburantAchetable, Ergol ergol) {
-        carburantAchetable.effectuerAchat(this);
-
+        // carburantAchetable.effectuerAchat(this);
+    
         double quantiteAajouter = carburantAchetable.getQuantite();
         for (Reservoir r : reservoirs) {
             if (r.getErgol().equals(ergol)) {
-                double quantiteDisponibleDansReservoir = r.getQuantiteTotal() - r.getQuantite();
-                if (quantiteAajouter <= quantiteDisponibleDansReservoir) {
+                double espaceDisponible = r.getQuantiteTotal() - r.getQuantite();
+                if (quantiteAajouter <= espaceDisponible) {
                     r.ajouterErgol(quantiteAajouter);
-                    break;
+                    break; // On a ajouté toute la quantité, on peut sortir de la boucle
                 } else {
-                    r.ajouterErgol(quantiteDisponibleDansReservoir);
-                    quantiteAajouter -= quantiteDisponibleDansReservoir;
+                    r.ajouterErgol(espaceDisponible); // Remplir le réservoir à sa capacité maximale
+                    quantiteAajouter -= espaceDisponible; // Réduire la quantité restante à ajouter
                 }
             }
         }
-
+    
+        // Si il reste de la quantité à ajouter après avoir parcouru tous les réservoirs
+        if (quantiteAajouter > 0) {
+            throw new IllegalStateException("Impossible d'ajouter toute la quantité, stockage insuffisant.");
+        }
+    
         retirerArgent(carburantAchetable.getPrix());
     }
 
@@ -270,10 +274,7 @@ public class Jeu implements Runnable {
             }
         }
 
-        // Ajout du programme
         programmes.add(new Programme(nom, objectif, budget, dureePrevu));
-        System.out.println("Nouveau programme créé : " + nom + " - Objectif : " + objectif + " - budget : " + budget
-                + " - durePrevu : " + dureePrevu);
     }
 
     public void demarrerRecherche(String rechercheName) {
@@ -353,7 +354,7 @@ public class Jeu implements Runnable {
         ReservoirPose reservoir2 = new ReservoirPose.Builder()
                 .setNom("Reservoir 2")
                 .setErgol(Ergol.HYDROGENE)
-                .setQuantite(0.0)
+                .setQuantite(100.0)
                 .setQuantiteTotal(1000.0)
                 .build();
 
@@ -364,9 +365,9 @@ public class Jeu implements Runnable {
                 .setQuantiteTotal(1000.0)
                 .build();
 
-        ajouterReservoir(reservoir1);
-        ajouterReservoir(reservoir2);
-        ajouterReservoir(reservoir3);
+        reservoirs.add(reservoir1);
+        reservoirs.add(reservoir2);
+        reservoirs.add(reservoir3);
 
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
@@ -466,26 +467,6 @@ public class Jeu implements Runnable {
         }
     }
 
-    public void afficherMarcheEmploi() {
-        System.out.println("État du marché de l'emploi :");
-        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " personnes");
-            for (Personne p : entry.getValue()) {
-                System.out.println("  - " + p.toString());
-            }
-        }
-    }
-
-    public void afficherEmploye() {
-        System.out.println("État des employes :");
-        for (Map.Entry<String, List<Personne>> entry : employes.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " personnes");
-            for (Personne p : entry.getValue()) {
-                System.out.println("  - " + p.toString());
-            }
-        }
-    }
-
     public void embaucherPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
 
@@ -501,7 +482,6 @@ public class Jeu implements Runnable {
         }
     }
     
-
     public void licencierPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
         if (employes.containsKey(type)) {
@@ -551,7 +531,7 @@ public class Jeu implements Runnable {
             }
 
             GameServer.sendGameStateToClients("all");
-
+            
             try {
                 sleep(1000);
             } catch (InterruptedException e) {

@@ -72,6 +72,10 @@ public class WebSocketClient {
                 case "getEmployesState":
                     getEmployes(session);
                     break;
+                
+                case "getCarburants":
+                    getCarburant(session);
+                    break;
 
                 case "creerUnProgramme":
                     handleCreerUnProgramme(jsonMessage, session);
@@ -414,6 +418,31 @@ public class WebSocketClient {
         response.put("action", "employesState");
         response.put("salaireTotal", GameServer.jeu.coutSalaireTotal());
         response.put("employes", mainArray);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getCarburant(Session session) throws IOException {
+        List<CarburantAchetable> carburants = GameServer.jeu.getCarburantAchetables();
+
+        JSONArray objectsArray = new JSONArray();
+        for (CarburantAchetable carburant : carburants) {
+            JSONObject objJson = new JSONObject();
+            objJson.put("nom", carburant.getNom());
+            objJson.put("prix", carburant.getPrix());
+            objJson.put("type", carburant.getCarburant());
+            objJson.put("estAchetable", carburant.getEstAchetable());
+            objJson.put("quantite", carburant.getQuantite());
+
+            objJson.put("capaciteMax", GameServer.jeu.getCapaciteMaximaleErgol(carburant.getCarburant()));
+            objJson.put("quantiteStock", GameServer.jeu.getQuantiteCarburant(carburant.getCarburant()));
+
+            objectsArray.put(objJson);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "carburantsState");
+        response.put("carburants", objectsArray);
 
         session.getBasicRemote().sendText(response.toString());
     }

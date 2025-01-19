@@ -41,44 +41,45 @@ public class CarburantAchetable {
     }
 
     /**
-     * Effectue l'achat du carburant en vérifiant les contraintes de capacité et met à jour les réservoirs.
+     * Effectue l'achat du carburant en vérifiant les contraintes de capacité et met
+     * à jour les réservoirs.
      *
      * @param jeu Instance du jeu contenant les informations globales.
      * @throws IllegalStateException si la capacité de stockage est insuffisante.
      */
     public void effectuerAchat(Jeu jeu) {
-        // Calcul de la capacité disponible
+        // Calcul de la capacité disponible pour chaque type de carburant
         double capaciteDisponible = jeu.getCapaciteMaximaleErgol(this.getCarburant()) - jeu.calculerQuantiteTotaleErgol(carburant.getNom());
-
+    
         if (capaciteDisponible < quantite) {
             throw new IllegalStateException("Capacité de stockage insuffisante pour " + carburant.getNom());
         }
-
-        // Ajout de carburant dans les réservoirs compatibles
+    
         double quantiteRestante = quantite;
         for (Reservoir reservoir : jeu.getReservoirs()) {
             if (reservoir.getErgol().equals(carburant)) {
-                
                 double espaceDisponible = reservoir.getQuantiteTotal() - reservoir.getQuantite();
                 if (espaceDisponible > 0) {
                     double quantiteAAjouter = Math.min(quantiteRestante, espaceDisponible);
                     reservoir.ajouterErgol(quantiteAAjouter);
                     quantiteRestante -= quantiteAAjouter;
-
+    
                     if (quantiteRestante <= 0) {
-                        break;
+                        break; // On a ajouté toute la quantité, on peut sortir de la boucle
                     }
                 }
             }
         }
-
+    
         // Vérification finale pour s'assurer que tout a été ajouté
         if (quantiteRestante > 0) {
             throw new IllegalStateException("Impossible d'ajouter toute la quantité au stockage.");
         }
-
+    
         jeu.calculerQuantiteTotaleErgol(carburant.getNom());
     }
+    
+    
 
     public static class Builder {
         private Ergol carburant;

@@ -23,7 +23,7 @@ public class GestionnaireCarburant {
                 .setPrix(1000)
                 .setEstAchetable(true)
                 .setCarburant(Ergol.HYDROGENE)
-                .setQuantite(500.0)
+                .setQuantite(100.0)
                 .build();
 
         CarburantAchetable oxygen = new CarburantAchetable.Builder()
@@ -31,7 +31,7 @@ public class GestionnaireCarburant {
                 .setPrix(1000)
                 .setEstAchetable(true)
                 .setCarburant(Ergol.OXYGEN)
-                .setQuantite(300.0)
+                .setQuantite(100.0)
                 .build();
 
         CarburantAchetable methane = new CarburantAchetable.Builder()
@@ -39,7 +39,7 @@ public class GestionnaireCarburant {
                 .setPrix(1000)
                 .setEstAchetable(true)
                 .setCarburant(Ergol.METHANES)
-                .setQuantite(400.0)
+                .setQuantite(100.0)
                 .build();
 
                 ajouterCarburantAchetable(hydrogen);

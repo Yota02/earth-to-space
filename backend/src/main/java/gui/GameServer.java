@@ -9,12 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
-import back.Ressources_Humaines.Personne;
-import back.fusee.Fusee;
-import back.fusee.booster.Booster;
-import back.fusee.chargeUtile.ChargeUtile;
-import back.fusee.moteur.Moteur;
-import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
@@ -57,14 +51,7 @@ public class GameServer {
 
     private static void initialize() throws IOException {
         jeu = new JeuWebsocket(new String[]{"Joueur"});
-        
-        // Configuration du serveur HTTP
-        // HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
-        // httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
-        // httpServer.setExecutor(executorService);
-        // httpServer.start();
 
-        // Configuration du serveur WebSocket
         Server server = new Server("0.0.0.0", 3232, "/", configureServerProperties(), WebSocketClient.class);
         
         sendGameStateToClients("all");
@@ -219,34 +206,6 @@ public class GameServer {
             }
         }
     }
-
-    public static JSONArray convertMarcheEmploiToJson(Map<String, List<Personne>> marcheEmploi) {
-        JSONArray mainArray = new JSONArray();
-        
-        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
-            JSONObject categoryObject = new JSONObject();
-            String key = entry.getKey();
-            List<Personne> personnes = entry.getValue();
-            
-            JSONArray personnesArray = new JSONArray();
-            for (Personne personne : personnes) {
-                JSONObject personneJson = new JSONObject();
-                personneJson.put("cleprimaire", personne.getClePrimaire());
-                personneJson.put("prenom", personne.getPrenom());
-                personneJson.put("nom", personne.getNom());
-                personneJson.put("salaire", personne.getSalaire());
-                personneJson.put("age", personne.getAge());
-                personneJson.put("sexe", personne.getSexe());
-                personnesArray.put(personneJson);
-            }
-            
-            categoryObject.put("type", key);
-            categoryObject.put("personnes", personnesArray);
-            mainArray.put(categoryObject);
-        }
-    
-        return mainArray;
-    }
     
     public static String convertReservoirsToJson(List<ReservoirPose> reservoirs) {
         JSONArray jsonArray = new JSONArray();
@@ -260,66 +219,7 @@ public class GameServer {
         }
         return jsonArray.toString();
     }
-
-    public static String convertCarburantToJson(List<CarburantAchetable> carburants) {
-        JSONArray objectsArray = new JSONArray();
-        for (CarburantAchetable carburant : carburants) {
-            JSONObject objJson = new JSONObject();
-            objJson.put("nom", carburant.getNom());
-            objJson.put("prix", carburant.getPrix());
-            objJson.put("type", carburant.getCarburant());
-            objJson.put("estAchetable", carburant.getEstAchetable());
-            objJson.put("quantite", carburant.getQuantite());
-
-            objJson.put("capaciteMax", jeu.getCapaciteMaximaleErgol(carburant.getCarburant()));
-            objJson.put("quantiteStock", jeu.getQuantiteCarburant(carburant.getCarburant()));
-
-            objectsArray.put(objJson);
-        }
-        return objectsArray.toString();
-    }
     
-    public static String convertPersonneToJson(List<Personne> employes) {
-        JSONArray objectsArray = new JSONArray();
-        for (Personne e : employes) {
-            JSONObject objJson = new JSONObject();
-            objJson.put("cleprimaire", e.getClePrimaire());
-            objJson.put("prenom", e.getPrenom());
-            objJson.put("nom", e.getNom());
-            objJson.put("salaire", e.getSalaire());
-            objJson.put("age", e.getAge());
-            objJson.put("sexe", e.getSexe());
-            objectsArray.put(objJson);
-        }
-        return objectsArray.toString();
-    }
-
-    public static String convertFuseeToJson(List<Fusee> fusees) {
-        JSONArray objectsArray = new JSONArray();
-        for (Fusee fusee : fusees) {
-            JSONObject objJson = new JSONObject();
-            objJson.put("nom", fusee.getNom());
-            objJson.put("taille", fusee.getTaille());
-            objJson.put("diametre", fusee.getDiametre());
-            objJson.put("poidsTotal", fusee.getPoidsTotal());
-            objJson.put("altitudeMax", fusee.getAltitudeMax());
-            objJson.put("boosterPrincipal", fusee.getBoosterPrincipal().getNom());
-            objJson.put("systemeSecurite", fusee.isSystemeSecurite());
-            objJson.put("etat", fusee.getEtat());
-            
-            JSONArray chargesArray = new JSONArray();
-            for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
-                JSONObject chargeJson = new JSONObject();
-                chargeJson.put("nom", charge.getNom());
-                chargeJson.put("poids", charge.getPoids());
-                chargesArray.put(chargeJson);
-            }
-            objJson.put("poidChargeUtiles", chargesArray);
-            objectsArray.put(objJson);
-        }
-        return objectsArray.toString();
-    }
-
     public static String convertObjectsToJson(List<ObjectAchetable> objects) {
         JSONArray objectsArray = new JSONArray();
         for (ObjectAchetable obj : objects) {
@@ -345,61 +245,6 @@ public class GameServer {
             researchObj.put("etat", recherche.getEtat());
             researchObj.put("progression", recherche.getProgression());
             jsonArray.put(researchObj);
-        }
-        return jsonArray.toString();
-    }
-
-    public static String convertLanceurToJson(List<Booster> boosters) {
-        JSONArray jsonArray = new JSONArray();
-
-        for (Booster booster : boosters) {
-            JSONObject boosterJson = new JSONObject();
-            boosterJson.put("nom", booster.getNom());
-            boosterJson.put("taille", booster.getTaille());
-            boosterJson.put("diametre", booster.getDiametre());
-            boosterJson.put("poidsAVide", booster.getPoidsAVide());
-            boosterJson.put("poids", booster.getPoids());
-            boosterJson.put("altitudeMax", booster.getAltitudeMax());
-            boosterJson.put("vitesseMax", booster.getVitesseMax());
-            boosterJson.put("estPrototype", booster.getEstPrototype());
-            boosterJson.put("estReetulisable", booster.getEstReetulisable());
-            boosterJson.put("aSystemeAutoDestruction", booster.getASystèmeAutoDestruction());
-
-            // Ajouter l'historique des lancements sous forme de tableau JSON
-            JSONArray historiquesLancementJson = new JSONArray();
-            if (booster.getHistoriquesLancement() != null) {
-                for (String lancement : booster.getHistoriquesLancement()) {
-                    historiquesLancementJson.put(lancement);
-                }
-            }
-            boosterJson.put("historiquesLancement", historiquesLancementJson);
-
-            // Ajouter les moteurs (si disponibles)
-            JSONArray moteursJson = new JSONArray();
-            if (booster.getMoteur() != null) {
-                for (Moteur moteur : booster.getMoteur()) {
-                    JSONObject moteurJson = new JSONObject();
-                    moteurJson.put("nom", moteur.getNom());
-                    moteurJson.put("poids", moteur.getPoids());
-                    moteursJson.put(moteurJson);
-                }
-            }
-            boosterJson.put("moteurs", moteursJson);
-
-            // Ajouter les réservoirs (si disponibles)
-            JSONArray reservoirsJson = new JSONArray();
-            if (booster.getReservoirs() != null) {
-                for (ReservoirFusee reservoir : booster.getReservoirs()) {
-                    JSONObject reservoirJson = new JSONObject();
-                    reservoirJson.put("nom", reservoir.getNom());
-                    reservoirJson.put("poidsAVide", reservoir.getPoidsAvide());
-                    reservoirJson.put("poids", reservoir.getPoids());
-                    reservoirsJson.put(reservoirJson);
-                }
-            }
-            boosterJson.put("reservoirs", reservoirsJson);
-
-            jsonArray.put(boosterJson);
         }
         return jsonArray.toString();
     }

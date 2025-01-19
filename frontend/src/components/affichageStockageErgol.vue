@@ -67,42 +67,57 @@ export default {
   data() {
     return {
       ws: null,
-      connectionStatus: 'connecting',
+      connectionStatus: 'connecting', // statut de la connexion
       gameData: {
-        carburants: []
-      }
+        carburants: [], // tableau pour stocker les carburants
+        argent: 1000 // exemple de l'argent disponible
+      },
+      updateInterval: null // pour garder la référence de l'intervalle
     };
   },
 
   computed: {
     fuelObjects() {
-      return (this.gameData.carburants);
+      return this.gameData.carburants; // Retourne les carburants à afficher
     }
   },
 
   methods: {
+    // Initialisation de la connexion WebSocket
     initWebSocket() {
-      this.ws = new WebSocket('ws://localhost:3232');
+      this.ws = new WebSocket('ws://localhost:3232'); // Adresse du serveur WebSocket
 
+      // Ouverture de la connexion
       this.ws.onopen = () => {
-        this.connectionStatus = 'connected';
+        this.connectionStatus = 'connected'; // Si la connexion est réussie
+        this.requestCarburants(); // Demande des carburants après la connexion
+
+        // Appeler getCarburants toutes les secondes
+        this.updateInterval = setInterval(() => {
+          this.requestCarburants();
+        }, 1000); // 1000 ms = 1 seconde
       };
 
+      // Fermeture de la connexion
       this.ws.onclose = () => {
-        this.connectionStatus = 'error';
+        this.connectionStatus = 'error'; // En cas d'erreur de connexion
+        clearInterval(this.updateInterval); // Arrêter l'intervalle si la connexion se ferme
       };
 
+      // Réception d'un message
       this.ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
+          const data = JSON.parse(event.data); // On analyse le message JSON du serveur
 
-          if (Array.isArray(data.carburants)) {
+          // Si le message contient l'état des carburants
+          if (data.action === "carburantsState" && Array.isArray(data.carburants)) {
+            // Met à jour les carburants
             data.carburants.forEach(fuel => {
               fuel.quantiteStock = fuel.quantiteStock || 0;  // Définit 0 si non défini
               fuel.capaciteMax = fuel.capaciteMax || 100;    // Définit 100 si non défini
             });
 
-            this.gameData.carburants = data.carburants;
+            this.gameData.carburants = data.carburants; // Mettez à jour le tableau carburants
           } else {
             console.warn("Les données reçues ne contiennent pas 'carburants' ou ne sont pas valides.");
           }
@@ -110,7 +125,14 @@ export default {
           console.error('Erreur lors du parsing du message:', error);
         }
       };
+    },
 
+    requestCarburants() {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify({
+          action: 'getCarburants'
+        }));
+      }
     },
 
     calculateFillPercentage(fuel) {
@@ -143,28 +165,31 @@ export default {
     },
 
     handleAddReservoir(fuelType) {
-      console.log("HandleAddReservoir");
-
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({
           action: 'addReservoir',
-          fuelType: fuelType,  // Ici on envoie fuelType tel quel
-          fuelTypeName: fuelType.nom  // Si vous souhaitez également envoyer le nom de l'ergol
+          fuelType: fuelType
         }));
       }
     }
   },
 
   mounted() {
-    this.initWebSocket();
+    this.initWebSocket(); 
   },
 
   beforeUnmount() {
     if (this.ws) {
       this.ws.close();
     }
+
+    // Arrêter l'intervalle si le composant est démonté
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   }
 };
+
 </script>
 
 <style scoped>

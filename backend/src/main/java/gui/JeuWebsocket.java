@@ -1,11 +1,9 @@
 package gui;
 
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import back.Jeu;
-import com.google.gson.Gson;
 
 /**
  * Extension de la classe Jeu qui lit les instructions dans une file d'attente

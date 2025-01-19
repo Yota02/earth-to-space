@@ -1,8 +1,5 @@
 package back.recherche;
 
-import back.objectAchetable.ObjectAchetable;
-import back.recherche.Recherche;
-
 import java.util.*;
 
 public class GestionnaireRecherche {
