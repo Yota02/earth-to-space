@@ -12,6 +12,7 @@ import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue';
 import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
 import RessourceHumaines from '../views/RessourceHumaines/RessourcesHumaineView.vue';
 import MarcheEmploie from '../views/RessourceHumaines/MarcheEmploieView.vue';
+import Lancement from '../views/LancementView.vue';
 
 const routes = [
   {
@@ -73,6 +74,11 @@ const routes = [
     path: "/MarcheEmploie",
     name: "MarcheEmploie",
     component: MarcheEmploie,
+  },
+  {
+    path: "/lancement",
+    name: "Lancement",
+    component: Lancement,
   },
   {
     path: '/:catchAll(.*)',  

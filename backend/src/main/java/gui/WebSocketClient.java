@@ -34,9 +34,7 @@ public class WebSocketClient {
     public void onMessage(Session session, String message) {
         try {
             JSONObject jsonMessage = new JSONObject(message);
-
             String action = jsonMessage.getString("action");
-
             JSONObject response = new JSONObject();
 
             switch (action) {
@@ -44,11 +42,6 @@ public class WebSocketClient {
                 case "buyObject":
                 case "buyCarburant":
                 case "sellObject":
-                    if (!jsonMessage.has("name")) {
-                        response.put("error", "Missing 'name' field for action '" + action + "'");
-                        session.getBasicRemote().sendText(response.toString());
-                        return;
-                    }
                     String name = jsonMessage.getString("name");
                     handleActionWithName(action, name, session, response);
                     break;
@@ -95,11 +88,6 @@ public class WebSocketClient {
                     break;
 
                 case "getCarburantQuantite":
-                    if (!jsonMessage.has("nom")) {
-                        response.put("error", "Missing 'nom' field for action 'getCarburantQuantite'");
-                        session.getBasicRemote().sendText(response.toString());
-                        return;
-                    }
                     handleGetCarburantQuantite(jsonMessage, session);
                     break;
 
@@ -133,7 +121,6 @@ public class WebSocketClient {
         JSONObject response = new JSONObject();
 
         try {
-            // Validation du type de carburant en utilisant le nom de l'énumération
             Ergol ergol = null;
             try {
                 ergol = Ergol.valueOf(fuelTypeName.toUpperCase());
@@ -143,7 +130,6 @@ public class WebSocketClient {
                 return;
             }
 
-            // Création du réservoir avec des valeurs par défaut
             ReservoirPose newReservoir = new ReservoirPose.Builder()
                     .setNom("Réservoir d'" + ergol.getNom() + " " + (GameServer.jeu.getReservoirs().size() + 1))
                     .setErgol(ergol)
@@ -151,7 +137,6 @@ public class WebSocketClient {
                     .setQuantiteTotal(1000.0)
                     .build();
 
-            // Ajout du réservoir au jeu
             GameServer.jeu.ajouterReservoir(newReservoir);
 
             response.put("action", "reservoirAdded");
@@ -161,7 +146,6 @@ public class WebSocketClient {
             session.getBasicRemote().sendText(response.toString());
 
             GameServer.sendGameStateToClients("reservoirs");
-
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'ajout du réservoir: " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());

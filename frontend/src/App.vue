@@ -12,6 +12,7 @@
         <ul :class="['navbar-menu', { 'navbar-menu-active': menuOpen }]">
           <li><router-link to="/" @click="closeMenu">Home</router-link></li>
           <li><router-link to="/shop" @click="closeMenu">Shop</router-link></li>
+          <li><router-link to="/lancement" @click="closeMenu">Lancement</router-link></li>
           <li><router-link to="/programme" @click="closeMenu">Programme</router-link></li>
           <li><router-link to="/researche" @click="closeMenu">Researche</router-link></li>
           <li><router-link to="/Ressource-Humaines" @click="closeMenu">Ressource Humaines</router-link></li>
