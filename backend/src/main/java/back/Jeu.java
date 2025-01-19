@@ -354,7 +354,7 @@ public class Jeu implements Runnable {
         ReservoirPose reservoir2 = new ReservoirPose.Builder()
                 .setNom("Reservoir 2")
                 .setErgol(Ergol.HYDROGENE)
-                .setQuantite(100.0)
+                .setQuantite(0.0)
                 .setQuantiteTotal(1000.0)
                 .build();
 
