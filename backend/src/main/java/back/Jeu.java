@@ -1,5 +1,6 @@
 package back;
 
+import back.Ressources_Humaines.GestionnaireRessources_Humaines;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
@@ -48,7 +49,7 @@ public class Jeu implements Runnable {
     // Programmes
     private List<Programme> programmes;
 
-    //resources Humaine
+    // resources Humaine
     private Map<String, List<Personne>> employes;
     private Map<String, List<Personne>> marcheEmploi;
 
@@ -73,7 +74,6 @@ public class Jeu implements Runnable {
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
-    //private GestionnaireMarcheEmploie gestionnaireMarcheEmploie; 
 
     private final Lock researchLock;
 
@@ -83,12 +83,11 @@ public class Jeu implements Runnable {
         this.date = LocalDate.of(2000, 1, 1);
 
         this.employes = new HashMap<>();
+        this.marcheEmploi = new HashMap<>();
 
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
-
-        marcheEmploi = new HashMap<>();
 
         this.rechercheObtenue = Collections.synchronizedList(new ArrayList<>());
 
@@ -113,12 +112,12 @@ public class Jeu implements Runnable {
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
-    }
 
-    public void ajouterPersonne(Personne personne) {
-        String type = personne.getClass().getSimpleName();
-        marcheEmploi.putIfAbsent(type, new ArrayList<>());
-        marcheEmploi.get(type).add(personne);
+        //this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
+        //this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
+
+        //this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
+        //this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
     }
 
     public List<Personne> getPersonnesParType(String type) {
@@ -174,7 +173,7 @@ public class Jeu implements Runnable {
                 }
             }
         }
-        return capaciteMax > 0 ? capaciteMax : 1000.0; 
+        return capaciteMax > 0 ? capaciteMax : 1000.0;
     }
 
     public double calculerQuantiteTotaleErgol(String nomErgol) {
@@ -305,11 +304,10 @@ public class Jeu implements Runnable {
                         rechercheObtenue.add(recherche);
                     }
 
-                
                 } catch (InterruptedException e) {
                     recherche.setEtat("échouée");
                     System.out.println("La recherche '" + rechercheName + "' a été interrompue.");
-           
+
                 }
             });
         } else {
@@ -344,7 +342,7 @@ public class Jeu implements Runnable {
         return null;
     }
 
-    public void init(){
+    public void init() {
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
                 .setNom("Reservoir 1")
                 .setErgol(Ergol.OXYGEN)
@@ -365,7 +363,7 @@ public class Jeu implements Runnable {
                 .setQuantite(0.0)
                 .setQuantiteTotal(1000.0)
                 .build();
-        
+
         ajouterReservoir(reservoir1);
         ajouterReservoir(reservoir2);
         ajouterReservoir(reservoir3);
@@ -433,66 +431,102 @@ public class Jeu implements Runnable {
         Fusee f2 = new Fusee("StarShip2", 1000, booster, chargesUtiles, true);
 
         fusees.add(f1);
-        fusees.add(f2); 
+        fusees.add(f2);
 
-        for(int i = 0; i < 10; i++){
-            Personne p1 = new PersonneSimple();
-            String type = p1.getClass().getSimpleName();
-            employes.get(type).add(p1);
+        for (int i = 0; i < 10; i++) {
+            PersonneSimple nouvellePersonne = new PersonneSimple();
+            ajouterPersonne(nouvellePersonne, employes);
         }
 
         Personne chercheur1 = new Scientifique();
         Personne ingenieur1 = new Ingenieur();
 
-        ajouterPersonne(chercheur1);
-        ajouterPersonne(ingenieur1);
-        
-        for(int i = 0; i < 10; i++){
-            Personne p1 = new PersonneSimple();
-            ajouterPersonne(p1);
+        ajouterPersonne(chercheur1, marcheEmploi);
+        ajouterPersonne(ingenieur1, marcheEmploi);
+
+        for (int i = 0; i < 10; i++) {
+            PersonneSimple nouvellePersonne = new PersonneSimple();
+            ajouterPersonne(nouvellePersonne, marcheEmploi);
         }
-    
+
+    }
+
+    public void ajouterPersonne(Personne personne, Map<String, List<Personne>> list) {
+        String type = personne.getClass().getSimpleName();
+        list.putIfAbsent(type, new ArrayList<>());
+        list.get(type).add(personne);
+    }
+
+    public void afficherPersonnes(Map<String, List<Personne>> list) {
+        for (Map.Entry<String, List<Personne>> entry : list.entrySet()) {
+            System.out.println("Type: " + entry.getKey());
+            for (Personne personne : entry.getValue()) {
+                System.out.println(personne.toString());
+            }
+        }
+    }
+
+    public void afficherMarcheEmploi() {
+        System.out.println("État du marché de l'emploi :");
+        for (Map.Entry<String, List<Personne>> entry : marcheEmploi.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " personnes");
+            for (Personne p : entry.getValue()) {
+                System.out.println("  - " + p.toString());
+            }
+        }
+    }
+
+    public void afficherEmploye() {
+        System.out.println("État des employes :");
+        for (Map.Entry<String, List<Personne>> entry : employes.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue().size() + " personnes");
+            for (Personne p : entry.getValue()) {
+                System.out.println("  - " + p.toString());
+            }
+        }
     }
 
     public void embaucherPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
-        
-        // Vérifier si la personne est dans le marché de l'emploi
-        if (marcheEmploi.containsKey(type) && marcheEmploi.get(type).contains(personne)) {
-            // Retirer la personne du marché de l'emploi
+
+        if (marcheEmploi.containsKey(type)) {
             marcheEmploi.get(type).remove(personne);
             
-            // Ajouter la personne à la liste des employés
             employes.putIfAbsent(type, new ArrayList<>());
             employes.get(type).add(personne);
-            
-            // Notifier le changement
-            System.out.println("Personne embauchée avec succès : " + personne.getNom());
+    
+            System.out.println("Personne embauchée avec succès : " + personne.getClePrimaire());
         } else {
             System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
         }
     }
     
+
     public void licencierPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
-        
-        // Vérifier si la personne est un employé
-        if (employes.containsKey(type) && employes.get(type).contains(personne)) {
-            // Retirer la personne de la liste des employés
-            employes.get(type).remove(personne);
-            
-            // Ajouter la personne au marché de l'emploi
-            marcheEmploi.putIfAbsent(type, new ArrayList<>());
-            marcheEmploi.get(type).add(personne);
-            
-            // Notifier le changement
-            System.out.println("Personne licenciée avec succès : " + personne.getNom());
+        if (employes.containsKey(type)) {
+            List<Personne> employesDuType = employes.get(type);
+
+            if (employesDuType.remove(personne)) {
+                marcheEmploi.putIfAbsent(type, new ArrayList<>());
+                marcheEmploi.get(type).add(personne);
+            } else {
+                System.out.println("Cette personne n'est pas un employé de type " + type);
+            }
         } else {
-            System.out.println("Cette personne n'est pas un employé de l'entreprise");
+            System.out.println("Aucun employé de type " + type + " trouvé");
         }
     }
 
     public Personne retrouverEmployeParId(int clePrimaire) {
+        for (List<Personne> personnes : employes.values()) {
+            for (Personne personne : personnes) {
+                if (personne.getClePrimaire() == clePrimaire) {
+                    return personne;
+                }
+            }
+        }
+
         for (List<Personne> personnes : marcheEmploi.values()) {
             for (Personne personne : personnes) {
                 if (personne.getClePrimaire() == clePrimaire) {
@@ -500,29 +534,23 @@ public class Jeu implements Runnable {
                 }
             }
         }
-        return null;  
+
+        return null;
     }
-    
 
     @Override
     public void run() {
         init();
         while (!estFinie()) {
-            researchLock.lock();
-            try {
-                ajouterArgent(1000);
-                ajouterPointRecherche(1);
-                incrementerDate();
-                System.out.println(date.getDayOfMonth());
-                if (date.getDayOfMonth() == date.lengthOfMonth()) { 
-                    retirerArgent(coutSalaireTotal());
-                    for(int i = 0; i < new Random().nextInt(5) + 1;){
-                        ajouterPersonne(new PersonneSimple());
-                    }
-                }
-            } finally {
-                researchLock.unlock();
+            ajouterArgent(1000);
+            ajouterPointRecherche(1);
+            incrementerDate();
+
+            if (date.getDayOfMonth() == date.lengthOfMonth()) {
+                retirerArgent(coutSalaireTotal());
             }
+
+            GameServer.sendGameStateToClients("all");
 
             try {
                 sleep(1000);

@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GestionnaireMarcheEmploie {
+
+public class GestionnaireRessources_Humaines {
 
     private Map<String, List<Personne>> personnesParType;
 
-    public GestionnaireMarcheEmploie() {
+
+    public GestionnaireRessources_Humaines() {
         personnesParType = new HashMap<>();
     }
 
@@ -30,5 +32,9 @@ public class GestionnaireMarcheEmploie {
 
     public List<Personne> getPersonnesParType(String type) {
         return personnesParType.getOrDefault(type, new ArrayList<>());
+    }
+
+    public Map<String, List<Personne>> getPersonnesParTypeMap() {
+        return personnesParType; 
     }
 }

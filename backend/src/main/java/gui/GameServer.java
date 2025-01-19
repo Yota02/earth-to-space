@@ -1,7 +1,6 @@
 package gui;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -21,7 +20,6 @@ import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.recherche.Recherche;
 import org.glassfish.tyrus.server.Server;
-import com.sun.net.httpserver.HttpServer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,18 +56,19 @@ public class GameServer {
     }
 
     private static void initialize() throws IOException {
-        // Initialisation du jeu
         jeu = new JeuWebsocket(new String[]{"Joueur"});
         
         // Configuration du serveur HTTP
-        HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
-        httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
-        httpServer.setExecutor(executorService);
-        httpServer.start();
+        // HttpServer httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", 4242), 0);
+        // httpServer.createContext("/", new StaticFileHandler("/", "front/", "index.html"));
+        // httpServer.setExecutor(executorService);
+        // httpServer.start();
 
         // Configuration du serveur WebSocket
         Server server = new Server("0.0.0.0", 3232, "/", configureServerProperties(), WebSocketClient.class);
         
+        sendGameStateToClients("all");
+
         try {
             server.start();
             executorService.submit(jeu);
@@ -187,13 +186,12 @@ public class GameServer {
         }
     }
 
-    // Méthodes utilitaires pour la gestion de la mémoire
     private static void cleanupResources() {
         clients.values().removeIf(session -> !session.isOpen());
         if (jsonCache.size() > CACHE_SIZE) {
             jsonCache.clear();
         }
-        System.gc(); // Suggestion de garbage collection
+        System.gc();
     }
     
     public static void addInput(String message) {

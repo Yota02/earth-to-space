@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class PersonneSimple implements Personne {
 
-    private static int compteurId = 0; 
+    private static int compteurId = 0;
     private int clePrimaire;
     private String nom;
     private String prenom;
@@ -13,18 +13,18 @@ public class PersonneSimple implements Personne {
     private Boolean malade;
 
     private static final String[] NOMS = {
-        "Dupont", "Martin", "Lemoine", "Lefevre", "Garcia", "Renard", "Dubois", "Cousin", "Lemoine", "Petit"
+            "Dupont", "Martin", "Lemoine", "Lefevre", "Garcia", "Renard", "Dubois", "Cousin", "Lemoine", "Petit"
     };
 
     private static final String[] PRENOMS_HOMMES = {
-        "Pierre", "Paul", "Jacques", "Louis", "Henri", "Alexandre", "Thomas", "Nicolas", "Mathieu", "Victor"
+            "Pierre", "Paul", "Jacques", "Louis", "Henri", "Alexandre", "Thomas", "Nicolas", "Mathieu", "Victor"
     };
 
     private static final String[] PRENOMS_FEMMES = {
-        "Marie", "Claire", "Sophie", "Julie", "Camille", "Elise", "Aurélie", "Laura", "Valérie", "Chloé"
+            "Marie", "Claire", "Sophie", "Julie", "Camille", "Elise", "Aurélie", "Laura", "Valérie", "Chloé"
     };
 
-    private static final String[] SEXES = {"Homme", "Femme"};
+    private static final String[] SEXES = { "Homme", "Femme" };
 
     public PersonneSimple() {
         Random random = new Random();
@@ -39,30 +39,41 @@ public class PersonneSimple implements Personne {
         }
 
         this.age = random.nextInt(63) + 18;
-        this.clePrimaire = generateClePrimaire(); 
+        this.clePrimaire = generateClePrimaire();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Personne personne = (Personne) obj;
+        return clePrimaire == personne.getClePrimaire();
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(clePrimaire);
     }
 
     private int generateClePrimaire() {
-        return ++compteurId;  
+        return ++compteurId;
     }
 
     public int getClePrimaire() {
         return clePrimaire;
     }
 
-    public Boolean estMalade(){
+    public Boolean estMalade() {
         return malade;
     }
 
-    public String getNom(){
+    public String getNom() {
         return nom;
     }
 
-    public String getPrenom(){
+    public String getPrenom() {
         return prenom;
     }
 
-    public int getAge(){
+    public int getAge() {
         return age;
     }
 
@@ -70,7 +81,7 @@ public class PersonneSimple implements Personne {
         return sexe;
     }
 
-    public int getSalaire(){
+    public int getSalaire() {
         return 1200;
     }
 

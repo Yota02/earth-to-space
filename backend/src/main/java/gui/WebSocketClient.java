@@ -198,24 +198,22 @@ public class WebSocketClient {
 
     private void handlelicencierEmploye(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
             Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
-
             GameServer.jeu.licencierPersonne(personne);
             response.put("action", "personneLicencier");
             response.put("nom", personne.getNom());
+            response.put("clePrimaire", personne.getClePrimaire());
             session.getBasicRemote().sendText(response.toString());
             GameServer.sendGameStateToClients("employes");
-
         } catch (Exception e) {
-            response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
+            response.put("error", "Erreur lors du licenciement : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
     }
-
+    
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
         switch (action) {
@@ -386,7 +384,7 @@ public class WebSocketClient {
     }
 
     private void getEmployes(Session session) throws IOException {
-        Map<String, List<Personne>> employes = GameServer.jeu.getMarcheEmploie();
+        Map<String, List<Personne>> employes = GameServer.jeu.getEmployes();
 
         JSONArray mainArray = new JSONArray();
 
