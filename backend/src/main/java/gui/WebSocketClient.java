@@ -330,8 +330,6 @@ public class WebSocketClient {
             jsonArray.put(missionJson);
         }
 
-        System.out.println();
-
         JSONObject response = new JSONObject();
         response.put("action", "missionsState");
         response.put("missions", jsonArray);
