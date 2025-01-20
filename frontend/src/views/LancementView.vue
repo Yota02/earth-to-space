@@ -49,9 +49,8 @@ export default {
 /* FlightMetrics centré en bas */
 .system-metrics {
   display: flex;
-  justify-content: center;  /* Centrer horizontalement */
-  align-items: center;      /* Centrer verticalement dans l'espace disponible */
-  padding: 20px;
+  justify-content: center; 
+  align-items: center;      
   background-color: #f4f4f4;
   width: 100%;
 }

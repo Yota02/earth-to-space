@@ -3,6 +3,9 @@ package back.fusee.booster;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
@@ -140,6 +143,88 @@ public class Booster {
 
     public void ajouterLancementAHistorique(String mission) {
         historiquesLancement.add(mission);
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        
+        // Spécifications basiques
+        json.put("nom", this.nom);
+        json.put("taille", this.taille);
+        json.put("diametre", this.diametre);
+        json.put("poidsAVide", this.poidsAVide);
+        json.put("altitudeMax", this.altitudeMax);
+        json.put("vitesseMax", this.VitesseMax);
+
+        // État
+        json.put("etat", this.etat);
+        json.put("poids", this.poids);
+        json.put("vitesse", this.vitesse);
+        json.put("necessiteMaintenance", this.nécessiteMaintenance);
+
+        // Spécifications spéciales
+        json.put("estPrototype", this.estPrototype);
+        json.put("estReetulisable", this.estReetulisable);
+        json.put("aSystemeAutoDestruction", this.aSystèmeAutoDestruction);
+
+        // Conversion des moteurs
+        JSONArray moteursArray = new JSONArray();
+        if (this.moteur != null) {
+            for (Moteur moteur : this.moteur) {
+                if (moteur != null) {
+                    JSONObject moteurJson = new JSONObject();
+                    moteurJson.put("nom", moteur.getNom());
+                    moteurJson.put("poids", moteur.getPoids());
+                    moteursArray.put(moteurJson);
+                }
+            }
+        }
+        json.put("moteurs", moteursArray);
+
+        // Conversion des réservoirs
+        JSONArray reservoirsArray = new JSONArray();
+        if (this.reservoirs != null) {
+            for (ReservoirFusee reservoir : this.reservoirs) {
+                if (reservoir != null) {
+                    JSONObject reservoirJson = new JSONObject();
+                    reservoirJson.put("nom", reservoir.getNom());
+                    reservoirJson.put("poidsAVide", reservoir.getPoidsAvide());
+                    reservoirJson.put("poids", reservoir.getPoids());
+                    reservoirsArray.put(reservoirJson);
+                }
+            }
+        }
+        json.put("reservoirs", reservoirsArray);
+
+        // Conversion de l'historique des lancements
+        JSONArray historiqueArray = new JSONArray();
+        if (this.historiquesLancement != null) {
+            for (String lancement : this.historiquesLancement) {
+                if (lancement != null) {
+                    historiqueArray.put(lancement);
+                }
+            }
+        }
+        json.put("historiquesLancement", historiqueArray);
+        
+        return json;
+    }
+
+    /**
+     * Convertit une liste de boosters en JSONArray
+     * @param boosters Liste des boosters à convertir
+     * @return JSONArray contenant tous les boosters
+     */
+    public static JSONArray toJsonArray(List<Booster> boosters) {
+        JSONArray jsonArray = new JSONArray();
+        if (boosters != null) {
+            for (Booster booster : boosters) {
+                if (booster != null) {
+                    jsonArray.put(booster.toJson());
+                }
+            }
+        }
+        return jsonArray;
     }
 
 }

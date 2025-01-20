@@ -2,6 +2,9 @@ package back.fusee;
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Moteur;
@@ -15,6 +18,8 @@ public class Fusee {
     private List<ChargeUtile> poidChargeUtiles;
     private boolean systemeSecurite;
     private int etat;
+    private double vitesse;
+    private double altitude;
 
     public Fusee(String nom, double taille, Booster boosterPrincipal, List<ChargeUtile> poidChargeUtiles, boolean systemeSecurite) {
         this.nom = nom;
@@ -23,8 +28,9 @@ public class Fusee {
         this.poidChargeUtiles = poidChargeUtiles;
         this.systemeSecurite = systemeSecurite;
         this.etat = 0;
-        
-        // Calculate these after all fields are initialized
+        this.vitesse = 0;
+        this.altitude = 0;
+
         this.diametre = calculateDiametre();
         this.poidsTotal = calculatePoidsTotal();
         this.altitudeMax = calculateAltitudeMax();
@@ -61,11 +67,71 @@ public class Fusee {
         return this.poidsTotal - totalPoussee;
     }
 
-    // Rest of your methods remain the same
-    public void decoler() {
-        System.out.println("Décollage de la fusée " + nom + "...");
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        
+        json.put("nom", this.nom);
+        json.put("taille", this.taille);
+        json.put("diametre", this.diametre);
+        json.put("poidsTotal", this.poidsTotal);
+        json.put("altitudeMax", this.altitudeMax);
+        json.put("systemeSecurite", this.systemeSecurite);
+        json.put("etat", this.etat);
+        json.put("vitesse", this.vitesse);
+        json.put("altitude", this.altitude);
+        
+        // Conversion du booster principal
+        if (this.boosterPrincipal != null) {
+            json.put("boosterPrincipal", this.boosterPrincipal.toJson());
+        } else {
+            json.put("boosterPrincipal", JSONObject.NULL);
+        }
+        
+        // Conversion de la liste des charges utiles
+        JSONArray chargesArray = new JSONArray();
+        if (this.poidChargeUtiles != null) {
+            for (ChargeUtile charge : this.poidChargeUtiles) {
+                if (charge != null) {
+                    chargesArray.put(charge.toJson());
+                }
+            }
+        }
+        json.put("poidChargeUtiles", chargesArray);
+        
+        return json;
     }
 
+    /**
+     * Convertit une liste de fusées en JSONArray
+     * @param fusees Liste des fusées à convertir
+     * @return JSONArray contenant toutes les fusées
+     */
+    public static JSONArray toJsonArray(List<Fusee> fusees) {
+        JSONArray jsonArray = new JSONArray();
+        if (fusees != null) {
+            for (Fusee fusee : fusees) {
+                if (fusee != null) {
+                    jsonArray.put(fusee.toJson());
+                }
+            }
+        }
+        return jsonArray;
+    }
+
+    public void decoler() {
+        System.out.println("Décollage de la fusée " + nom + "...");
+        for (int i = 0; i < 280000; i++) {
+            vitesse++;
+            altitude++;
+            
+            try {
+                Thread.sleep(100);  
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public void exploser() {
         System.out.println("Boom... Fusée " + nom + " a explosé...");
     }

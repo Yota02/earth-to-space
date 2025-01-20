@@ -1,6 +1,11 @@
 package back.mission;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import back.fusee.Fusee;
 import back.fusee.chargeUtile.ChargeUtile;
 
@@ -61,6 +66,59 @@ public class Mission {
     public boolean isASubiTestMission() { return aSubiTestMission; }
     public Destination getDestinationMission() { return destinationMission; }
     public String[] getEtapeMission() { return etapeMission; }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        
+        json.put("missionId", this.missionId);
+        json.put("nomMission", this.nomMission);
+        json.put("dateHeureLancement", this.dateHeureLancement.toString());
+        json.put("siteLancement", this.siteLancement.toString());
+        json.put("fusee", this.fusee.toJson());
+        json.put("statutMission", this.statutMission);
+        json.put("chargeUtile", this.chargeUtile != null ? this.chargeUtile.toJson() : JSONObject.NULL);
+        json.put("tempsVolEstime", this.tempsVolEstime);
+        json.put("missionReussie", this.missionReussie);
+        
+        // Conversion du tableau membresEquipage en JSONArray
+        JSONArray equipageArray = new JSONArray();
+        if (this.membresEquipage != null) {
+            for (String membre : this.membresEquipage) {
+                equipageArray.put(membre);
+            }
+        }
+        json.put("membresEquipage", equipageArray);
+        
+        json.put("tauxReussiteHistorique", this.tauxReussiteHistorique);
+        json.put("lancementAutomatique", this.lancementAutomatique);
+        json.put("typeMission", this.typeMission.toString());
+        json.put("aSubiTestMission", this.aSubiTestMission);
+        json.put("destinationMission", this.destinationMission.toString());
+        
+        // Conversion du tableau etapeMission en JSONArray
+        JSONArray etapesArray = new JSONArray();
+        if (this.etapeMission != null) {
+            for (String etape : this.etapeMission) {
+                etapesArray.put(etape);
+            }
+        }
+        json.put("etapeMission", etapesArray);
+        
+        return json;
+    }
+
+    /**
+     * Convertit une liste de missions en JSONArray
+     * @param missions Liste des missions à convertir
+     * @return JSONArray contenant toutes les missions
+     */
+    public static JSONArray toJsonArray(List<Mission> missions) {
+        JSONArray jsonArray = new JSONArray();
+        for (Mission mission : missions) {
+            jsonArray.put(mission.toJson());
+        }
+        return jsonArray;
+    }
 
     // Classe statique Builder
     public static class Builder {

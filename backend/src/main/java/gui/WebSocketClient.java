@@ -8,6 +8,7 @@ import back.fusee.moteur.Ergol;
 import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
+import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
 import back.programme.Programme;
@@ -15,6 +16,8 @@ import back.programme.Programme;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -76,6 +79,14 @@ public class WebSocketClient {
 
                 case "embaucherEmploye":
                     handleEmbaucherEmploye(jsonMessage, session);
+                    break;
+
+                case "getMissionSteps":
+                    getMissions(session);
+                    break;
+
+                case "getMissionState":
+                    getMissions(session);
                     break;
 
                 case "licencierEmploye":
@@ -281,28 +292,8 @@ public class WebSocketClient {
         JSONArray fuseesArray = new JSONArray();
 
         for (Fusee fusee : fusees) {
-            if (fusee != null) {
-                JSONObject objJson = new JSONObject();
-                objJson.put("nom", fusee.getNom());
-                objJson.put("taille", fusee.getTaille());
-                objJson.put("diametre", fusee.getDiametre());
-                objJson.put("poidsTotal", fusee.getPoidsTotal());
-                objJson.put("altitudeMax", fusee.getAltitudeMax());
-                objJson.put("boosterPrincipal", fusee.getBoosterPrincipal().getNom());
-                objJson.put("systemeSecurite", fusee.isSystemeSecurite());
-                objJson.put("etat", fusee.getEtat());
-
-                JSONArray chargesArray = new JSONArray();
-                for (ChargeUtile charge : fusee.getPoidChargeUtiles()) {
-                    JSONObject chargeJson = new JSONObject();
-                    chargeJson.put("nom", charge.getNom());
-                    chargeJson.put("poids", charge.getPoids());
-                    chargesArray.put(chargeJson);
-                }
-                objJson.put("poidChargeUtiles", chargesArray);
-
-                fuseesArray.put(objJson);
-            }
+            JSONObject objJson = fusee.toJson();
+            fuseesArray.put(objJson);
         }
 
         JSONObject response = new JSONObject();
@@ -318,55 +309,51 @@ public class WebSocketClient {
         JSONArray jsonArray = new JSONArray();
 
         for (Booster booster : boosters) {
-            JSONObject boosterJson = new JSONObject();
-            boosterJson.put("nom", booster.getNom());
-            boosterJson.put("taille", booster.getTaille());
-            boosterJson.put("diametre", booster.getDiametre());
-            boosterJson.put("poidsAVide", booster.getPoidsAVide());
-            boosterJson.put("poids", booster.getPoids());
-            boosterJson.put("altitudeMax", booster.getAltitudeMax());
-            boosterJson.put("vitesseMax", booster.getVitesseMax());
-            boosterJson.put("estPrototype", booster.getEstPrototype());
-            boosterJson.put("estReetulisable", booster.getEstReetulisable());
-            boosterJson.put("aSystemeAutoDestruction", booster.getASystèmeAutoDestruction());
-
-            JSONArray historiquesLancementJson = new JSONArray();
-            if (booster.getHistoriquesLancement() != null) {
-                for (String lancement : booster.getHistoriquesLancement()) {
-                    historiquesLancementJson.put(lancement);
-                }
-            }
-            boosterJson.put("historiquesLancement", historiquesLancementJson);
-
-            JSONArray moteursJson = new JSONArray();
-            if (booster.getMoteur() != null) {
-                for (Moteur moteur : booster.getMoteur()) {
-                    JSONObject moteurJson = new JSONObject();
-                    moteurJson.put("nom", moteur.getNom());
-                    moteurJson.put("poids", moteur.getPoids());
-                    moteursJson.put(moteurJson);
-                }
-            }
-            boosterJson.put("moteurs", moteursJson);
-
-            JSONArray reservoirsJson = new JSONArray();
-            if (booster.getReservoirs() != null) {
-                for (ReservoirFusee reservoir : booster.getReservoirs()) {
-                    JSONObject reservoirJson = new JSONObject();
-                    reservoirJson.put("nom", reservoir.getNom());
-                    reservoirJson.put("poidsAVide", reservoir.getPoidsAvide());
-                    reservoirJson.put("poids", reservoir.getPoids());
-                    reservoirsJson.put(reservoirJson);
-                }
-            }
-            boosterJson.put("reservoirs", reservoirsJson);
-
+            JSONObject boosterJson = booster.toJson();
             jsonArray.put(boosterJson);
         }
 
         JSONObject response = new JSONObject();
         response.put("action", "boostersState");
         response.put("boosters", jsonArray);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getMissions(Session session) throws IOException {
+        List<Mission> missions = GameServer.jeu.getMissions();
+
+        JSONArray jsonArray = new JSONArray();
+
+        for (Mission mission : missions) {
+            JSONObject missionJson = mission.toJson();
+            jsonArray.put(missionJson);
+        }
+
+        System.out.println();
+
+        JSONObject response = new JSONObject();
+        response.put("action", "missionsState");
+        response.put("missions", jsonArray);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getMissionById(Session session, int id) throws IOException {
+        List<Mission> missions = GameServer.jeu.getMissions();
+
+        JSONObject missionJson = null;
+
+        for (Mission mission : missions) {
+            if(mission.getMissionId() == id){
+                missionJson = mission.toJson();
+                break;
+            }
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "missionsState");
+        response.put("mission", missionJson);
 
         session.getBasicRemote().sendText(response.toString());
     }

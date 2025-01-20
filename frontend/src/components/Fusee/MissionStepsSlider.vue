@@ -1,51 +1,83 @@
 <template>
-    <div class="mission-slider">
-      <div class="slider-container">
-        <transition-group name="slide">
-          <h3 
-            v-for="(step, index) in steps" 
-            :key="step"
-            v-show="currentStep === index"
-            class="step-text"
-          >
-            {{ step }}
-          </h3>
-        </transition-group>
-      </div>
-      <div class="progress-bar"></div>
+  <div class="mission-slider">
+    <div class="slider-container">
+      <transition-group name="slide">
+        <h3 
+          v-for="(step, index) in currentSteps" 
+          :key="index" 
+          v-show="currentStep === index"
+          class="step-text"
+        >
+          {{ step }}
+        </h3>
+      </transition-group>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'MissionStepsSlider',
-    data() {
-      return {
-        currentStep: 0,
-        steps: [
-          'Préparation du lancement T-00:05:16',
-          'Vérification des systèmes T-00:04:00',
-          'Initialisation moteurs T-00:03:00',
-          'Séquence finale T-00:01:00',
-          'Décollage T-00:00:00'
-        ]
-      }
+    <div class="progress-bar" :style="{ width: `${progress}%` }"></div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'MissionSteps',
+  data() {
+    return {
+      websocket: null,
+      currentStep: 0,
+      currentSteps: [], // Tableau pour stocker les étapes de mission
+      progress: 0,
+      intervalId: null
+    }
+  },
+  mounted() {
+    this.connectWebSocket();
+  },
+  beforeUnmount() {
+    if (this.websocket) {
+      this.websocket.close();
+    }
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  },
+  methods: {
+    connectWebSocket() {
+      this.websocket = new WebSocket('ws://localhost:3232');
+
+      this.websocket.onopen = () => {
+        this.websocket.send(JSON.stringify({ action: 'getMissionSteps' })); // Demander les étapes de mission
+      };
+
+      this.websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.action === 'missionsState') {  // Vérifier que l'action est "missionsState"
+            const mission = data.missions[0];  // Prendre la première mission dans le tableau (vous pouvez ajuster selon vos besoins)
+            this.currentSteps = mission.etapeMission || []; // Assurez-vous que etapeMission existe
+            this.startStepProgression();
+          }
+        } catch (error) {
+          console.error('Error processing WebSocket data:', error);
+        }
+      };
     },
-    mounted() {
-      this.startSlideshow()
-    },
-    beforeUnmount() {
-      clearInterval(this.intervalId)
-    },
-    methods: {
-      startSlideshow() {
-        this.intervalId = setInterval(() => {
-          this.currentStep = (this.currentStep + 1) % this.steps.length
-        }, 50000)
-      }
+    startStepProgression() {
+      const stepDuration = 50000; // Durée de chaque étape
+      const updateInterval = 100; // Intervalle de mise à jour
+      let elapsed = 0;
+
+      this.intervalId = setInterval(() => {
+        elapsed += updateInterval;
+        this.progress = (elapsed % stepDuration) / stepDuration * 100;
+        
+        if (elapsed % stepDuration === 0) {
+          this.currentStep = (this.currentStep + 1) % this.currentSteps.length;
+        }
+      }, updateInterval);
     }
   }
-  </script>
+}
+</script>
+
   
   <style scoped>
   .mission-slider {

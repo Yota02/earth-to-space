@@ -12,6 +12,10 @@ import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
+import back.mission.Destination;
+import back.mission.Mission;
+import back.mission.SiteLancement;
+import back.mission.TypeMission;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
@@ -22,6 +26,7 @@ import back.recherche.Recherche;
 import gui.GameServer;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,7 +39,7 @@ import static java.lang.Thread.sleep;
 public class Jeu implements Runnable {
     // Attributs
     private int argent;
-    private Integer pointsRecherche;
+    private double pointsRecherche;
 
     // element runnable
     private List<String> log;
@@ -57,6 +62,9 @@ public class Jeu implements Runnable {
 
     private List<Fusee> fusees;
 
+    private List<Mission> missions;
+    private Boolean MissionEnCours;
+
     // Collections pour les recherches
     private List<Recherche> recherchesTotal;
     private List<Recherche> rechercheObtenue;
@@ -67,19 +75,23 @@ public class Jeu implements Runnable {
     private List<ObjectAchetable> objectAcheter;
 
     // Date
-    private LocalDate date;
+    private LocalDateTime date;
 
     // Gestionaire
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
+    private double pointsRechercheParMois;
 
     private final Lock researchLock;
 
     public Jeu(String[] nomsJoueurs) {
         this.argent = 1000;
         this.pointsRecherche = 0;
-        this.date = LocalDate.of(2000, 1, 1);
+        this.date = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
+
+        this.MissionEnCours = false;
+        this.pointsRechercheParMois = 0.1;
 
         this.employes = new HashMap<>();
         this.marcheEmploi = new HashMap<>();
@@ -95,6 +107,7 @@ public class Jeu implements Runnable {
         this.programmes = new ArrayList<>();
         this.lanceurs = new ArrayList<>();
         this.fusees = new ArrayList<>();
+        this.missions = new ArrayList<>();
 
         this.executorService = Executors.newSingleThreadExecutor();
 
@@ -112,11 +125,11 @@ public class Jeu implements Runnable {
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
 
-        //this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
-        //this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
+        // this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
+        // this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
 
-        //this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
-        //this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
+        // this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
+        // this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
     }
 
     public List<Personne> getPersonnesParType(String type) {
@@ -124,7 +137,11 @@ public class Jeu implements Runnable {
     }
 
     private void incrementerDate() {
-        date = date.plusDays(1);
+        if (MissionEnCours) {
+            date = date.plusSeconds(1);
+        } else {
+            date = date.plusDays(1);
+        }
     }
 
     public void acheter(ObjectAchetable objectAchetable) {
@@ -140,7 +157,7 @@ public class Jeu implements Runnable {
 
     public void effectuerAchatCarburant(CarburantAchetable carburantAchetable, Ergol ergol) {
         // carburantAchetable.effectuerAchat(this);
-    
+
         double quantiteAajouter = carburantAchetable.getQuantite();
         for (Reservoir r : reservoirs) {
             if (r.getErgol().equals(ergol)) {
@@ -154,12 +171,12 @@ public class Jeu implements Runnable {
                 }
             }
         }
-    
+
         // Si il reste de la quantité à ajouter après avoir parcouru tous les réservoirs
         if (quantiteAajouter > 0) {
             throw new IllegalStateException("Impossible d'ajouter toute la quantité, stockage insuffisant.");
         }
-    
+
         retirerArgent(carburantAchetable.getPrix());
     }
 
@@ -256,12 +273,12 @@ public class Jeu implements Runnable {
         }
     }
 
-    public synchronized void ajouterPointRecherche(int montant) {
+    public synchronized void ajouterPointRecherche(double montant) {
         this.pointsRecherche += montant;
         GameServer.setEtatJeu("Mise à jour des points recherches");
     }
 
-    public Integer getPointsRecherche() {
+    public double getPointsRecherche() {
         return pointsRecherche;
     }
 
@@ -450,6 +467,19 @@ public class Jeu implements Runnable {
             ajouterPersonne(nouvellePersonne, marcheEmploi);
         }
 
+        Mission missionVersOrbite = new Mission.Builder()
+                .nomMission("Exploration Orbital")
+                .dateHeureLancement(LocalDateTime.of(2000, 1, 15, 10, 30))
+                .siteLancement(SiteLancement.CAP_CANAVERAL)
+                .fusee(f1)
+                .statutMission("Planifiée")
+                .chargeUtile(new ChargeUtile(100.0, "Satellite", 10.0))
+                .destinationMission(Destination.ORBITE)
+                .typeMission(TypeMission.SATELLITE)
+                .etapeMission(new String[] { "Préparation", "Lancement", "Insertion Orbitale" })
+                .build();
+
+        missions.add(missionVersOrbite);
     }
 
     public void ajouterPersonne(Personne personne, Map<String, List<Personne>> list) {
@@ -472,16 +502,16 @@ public class Jeu implements Runnable {
 
         if (marcheEmploi.containsKey(type)) {
             marcheEmploi.get(type).remove(personne);
-            
+
             employes.putIfAbsent(type, new ArrayList<>());
             employes.get(type).add(personne);
-    
+
             System.out.println("Personne embauchée avec succès : " + personne.getClePrimaire());
         } else {
             System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
         }
     }
-    
+
     public void licencierPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
         if (employes.containsKey(type)) {
@@ -518,22 +548,43 @@ public class Jeu implements Runnable {
         return null;
     }
 
+    private void actionFinDeMoi() {
+        if (date.toLocalDate().getDayOfMonth() == date.toLocalDate().lengthOfMonth()) {
+            retirerArgent(coutSalaireTotal());
+            ajouterPointRecherche(pointsRechercheParMois);
+        }
+    }
+
+    private void actionFinJour() {
+        if (!MissionEnCours) {
+            ajouterArgent(1000);
+            incrementerDate();
+        }
+    }
+
     @Override
     public void run() {
+
+        int boucle = 0;
+
         init();
         while (!estFinie()) {
-            ajouterArgent(1000);
-            ajouterPointRecherche(1);
-            incrementerDate();
 
-            if (date.getDayOfMonth() == date.lengthOfMonth()) {
-                retirerArgent(coutSalaireTotal());
+            actionFinJour();
+
+            if (boucle == 15) {
+                MissionEnCours = true;
+                fusees.get(0).decoler();
             }
 
+            actionFinDeMoi();
+
             GameServer.sendGameStateToClients("all");
-            
+
             try {
+
                 sleep(1000);
+                boucle++;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Thread interrompu: " + e.getMessage());
@@ -575,12 +626,16 @@ public class Jeu implements Runnable {
         return carburantAchetables;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
     public List<Recherche> getRecherchesTotal() {
         return recherchesTotal;
+    }
+
+    public List<Mission> getMissions() {
+        return missions;
     }
 
     public Map<String, List<Personne>> getEmployes() {
