@@ -59,7 +59,7 @@ export default {
       this.websocket.onopen = () => {
         this.websocketInterval = setInterval(() => {
           this.websocket.send(JSON.stringify({ action: 'getMissionState' }));
-        }, 500);
+        }, 100);
       };
 
       this.websocket.onmessage = (event) => {
