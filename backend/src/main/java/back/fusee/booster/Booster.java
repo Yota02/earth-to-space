@@ -180,7 +180,7 @@ public class Booster {
             }
         }
         json.put("moteurs", moteursArray);
-
+        json.put("nombreMoteurs", getNbMoteur());
         // Conversion des réservoirs
         JSONArray reservoirsArray = new JSONArray();
         if (this.reservoirs != null) {
@@ -208,6 +208,11 @@ public class Booster {
         json.put("historiquesLancement", historiqueArray);
         
         return json;
+    }
+
+
+    private int getNbMoteur(){
+        return moteur.size();
     }
 
     /**

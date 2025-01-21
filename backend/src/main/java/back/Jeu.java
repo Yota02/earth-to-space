@@ -64,6 +64,7 @@ public class Jeu implements Runnable {
 
     private List<Mission> missions;
     private Boolean MissionEnCours;
+    private Boolean DecolageMoinsUneMinutes;
 
     // Collections pour les recherches
     private List<Recherche> recherchesTotal;
@@ -91,6 +92,7 @@ public class Jeu implements Runnable {
         this.date = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
 
         this.MissionEnCours = false;
+        this.DecolageMoinsUneMinutes = false;
         this.pointsRechercheParMois = 0.1;
 
         this.employes = new HashMap<>();
@@ -137,12 +139,22 @@ public class Jeu implements Runnable {
     }
 
     private void incrementerDate() {
-        if (MissionEnCours) {
-            date = date.plusSeconds(1);
-        } else {
-            date = date.plusDays(1);
+        if (date == null) {
+            throw new IllegalStateException("La date n'est pas initialisée !");
         }
+    
+        if (MissionEnCours) {
+            if(DecolageMoinsUneMinutes){
+                date = date.plusSeconds(1);
+            } else{
+                date = date.plusMinutes(1);
+            }
+        } else {
+            date = date.plusDays(1); 
+        }
+    
     }
+      
 
     public void acheter(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
@@ -476,7 +488,10 @@ public class Jeu implements Runnable {
                 .chargeUtile(new ChargeUtile(100.0, "Satellite", 10.0))
                 .destinationMission(Destination.ORBITE)
                 .typeMission(TypeMission.SATELLITE)
-                .etapeMission(new String[] { "Préparation", "Lancement", "Insertion Orbitale" })
+                .etapeMission(Map.of(
+                        LocalDateTime.of(2000, 1, 10, 10, 0), "Préparation",
+                        LocalDateTime.of(2000, 1, 15, 10, 30), "Lancement",
+                        LocalDateTime.of(2000, 1, 15, 11, 0), "Insertion Orbitale"))
                 .build();
 
         missions.add(missionVersOrbite);
@@ -559,7 +574,7 @@ public class Jeu implements Runnable {
         if (!MissionEnCours) {
             ajouterArgent(1000);
             incrementerDate();
-        }
+        } 
     }
 
     @Override
@@ -570,21 +585,25 @@ public class Jeu implements Runnable {
         init();
         while (!estFinie()) {
 
-            actionFinJour();
-
             if (boucle == 15) {
                 MissionEnCours = true;
+                DecolageMoinsUneMinutes = true;
+                incrementerDate();
                 fusees.get(0).decoler();
             }
 
+            if(boucle == 100){
+                DecolageMoinsUneMinutes = false;
+            }
+            
+            actionFinJour();
             actionFinDeMoi();
 
             GameServer.sendGameStateToClients("all");
 
             try {
-
-                sleep(1000);
                 boucle++;
+                sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Thread interrompu: " + e.getMessage());

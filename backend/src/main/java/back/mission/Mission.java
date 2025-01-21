@@ -2,10 +2,12 @@ package back.mission;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.chargeUtile.ChargeUtile;
 
@@ -22,17 +24,17 @@ public class Mission {
     private ChargeUtile chargeUtile;
     private int tempsVolEstime;
     private boolean missionReussie;
-    private String[] membresEquipage;
+    private Personne[] membresEquipage;
     private double tauxReussiteHistorique;
     private boolean lancementAutomatique;
     private TypeMission typeMission;
     private boolean aSubiTestMission;
     private Destination destinationMission;
-    private String[] etapeMission;
+    private Map<LocalDateTime, String> etapeMission;
 
     // Constructeur privé pour imposer l'utilisation du Builder
     private Mission(Builder builder) {
-        this.missionId = ++idCounter; // Incrémente l'ID et l'attribue à la mission
+        this.missionId = ++idCounter; 
         this.nomMission = builder.nomMission;
         this.dateHeureLancement = builder.dateHeureLancement;
         this.siteLancement = builder.siteLancement;
@@ -50,26 +52,73 @@ public class Mission {
         this.etapeMission = builder.etapeMission;
     }
 
-    public int getMissionId() { return missionId; }
-    public String getNomMission() { return nomMission; }
-    public LocalDateTime getDateHeureLancement() { return dateHeureLancement; }
-    public SiteLancement getSiteLancement() { return siteLancement; }
-    public Fusee getFusee() { return fusee; }
-    public String getStatutMission() { return statutMission; }
-    public ChargeUtile getChargeUtile() { return chargeUtile; }
-    public int getTempsVolEstime() { return tempsVolEstime; }
-    public boolean isMissionReussie() { return missionReussie; }
-    public String[] getMembresEquipage() { return membresEquipage; }
-    public double getTauxReussiteHistorique() { return tauxReussiteHistorique; }
-    public boolean isLancementAutomatique() { return lancementAutomatique; }
-    public TypeMission getTypeMission() { return typeMission; }
-    public boolean isASubiTestMission() { return aSubiTestMission; }
-    public Destination getDestinationMission() { return destinationMission; }
-    public String[] getEtapeMission() { return etapeMission; }
+    public int getMissionId() {
+        return missionId;
+    }
+
+    public String getNomMission() {
+        return nomMission;
+    }
+
+    public LocalDateTime getDateHeureLancement() {
+        return dateHeureLancement;
+    }
+
+    public SiteLancement getSiteLancement() {
+        return siteLancement;
+    }
+
+    public Fusee getFusee() {
+        return fusee;
+    }
+
+    public String getStatutMission() {
+        return statutMission;
+    }
+
+    public ChargeUtile getChargeUtile() {
+        return chargeUtile;
+    }
+
+    public int getTempsVolEstime() {
+        return tempsVolEstime;
+    }
+
+    public boolean isMissionReussie() {
+        return missionReussie;
+    }
+
+    public Personne[] getMembresEquipage() {
+        return membresEquipage;
+    }
+
+    public double getTauxReussiteHistorique() {
+        return tauxReussiteHistorique;
+    }
+
+    public boolean isLancementAutomatique() {
+        return lancementAutomatique;
+    }
+
+    public TypeMission getTypeMission() {
+        return typeMission;
+    }
+
+    public boolean isASubiTestMission() {
+        return aSubiTestMission;
+    }
+
+    public Destination getDestinationMission() {
+        return destinationMission;
+    }
+
+    public Map<LocalDateTime, String> getEtapeMission() {
+        return etapeMission;
+    }
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        
+
         json.put("missionId", this.missionId);
         json.put("nomMission", this.nomMission);
         json.put("dateHeureLancement", this.dateHeureLancement.toString());
@@ -79,36 +128,40 @@ public class Mission {
         json.put("chargeUtile", this.chargeUtile != null ? this.chargeUtile.toJson() : JSONObject.NULL);
         json.put("tempsVolEstime", this.tempsVolEstime);
         json.put("missionReussie", this.missionReussie);
-        
+
         // Conversion du tableau membresEquipage en JSONArray
         JSONArray equipageArray = new JSONArray();
         if (this.membresEquipage != null) {
-            for (String membre : this.membresEquipage) {
+            for (Personne membre : this.membresEquipage) {
                 equipageArray.put(membre);
             }
         }
         json.put("membresEquipage", equipageArray);
-        
+
         json.put("tauxReussiteHistorique", this.tauxReussiteHistorique);
         json.put("lancementAutomatique", this.lancementAutomatique);
         json.put("typeMission", this.typeMission.toString());
         json.put("aSubiTestMission", this.aSubiTestMission);
         json.put("destinationMission", this.destinationMission.toString());
-        
+
         // Conversion du tableau etapeMission en JSONArray
         JSONArray etapesArray = new JSONArray();
         if (this.etapeMission != null) {
-            for (String etape : this.etapeMission) {
-                etapesArray.put(etape);
+            for (Map.Entry<LocalDateTime, String> entry : this.etapeMission.entrySet()) {
+                JSONObject etapeJson = new JSONObject();
+                etapeJson.put("dateHeure", entry.getKey().toString());
+                etapeJson.put("description", entry.getValue());
+                etapesArray.put(etapeJson);
             }
         }
         json.put("etapeMission", etapesArray);
-        
+
         return json;
     }
 
     /**
      * Convertit une liste de missions en JSONArray
+     * 
      * @param missions Liste des missions à convertir
      * @return JSONArray contenant toutes les missions
      */
@@ -131,13 +184,13 @@ public class Mission {
         private ChargeUtile chargeUtile;
         private int tempsVolEstime;
         private boolean missionReussie;
-        private String[] membresEquipage;
+        private Personne[] membresEquipage;
         private double tauxReussiteHistorique;
         private boolean lancementAutomatique;
         private TypeMission typeMission;
         private boolean aSubiTestMission;
         private Destination destinationMission;
-        private String[] etapeMission;
+        private Map<LocalDateTime, String> etapeMission;
 
         public Builder nomMission(String nomMission) {
             this.nomMission = nomMission;
@@ -179,7 +232,7 @@ public class Mission {
             return this;
         }
 
-        public Builder membresEquipage(String[] membresEquipage) {
+        public Builder membresEquipage(Personne[] membresEquipage) {
             this.membresEquipage = membresEquipage;
             return this;
         }
@@ -209,7 +262,7 @@ public class Mission {
             return this;
         }
 
-        public Builder etapeMission(String[] etapeMission) {
+        public Builder etapeMission(Map<LocalDateTime, String> etapeMission) {
             this.etapeMission = etapeMission;
             return this;
         }

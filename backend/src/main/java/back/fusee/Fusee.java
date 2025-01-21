@@ -120,10 +120,18 @@ public class Fusee {
 
     public void decoler() {
         System.out.println("Décollage de la fusée " + nom + "...");
-        for (int i = 0; i < 280000; i++) {
+        for (int i = 0; i < 10; i++) {
             vitesse++;
             altitude++;
             
+            /* if(altitude >= 100){
+                System.out.println("A depasser la ligne de karman");
+            }
+
+            if(vitesse >= 28000){
+                System.out.println("en orbit");
+            } */
+
             try {
                 Thread.sleep(10);  
             } catch (InterruptedException e) {
