@@ -10,11 +10,11 @@
       <div class="metrics">
         <div class="metric">
           <span class="label">SPEED</span>
-          <span class="value">{{ missionData.fusee?.vitesse || 0 }} KM/H</span>
+          <span class="value">{{ Math.floor(missionData.fusee?.vitesse || 0) }} KM/H</span>
         </div>
         <div class="metric">
           <span class="label">ALTITUDE</span>
-          <span class="value">{{ missionData.fusee?.altitude || 0 }} KM</span>
+          <span class="value">{{ Math.floor(missionData.fusee?.altitude || 0) }} KM</span>
         </div>
         <div class="metric">
           <span class="label">STATUS</span>

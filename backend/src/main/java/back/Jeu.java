@@ -449,7 +449,7 @@ public class Jeu implements Runnable {
 
         Booster booster = new Booster(
                 "Booster Falcon", 20.0, 3.0, 5000.0, 100000.0, 25000.0, moteurs,
-                reservoirs, true, true, false, 1, 12000.0, false, historiques);
+                reservoirs, true, true, false, 1, false, historiques);
 
         lanceurs.add(booster);
 

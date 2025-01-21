@@ -20,6 +20,7 @@ public class Moteur {
     protected Double temperatureMax; // en kelvins
 
     // Etat
+    private double poussee;
     protected Double temperatureCritique; // en kelvins
     protected Boolean arretUrgence; // true ou false
     protected Double tauxMelange; // ratio (carburant/oxydant)
@@ -47,6 +48,11 @@ public class Moteur {
         this.tauxMelange = builder.tauxMelange;
         this.pousseeMax = builder.pousseeMax;
         this.consommationCarburant = builder.consommationCarburant;
+        this.poussee = 0;
+    }
+
+    public Double getPousse() {
+        return poussee;
     }
 
     public String getNom() {

@@ -35,6 +35,7 @@ public class Booster {
     public Double poids;
     public Double vitesse;
     public Boolean nécessiteMaintenance;
+    public double altitude;
 
     // Historique
     List<String> historiquesLancement;
@@ -44,7 +45,7 @@ public class Booster {
                    Double altitudeMax, Double VitesseMax, List<Moteur> moteur, 
                    List<ReservoirFusee> reservoirs, Boolean estPrototype, 
                    Boolean estReetulisable, Boolean aSystèmeAutoDestruction, 
-                   int etat, Double vitesse, Boolean nécessiteMaintenance, 
+                   int etat, Boolean nécessiteMaintenance, 
                    List<String> historiquesLancement) {
         this.nom = nom;
         this.taille = taille;
@@ -59,9 +60,10 @@ public class Booster {
         this.aSystèmeAutoDestruction = aSystèmeAutoDestruction;
         this.etat = etat;
         this.poids = calculerPoids();
-        this.vitesse = vitesse;
+        this.vitesse = 0.0;
         this.nécessiteMaintenance = nécessiteMaintenance;
         this.historiquesLancement = historiquesLancement != null ? historiquesLancement : new ArrayList<>();
+        this.altitude = 0;
     }
 
     // Méthode de calcul du poids total
@@ -74,6 +76,46 @@ public class Booster {
             totalPoids += r.getPoidsAvide();
         }
         return totalPoids;
+    }
+
+    public void calculerAltitude() {
+        // 1. Calcul de la poussée nette (poussée des moteurs - force gravitationnelle)
+        Double pousséeTotale = 0.0;
+        for (Moteur m : moteur) {
+            pousséeTotale += m.getPousse();  // Récupérer la poussée du moteur
+        }
+        Double forceGravitationnelle = poids * 9.81;  // Poids du booster * accélération gravitationnelle (g = 9.81 m/s²)
+        Double pousséeNette = pousséeTotale - forceGravitationnelle;
+    
+        // 2. Calcul de l'accélération (a = F / m)
+        Double accélération = pousséeNette / poids;
+    
+        // 3. Mise à jour de la vitesse (vitesse = vitesse initiale + accélération)
+        Double nouvelleVitesse = vitesse + accélération;
+    
+        // 4. Limiter la vitesse à la vitesse maximale (si nécessaire)
+        if (nouvelleVitesse > VitesseMax) {
+            vitesse = VitesseMax;
+        } else {
+            vitesse = nouvelleVitesse;
+        }
+    
+        // 5. Mise à jour de l'altitude (altitude = altitude initiale + vitesse)
+        Double nouvelleAltitude = altitude + vitesse;
+    
+        // 6. Limiter l'altitude à l'altitude maximale
+        if (nouvelleAltitude > altitudeMax) {
+            altitude = altitudeMax;
+        } else {
+            altitude = nouvelleAltitude;
+        }
+    
+        // Mise à jour de l'altitude
+        this.altitude = altitude;
+    }
+    
+    public double getAltitude(){
+        return altitude;
     }
 
     // Getters
@@ -215,6 +257,48 @@ public class Booster {
         return moteur.size();
     }
 
+    public void calculerVitesse() {
+        // 1. Calcul de la poussée totale (somme des poussées de tous les moteurs)
+        Double pousséeTotale = 0.0;
+        for (Moteur m : moteur) {
+            pousséeTotale += m.getPousse();
+        }
+    
+        // 2. Vérification si la poussée est suffisante pour décoller la fusée
+        if (pousséeTotale < poids) {
+            System.out.println("Trop lourd !");
+            return; // Arrêter l'exécution de la méthode si la poussée est insuffisante
+        }
+    
+        // 3. Calcul de l'accélération (a = F / m)
+        Double accélération = pousséeTotale / poids;
+    
+        // 4. Mise à jour de la vitesse en fonction de l'accélération
+        Double nouvelleVitesse = vitesse + accélération;
+    
+        // 5. Limiter la vitesse à la vitesse maximale
+        if (nouvelleVitesse > VitesseMax) {
+            vitesse = VitesseMax;
+        } else {
+            vitesse = nouvelleVitesse;
+        }
+    
+        // 6. Mise à jour du poids en fonction de la consommation de carburant (perte de masse)
+        Double consommationTotale = 0.0;
+        for (Moteur m : moteur) {
+            consommationTotale += m.getConsommationCarburant();
+        }
+    
+        // 7. Calcul de la masse perdue
+        Double massePerdue = consommationTotale;
+    
+        // 8. Mise à jour du poids du booster (poids à vide ne doit pas être dépassé)
+        poids -= massePerdue;
+        if (poids < poidsAVide) {
+            poids = poidsAVide;
+        }
+    }
+    
     /**
      * Convertit une liste de boosters en JSONArray
      * @param boosters Liste des boosters à convertir

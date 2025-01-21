@@ -53,6 +53,14 @@ public class Fusee {
         return total;
     }
 
+    private void calculerVitesse(){
+        vitesse = boosterPrincipal.vitesse;
+    }
+
+    private void calculerAltitude(){
+        altitude = boosterPrincipal.altitude;
+    }
+
     private double calculateAltitudeMax() {
         if (boosterPrincipal == null || boosterPrincipal.getMoteur() == null) {
             return 0.0;
@@ -120,20 +128,28 @@ public class Fusee {
 
     public void decoler() {
         System.out.println("Décollage de la fusée " + nom + "...");
-        for (int i = 0; i < 10; i++) {
-            vitesse++;
-            altitude++;
-            
-            /* if(altitude >= 100){
-                System.out.println("A depasser la ligne de karman");
+    
+        // Boucle de décollage
+       while (etat == 0) {   
+            boosterPrincipal.calculerVitesse();
+            boosterPrincipal.calculerAltitude();
+
+            calculerVitesse();
+            calculerAltitude();
+    
+            // Vérification de la ligne de Karman (altitude de 100 km)
+            if (boosterPrincipal.altitude >= 100000) {
+                System.out.println("La fusée a dépassé la ligne de Karman (100 km) !");
             }
-
-            if(vitesse >= 28000){
-                System.out.println("en orbit");
-            } */
-
+    
+            // Vérification de l'atteinte de l'orbite (vitesse de 28 000 km/h)
+            if (boosterPrincipal.vitesse >= 28000) {
+                System.out.println("La fusée est en orbite !");
+            }
+    
+            // Attente de 1 seconde avant la prochaine mise à jour
             try {
-                Thread.sleep(10);  
+                Thread.sleep(10);  // Délai d'1 seconde entre chaque itération
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
