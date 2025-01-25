@@ -84,6 +84,11 @@ public class Booster {
         for (Moteur m : moteur) {
             pousséeTotale += m.getPousse();  // Récupérer la poussée du moteur
         }
+
+        if(this.vitesse == 0){
+            this.altitude = 0;
+        }
+
         Double forceGravitationnelle = poids * 9.81;  // Poids du booster * accélération gravitationnelle (g = 9.81 m/s²)
         Double pousséeNette = pousséeTotale - forceGravitationnelle;
     
@@ -266,7 +271,7 @@ public class Booster {
     
         // 2. Vérification si la poussée est suffisante pour décoller la fusée
         if (pousséeTotale < poids) {
-            System.out.println("Trop lourd !");
+            vitesse = 0.0; // Réinitialisation de la vitesse à 0 si la poussée est insuffisante
             return; // Arrêter l'exécution de la méthode si la poussée est insuffisante
         }
     
@@ -297,7 +302,7 @@ public class Booster {
         if (poids < poidsAVide) {
             poids = poidsAVide;
         }
-    }
+    }    
     
     /**
      * Convertit une liste de boosters en JSONArray

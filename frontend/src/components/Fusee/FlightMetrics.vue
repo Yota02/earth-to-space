@@ -48,29 +48,33 @@ export default {
     };
   },
   computed: {
-    timerDisplay() {
-      if (!this.missionData.dateHeureLancement || !this.now) return 'T+00:00:00';
+  timerDisplay() {
+    if (!this.missionData.dateHeureLancement || !this.now) return 'T+00:00:00';
 
-      const now = new Date(this.now); 
-      const missionDate = new Date(this.missionData.dateHeureLancement);
-      const timeDiff = missionDate - now;
+    const now = new Date(this.now); 
+    const missionDate = new Date(this.missionData.dateHeureLancement); 
 
-      const absoluteDiff = Math.abs(timeDiff);
-      const hours = Math.floor(absoluteDiff / (1000 * 60 * 60));
-      const minutes = Math.floor((absoluteDiff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((absoluteDiff % (1000 * 60)) / 1000);
+    // Calcul de la différence en millisecondes
+    const timeDiff = missionDate - now;
 
-      const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    // Calcul de l'heure, minute, et seconde de la différence
+    const absoluteDiff = Math.abs(timeDiff);
+    const hours = Math.floor(absoluteDiff / (1000 * 60 * 60));
+    const minutes = Math.floor((absoluteDiff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((absoluteDiff % (1000 * 60)) / 1000);
 
-      // Si le temps est positif, affiche T- comme avant
-      if (timeDiff > 0) {
-        return `T-${timeString}`;
-      }
+    // Formatage du temps
+    const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-      // Si le temps est négatif, affiche seulement le compteur positif
-      return `T+${timeString}`;
+    // Affichage du temps avant ou après la mission
+    if (timeDiff > 0) {
+      return `T-${timeString}`;
     }
-  },
+
+    return `T+${timeString}`;
+  }
+}
+,
   mounted() {
     this.connectWebSocket();
     setInterval(() => {

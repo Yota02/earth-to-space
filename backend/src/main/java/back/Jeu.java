@@ -25,6 +25,7 @@ import back.recherche.GestionnaireRecherche;
 import back.recherche.Recherche;
 import gui.GameServer;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -63,7 +64,7 @@ public class Jeu implements Runnable {
     private List<Fusee> fusees;
 
     private List<Mission> missions;
-    private Boolean MissionEnCours;
+    private Boolean missionEnCours;
     private Boolean DecolageMoinsUneMinutes;
 
     // Collections pour les recherches
@@ -91,7 +92,7 @@ public class Jeu implements Runnable {
         this.pointsRecherche = 0;
         this.date = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
 
-        this.MissionEnCours = false;
+        this.missionEnCours = false;
         this.DecolageMoinsUneMinutes = false;
         this.pointsRechercheParMois = 0.1;
 
@@ -136,25 +137,7 @@ public class Jeu implements Runnable {
 
     public List<Personne> getPersonnesParType(String type) {
         return marcheEmploi.getOrDefault(type, new ArrayList<>());
-    }
-
-    private void incrementerDate() {
-        if (date == null) {
-            throw new IllegalStateException("La date n'est pas initialisée !");
-        }
-    
-        if (MissionEnCours) {
-            if(DecolageMoinsUneMinutes){
-                date = date.plusSeconds(1);
-            } else{
-                date = date.plusMinutes(1);
-            }
-        } else {
-            date = date.plusDays(1); 
-        }
-    
-    }
-      
+    } 
 
     public void acheter(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
@@ -571,43 +554,84 @@ public class Jeu implements Runnable {
     }
 
     private void actionFinJour() {
-        if (!MissionEnCours) {
+        if (!missionEnCours) {
             ajouterArgent(1000);
             incrementerDate();
         } 
     }
 
+    public void setmissionEnCours(boolean missionEnCours) {
+        this.missionEnCours = missionEnCours;
+
+        if (missionEnCours) {
+            for (Mission mission : missions) {
+                if (mission.getDateHeureLancement() != null) {
+                    mission.adjustDateForMissionEnCorus();
+                }
+            }
+        }
+    }
+
+    public boolean isMissionEnCorus() {
+        return missionEnCours;
+    }
+
+    // Ajouter une mission
+    public void addMission(Mission mission) {
+        missions.add(mission);
+    }
+
     @Override
     public void run() {
-
-        int boucle = 0;
-
         init();
+        
         while (!estFinie()) {
-
-            if (boucle == 15) {
-                MissionEnCours = true;
-                DecolageMoinsUneMinutes = true;
-                incrementerDate();
-                fusees.get(0).decoler();
-            }
-
-            if(boucle == 100){
-                DecolageMoinsUneMinutes = false;
+            Mission currentMission = missions.get(0);
+            
+            if (!missionEnCours && currentMission != null) {
+                LocalDateTime launchTime = currentMission.getDateHeureLancement();
+                if (date.equals(launchTime)) {
+                    setmissionEnCours(true);
+                    fusees.get(0).decoler();
+                }
             }
             
             actionFinJour();
             actionFinDeMoi();
-
             GameServer.sendGameStateToClients("all");
 
             try {
-                boucle++;
+                incrementerDate();
                 sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("Thread interrompu: " + e.getMessage());
                 break;
+            }
+        }
+    }
+
+    private void incrementerDate() {
+        if (date == null) {
+            throw new IllegalStateException("La date n'est pas initialisée !");
+        }
+    
+        if (missionEnCours) {
+            date = date.plusMinutes(1);
+        } else {
+            Mission currentMission = missions.get(0);
+            LocalDateTime launchTime = currentMission.getDateHeureLancement();
+            Duration timeToLaunch = Duration.between(date, launchTime);
+            long minutesToLaunch = Math.abs(timeToLaunch.toMinutes());
+            
+            if (minutesToLaunch <= 10) {
+                date = date.plusSeconds(1);
+                if (date.equals(launchTime)) {
+                    setmissionEnCours(true);
+                    fusees.get(0).decoler();
+                }
+            } else {
+                date = date.plusDays(1);
             }
         }
     }

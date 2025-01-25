@@ -116,6 +116,14 @@ public class Mission {
         return etapeMission;
     }
 
+    public void adjustDateForMissionEnCorus() {
+        // Ajuster l'heure de lancement à 10 minutes avant
+        if (this.dateHeureLancement != null) {
+            this.dateHeureLancement = this.dateHeureLancement.plusMinutes(10);
+            System.out.println("Mission ajustée : " + nomMission + " à " + dateHeureLancement);
+        }
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
 
