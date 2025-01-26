@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>space-inc</artifactId>
+    <artifactId>earth-to-space</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

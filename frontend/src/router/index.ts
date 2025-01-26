@@ -13,6 +13,7 @@ import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
 import RessourceHumaines from '../views/RessourceHumaines/RessourcesHumaineView.vue';
 import MarcheEmploie from '../views/RessourceHumaines/MarcheEmploieView.vue';
 import Lancement from '../views/LancementView.vue';
+import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue";
 
 const routes = [
   {
@@ -44,6 +45,11 @@ const routes = [
     path: '/ergol',
     name: 'ergol',
     component: ErgolView
+  },
+  {
+    path: '/formulaireBooster',
+    name: 'formulaireBooster',
+    component: formulaireBoosterView
   },
   {
     path: '/programme',
