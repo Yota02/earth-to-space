@@ -28,6 +28,7 @@ public abstract class Usine {
         return fuséesProduitesCeMois < capaciteProductionMensuelle;
     }
 
+
     public void produireFusee() {
         if (peutProduire()) {
             fuséesProduitesCeMois++;
