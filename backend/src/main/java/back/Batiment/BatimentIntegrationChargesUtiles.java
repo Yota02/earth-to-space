@@ -2,6 +2,8 @@ package back.Batiment;
 
 public class BatimentIntegrationChargesUtiles extends IBatiment{
 
+    
+
     @Override
     double calculerCoutEntretien() {
         // TODO Auto-generated method stub

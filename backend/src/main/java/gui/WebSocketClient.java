@@ -1,12 +1,10 @@
 package gui;
 
+import back.Batiment.IBatiment;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
-import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
-import back.fusee.moteur.Moteur;
-import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
@@ -16,8 +14,6 @@ import back.programme.Programme;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.google.gson.JsonObject;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -85,6 +81,14 @@ public class WebSocketClient {
                     getMissions(session);
                     break;
 
+                case "getBatiment":
+                    getBatiment(session);
+                    break;
+
+                /* case "buyBatiment":
+                    getBatiment(session);
+                    break;  */   
+                    
                 case "getMissionState":
                     getMissions(session);
                     break;
@@ -300,6 +304,28 @@ public class WebSocketClient {
         response.put("action", "fuseesState");
         response.put("fusees", fuseesArray);
 
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getBatiment(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "batimentsState");
+    
+        // Bâtiments disponibles
+        JSONArray batimentsDisponibles = new JSONArray();
+        for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsParType("assemblage")) {
+            batimentsDisponibles.put(batiment.toJson());
+        }
+        response.put("batimentsDisponibles", batimentsDisponibles);
+    
+        /* // Bâtiments en construction
+        JSONArray batimentsEnConstruction = new JSONArray();
+        for (IBatiment batiment : GameServer.jeu.getBatimentsEnConstruction()) {
+            batimentsEnConstruction.put(batiment.toJson());
+        }
+        response.put("batimentsEnConstruction", batimentsEnConstruction); 
+        */
+    
         session.getBasicRemote().sendText(response.toString());
     }
 

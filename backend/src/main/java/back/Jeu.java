@@ -1,5 +1,7 @@
 package back;
 
+import back.Batiment.BatimentManager;
+import back.Batiment.IBatiment;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
@@ -25,8 +27,6 @@ import back.recherche.GestionnaireRecherche;
 import back.recherche.Recherche;
 import gui.GameServer;
 
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -76,6 +76,9 @@ public class Jeu implements Runnable {
     private List<ObjectAchetable> objectTotals;
     private List<ObjectAchetable> objectAcheter;
 
+    //batiments 
+    BatimentManager batimentManager;
+
     // Date
     private LocalDateTime date;
 
@@ -112,6 +115,9 @@ public class Jeu implements Runnable {
         this.fusees = new ArrayList<>();
         this.missions = new ArrayList<>();
 
+        // Batiments
+        this.batimentManager = new BatimentManager();
+
         this.executorService = Executors.newSingleThreadExecutor();
 
         this.researchLock = new ReentrantLock();
@@ -137,6 +143,10 @@ public class Jeu implements Runnable {
 
     public List<Personne> getPersonnesParType(String type) {
         return marcheEmploi.getOrDefault(type, new ArrayList<>());
+    } 
+
+    public BatimentManager getBatimentManager() {
+        return batimentManager;
     } 
 
     public void acheter(ObjectAchetable objectAchetable) {
@@ -616,7 +626,9 @@ public class Jeu implements Runnable {
             throw new IllegalStateException("La date n'est pas initialisée !");
         }
     
-        if (missionEnCours) {
+        date = date.plusDays(1);
+
+        /* if (missionEnCours) {
             date = date.plusMinutes(1);
         } else {
             Mission currentMission = missions.get(0);
@@ -633,7 +645,7 @@ public class Jeu implements Runnable {
             } else {
                 date = date.plusDays(1);
             }
-        }
+        } */
     }
 
     public int coutSalaireTotal() {
