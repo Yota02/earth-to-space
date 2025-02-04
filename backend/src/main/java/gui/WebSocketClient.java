@@ -1,12 +1,11 @@
 package gui;
 
+import back.Batiment.HangarAssemblage;
+import back.Batiment.IBatiment;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
-import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
-import back.fusee.moteur.Moteur;
-import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
@@ -17,11 +16,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.gson.JsonObject;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +66,7 @@ public class WebSocketClient {
                 case "getEmployesState":
                     getEmployes(session);
                     break;
-                
+
                 case "getCarburants":
                     getCarburant(session);
                     break;
@@ -83,6 +81,14 @@ public class WebSocketClient {
 
                 case "getMissionSteps":
                     getMissions(session);
+                    break;
+
+                case "getBatiment":
+                    getBatiment(session);
+                    break;
+
+                case "buyBatiment":
+                    handleAcheterBatiment(jsonMessage, session);
                     break;
 
                 case "getMissionState":
@@ -163,6 +169,71 @@ public class WebSocketClient {
         }
     }
 
+    private void handleAcheterBatiment(JSONObject jsonMessage, Session session) throws IOException {
+        JSONObject response = new JSONObject();
+    
+        try {
+            // Récupérer les informations du bâtiment à acheter
+            JSONObject batimentJson = jsonMessage.getJSONObject("batiment");
+            String nomBatiment = batimentJson.getString("nom");
+            int superficie = batimentJson.getInt("superficie");
+    
+            // Trouver le prototype de bâtiment correspondant
+            IBatiment prototypeBatiment = findBatimentPrototype(nomBatiment);
+            if (prototypeBatiment == null) {
+                response.put("error", "Type de bâtiment non trouvé : " + nomBatiment);
+                session.getBasicRemote().sendText(response.toString());
+                return;
+            }
+    
+            // Calculer le coût
+            int coutBatiment = prototypeBatiment.getCout();
+            if (GameServer.jeu.getArgent() < coutBatiment) {
+                response.put("error", "Fonds insuffisants pour acheter le bâtiment");
+                session.getBasicRemote().sendText(response.toString());
+                return;
+            }
+    
+            // Retirer l'argent
+            GameServer.jeu.retirerArgent(coutBatiment);
+    
+            // Créer une nouvelle instance de bâtiment basée sur le prototype
+            HangarAssemblage nouveauBatiment = new HangarAssemblage(
+                nomBatiment + " (" + superficie + "m²)", 
+                superficie, 
+                prototypeBatiment.getCapacite() * (superficie / 100), 
+                prototypeBatiment.getTempsConstruction()
+            );
+            
+            // Marquer comme en construction et ajouter
+            nouveauBatiment.setEnConstruction(true);
+            nouveauBatiment.setAnneeConstruction(GameServer.jeu.getDate());
+            GameServer.jeu.ajouterBatiment(nouveauBatiment);
+    
+            response.put("success", true);
+            response.put("batiment", nouveauBatiment.toJson());
+            session.getBasicRemote().sendText(response.toString());
+    
+            // Notifier tous les clients de la mise à jour des bâtiments
+            GameServer.sendGameStateToClients("batiments");
+    
+        } catch (Exception e) {
+            response.put("error", "Erreur lors de l'achat du bâtiment : " + e.getMessage());
+            session.getBasicRemote().sendText(response.toString());
+        }
+    }
+    
+    private IBatiment findBatimentPrototype(String nom) {
+        for (List<IBatiment> batiments : GameServer.jeu.getBatimentManager().getBatimentMap().values()) {
+            for (IBatiment batiment : batiments) {
+                if (batiment.getNom().equalsIgnoreCase(nom)) {
+                    return batiment;
+                }
+            }
+        }
+        return null;
+    }
+
     private void handleEmbaucherEmploye(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
 
@@ -212,7 +283,7 @@ public class WebSocketClient {
             session.getBasicRemote().sendText(response.toString());
         }
     }
-    
+
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
         switch (action) {
@@ -303,6 +374,27 @@ public class WebSocketClient {
         session.getBasicRemote().sendText(response.toString());
     }
 
+    private void getBatiment(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "batimentsState");
+
+        // Bâtiments disponibles
+        JSONArray batimentsDisponibles = new JSONArray();
+        for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsParType("assemblage")) {
+            batimentsDisponibles.put(batiment.toJson());
+        }
+        response.put("batimentsDisponibles", batimentsDisponibles);
+
+        // Bâtiments en construction
+        JSONArray batimentsEnConstruction = new JSONArray();
+        for (IBatiment batiment : GameServer.jeu.getBatimentsEnConstruction()) {
+            batimentsEnConstruction.put(batiment.toJson());
+        }
+        response.put("batimentsEnConstruction", batimentsEnConstruction);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
     private void getBoosters(Session session) throws IOException {
         List<Booster> boosters = GameServer.jeu.getLanceurs();
 
@@ -343,7 +435,7 @@ public class WebSocketClient {
         JSONObject missionJson = null;
 
         for (Mission mission : missions) {
-            if(mission.getMissionId() == id){
+            if (mission.getMissionId() == id) {
                 missionJson = mission.toJson();
                 break;
             }

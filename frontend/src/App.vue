@@ -14,10 +14,20 @@
           <li><router-link to="/shop" @click="closeMenu">Shop</router-link></li>
           <li><router-link to="/lancement" @click="closeMenu">Lancement</router-link></li>
           <li><router-link to="/programme" @click="closeMenu">Programme</router-link></li>
-          <li><router-link to="/researche" @click="closeMenu">Researche</router-link></li>
-          <li><router-link to="/Ressource-Humaines" @click="closeMenu">Ressource Humaines</router-link></li>
+          <li><router-link to="/researche" @click="closeMenu"> 
+            <img src="./assets/img/icone/recherche.png" alt="" class="market-icon"> 
+            </router-link>
+          </li>
+          <li><router-link to="/Ressource-Humaines" @click="closeMenu"> 
+            <img src="./assets/img/icone/ressource_humaine.png" alt="" class="market-icon"> 
+            </router-link>
+          </li>
           <li><router-link to="/lanceur" @click="closeMenu">Lanceur</router-link></li>
           <li><router-link to="/ergol" @click="closeMenu">Ergol</router-link></li>
+          <li><router-link to="/marketBatiment" @click="closeMenu"> 
+            <img src="./assets/img/icone/construction.png" alt="" class="market-icon"> 
+            </router-link>
+          </li>
         </ul>
       </div>
     </nav>
@@ -55,6 +65,11 @@ const closeMenu = () => {
   flex-grow: 1; /* Permet à la section de prendre tout l'espace disponible */
   min-height: calc(100vh - 60px); /* Ajuster en fonction de la hauteur de la navbar */
   box-sizing: border-box;
+}
+
+.market-icon {
+  width: 24px; /* Ajustez la taille selon votre besoin */
+  height: auto;
 }
 
 /* Navbar styles */

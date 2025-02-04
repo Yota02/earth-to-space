@@ -1,11 +1,6 @@
 package back.usine;
 
-import back.fusee.Fusee;
-import back.fusee.moteur.Moteur;
-
-import java.time.LocalDate;
-
-public abstract class Usine {
+public class Usine {
 
     private String nom;
     private float superficie; // en m²
@@ -19,11 +14,6 @@ public abstract class Usine {
         this.fuséesProduitesCeMois = 0;
     }
 
-    public abstract Fusee creerFusee(String nom, float taille, float poidsTotal, Moteur moteur,
-                                     float carburantRestant, float poidChargeUtile, boolean systemeSecurite,
-                                     LocalDate dateLancement, String destination, String typeMission, int etat);
-
-    
     public boolean peutProduire() {
         return fuséesProduitesCeMois < capaciteProductionMensuelle;
     }
