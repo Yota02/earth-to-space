@@ -7,17 +7,22 @@ import org.json.JSONObject;
 
 public abstract class IBatiment {
 
-    int etat;
+    int etat = 0;
     String nom;
     int superficie;
     int capacite;
     LocalDateTime anneeConstruction;
-    boolean operationnel;
+    boolean operationnel = false;
     int tempsConstruction; // en mois
-    double progression; // en pourcent
+    double progression = 0; // en pourcent
+    boolean enConstruction = false;
+
+    public boolean getEnConstruction() {
+        return enConstruction;
+    }
 
     public int getCout(){
-        return (int) superficie * tempsConstruction * 1000;
+        return (int) superficie * tempsConstruction * 10;
     }
 
     public int getEtat() {
@@ -40,12 +45,20 @@ public abstract class IBatiment {
         return this.anneeConstruction;
     }
 
+    public void setAnneeConstruction(LocalDateTime time){
+        this.anneeConstruction = time;
+    }
+
     public boolean estOperationnel() {
         return this.operationnel;
     }
 
     public void setOperationnel(boolean operationnel) {
         this.operationnel = operationnel;
+    }
+
+    public void setEnConstruction(boolean valeur) {
+        this.enConstruction = valeur;
     }
 
     public double getProgression(){
@@ -56,26 +69,40 @@ public abstract class IBatiment {
         return 1;
     }
 
+    public int getTempsConstruction(){
+        return tempsConstruction;
+    }
+
+    public void construireParJour(){
+        if(progression < 100){
+            progression += (tempsConstruction * 30) / 30;
+        } else {
+            setOperationnel(true);
+            setEnConstruction(false);
+            System.out.println("Construction terminé !");
+        }
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-
-        // Spécifications basiques
+    
         json.put("nom", this.nom);
         json.put("superficie", this.superficie);
         json.put("capacite", this.capacite);
         
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        String formattedDate = anneeConstruction.format(formatter);
-        json.put("anneeConstruction", formattedDate);
-
+        if (this.anneeConstruction != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            json.put("anneeConstruction", this.anneeConstruction.format(formatter));
+        } else {
+            json.put("anneeConstruction", JSONObject.NULL);
+        }
+    
         json.put("operationnel", this.operationnel);
         json.put("tempsConstruction", this.tempsConstruction);
         json.put("progression", this.progression);
-
         json.put("etat", this.etat);
-
         json.put("cout", getCout());
-
+    
         return json;
     }
 

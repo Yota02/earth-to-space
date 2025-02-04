@@ -14,8 +14,14 @@
           <li><router-link to="/shop" @click="closeMenu">Shop</router-link></li>
           <li><router-link to="/lancement" @click="closeMenu">Lancement</router-link></li>
           <li><router-link to="/programme" @click="closeMenu">Programme</router-link></li>
-          <li><router-link to="/researche" @click="closeMenu">Researche</router-link></li>
-          <li><router-link to="/Ressource-Humaines" @click="closeMenu">Ressource Humaines</router-link></li>
+          <li><router-link to="/researche" @click="closeMenu"> 
+            <img src="./assets/img/icone/recherche.png" alt="" class="market-icon"> 
+            </router-link>
+          </li>
+          <li><router-link to="/Ressource-Humaines" @click="closeMenu"> 
+            <img src="./assets/img/icone/ressource_humaine.png" alt="" class="market-icon"> 
+            </router-link>
+          </li>
           <li><router-link to="/lanceur" @click="closeMenu">Lanceur</router-link></li>
           <li><router-link to="/ergol" @click="closeMenu">Ergol</router-link></li>
           <li><router-link to="/marketBatiment" @click="closeMenu"> 

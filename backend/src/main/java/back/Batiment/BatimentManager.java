@@ -16,6 +16,10 @@ public class BatimentManager {
         initializeBatiments();
     }
     
+    public Map<String, List<IBatiment>> getBatimentMap(){
+        return batimentMap;
+    }
+
     private void initializeBatiments() {
         List<IBatiment> batimentsAssemblage = new ArrayList<>();
         

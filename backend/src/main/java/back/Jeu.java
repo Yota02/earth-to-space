@@ -78,6 +78,7 @@ public class Jeu implements Runnable {
 
     //batiments 
     BatimentManager batimentManager;
+    private List<IBatiment> batimentPosseder;
 
     // Date
     private LocalDateTime date;
@@ -133,6 +134,8 @@ public class Jeu implements Runnable {
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
+
+        this.batimentPosseder = new ArrayList<>();
 
         // this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
         // this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
@@ -567,7 +570,28 @@ public class Jeu implements Runnable {
         if (!missionEnCours) {
             ajouterArgent(1000);
             incrementerDate();
+
+            System.out.println(batimentPosseder);
+
+            for (IBatiment b : getBatimentsEnConstruction()) {
+                b.construireParJour();
+            }
         } 
+    }
+
+    public void ajouterBatiment(IBatiment batiment){
+        System.out.println("ici");
+        this.batimentPosseder.add(batiment);
+    }
+
+    public List<IBatiment> getBatimentsEnConstruction(){
+        List<IBatiment> liste = new ArrayList<>();
+        for (IBatiment b : batimentPosseder) {
+            if(b.getEnConstruction()){
+                liste.add(b);
+            }
+        }
+        return liste;
     }
 
     public void setmissionEnCours(boolean missionEnCours) {
