@@ -570,9 +570,6 @@ public class Jeu implements Runnable {
         if (!missionEnCours) {
             ajouterArgent(1000);
             incrementerDate();
-
-            System.out.println(batimentPosseder);
-
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour();
             }
