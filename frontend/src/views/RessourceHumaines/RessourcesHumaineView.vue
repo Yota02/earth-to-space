@@ -24,9 +24,9 @@
       <p>Chargement des employés...</p>
     </div>
 
-    <!-- Liste des employés -->
-    <div v-else-if="employes.length > 0" class="employees-grid">
-      <div v-for="categorie in employes" :key="categorie.type" class="category-card">
+    <!-- Liste des employés séparée par type et affichée en colonnes -->
+    <div v-else-if="employes.length > 0" class="employees-columns">
+      <div v-for="categorie in employes" :key="categorie.type" class="category-column">
         <h2>{{ categorie.type }}</h2>
         <div class="employees-list">
           <div
@@ -91,7 +91,7 @@ export default {
   
   data() {
     return {
-      employes: [],
+      employes: [], // Contiendra les catégories d'employés
       salaireTotal: null,
       isConnected: true,
       isLoading: true,
@@ -110,25 +110,25 @@ export default {
 
     initWebSocket() {
       this.socket = new WebSocket('ws://localhost:3232/')
-      
+
       this.socket.onopen = () => {
         this.isConnected = true
         this.requestEmployesData()
       }
-      
+
       this.socket.onclose = () => {
         this.isConnected = false
         setTimeout(() => this.initWebSocket(), 5000)
       }
-      
+
       this.socket.onerror = () => {
         this.isConnected = false
       }
-      
+
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.action === "employesState") {
-          this.employes = data.employes
+          this.employes = data.employes // Assurez-vous que 'data.employes' est une liste d'objets avec un attribut 'type' pour chaque catégorie
           this.salaireTotal = data.salaireTotal
           this.isLoading = false
         }
@@ -147,14 +147,14 @@ export default {
 
     confirmerLicenciement() {
       if (!this.employeSelectionne || !this.isConnected) return
-      
+
       this.socket.send(JSON.stringify({
         action: "licencierEmploye",
         employe: {
           cleprimaire: this.employeSelectionne.cleprimaire
         }
       }))
-      
+
       this.employeSelectionne = null
     },
 
@@ -229,20 +229,22 @@ export default {
   color: #666;
 }
 
-.employees-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+.employees-columns {
+  display: flex;
+  justify-content: space-between;
   gap: 2rem;
+  flex-wrap: wrap;
 }
 
-.category-card {
+.category-column {
+  width: 30%;
   background: #ffffff;
   border-radius: 0.5rem;
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.category-card h2 {
+.category-column h2 {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #eee;
@@ -362,8 +364,14 @@ export default {
     padding: 1rem;
   }
   
-  .employees-grid {
-    grid-template-columns: 1fr;
+  .employees-columns {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .category-column {
+    width: 100%;
+    margin-bottom: 1.5rem;
   }
 }
 </style>

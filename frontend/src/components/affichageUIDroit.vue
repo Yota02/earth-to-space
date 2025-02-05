@@ -1,23 +1,35 @@
 <template>
-  <div class="game-ui-container">
-    <!-- Section de la date -->
-    <div class="date-container">
-      <div class="date-display">
-        <p class="value">{{ formattedDate }}</p>
-      </div>
-    
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: yearProgress + '%' }"></div>
-          </div>
+  <div class="game-ui-nav">
+    <!-- Section de la date à gauche -->
+    <div class="date-section">
+      <p class="date-value">{{ formattedDate }}</p>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" :style="{ width: yearProgress + '%' }"></div>
         </div>
-     </div>
-    
-    <div class="stats-container">
-      <div class="info-block">
-        <div class="info-line">
-          <p class="value">{{ gameData.argent }}</p>
-          <img src="../assets/img/icone/dollar.png" alt="dollars" class="argent-icon" />
+      </div>
+    </div>
+
+    <!-- Section des stats à droite -->
+    <div class="stats-section">
+      <div class="stat-column">
+        <div class="stat-item">
+          <img src="../assets/img/icone/dollar.png" alt="dollars" class="icon" />
+          <p class="stat-value">{{ gameData.argent }}</p>
+        </div>
+        <div class="stat-item">
+          <img src="../assets/img/icone/recherche.png" alt="recherche" class="icon" />
+          <p class="stat-value">{{ gameData.pointRecherche }}</p>
+        </div>
+      </div>
+      <div class="stat-column">
+        <div class="stat-item">
+          <img src="../assets/img/icone/construction.png" alt="construction" class="icon" />
+          <p class="stat-value">{{ gameData.pointConstruction }}</p>
+        </div>
+        <div class="stat-item">
+          <img src="../assets/img/icone/ingenieur.png" alt="ingenieur" class="icon" />
+          <p class="stat-value">{{ gameData.pointIngenieur }}</p>
         </div>
       </div>
     </div>
@@ -32,6 +44,9 @@ export default {
       gameData: {
         argent: 0,
         date: null,
+        pointRecherche: 0,
+        pointConstruction: 0,
+        pointIngenieur: 0
       },
       socket: null,
     };
@@ -62,11 +77,9 @@ export default {
     this.socket.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-
         this.gameData = {
           ...this.gameData,
-          argent: data.argent,
-          date: data.date,
+          ...data
         };
       } catch (error) {
         console.error("Erreur lors du traitement des données WebSocket :", error);
@@ -86,45 +99,41 @@ export default {
 </script>
 
 <style scoped>
-.game-ui-container {
+.game-ui-nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  max-width: 400px;
-  margin: auto;
-  padding: 16px;
+  gap: 20px;
+  height: 100%;
+  padding: 0 10px;
 }
 
-.date-container {
+/* Section de la date */
+.date-section {
   display: flex;
-  padding: 5px;
-  max-width: 380px;
   flex-direction: column;
-  gap: 0;
-  width: 100%;
-  background-color: white;
-  border-radius: 6px;
+  justify-content: center;
+  gap: 4px;
+  min-width: 180px;
 }
 
-.date-display {
-  text-align: center;
-  margin-bottom: 0;
+.date-value {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: white;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .progress-container {
   width: 100%;
-  text-align: center;
-  margin-top: 0; 
 }
 
 .progress-bar {
   width: 100%;
-  height: 12px;
-  background-color: #e0e0e0;
-  border-radius: 6px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
   overflow: hidden;
-  position: relative;
-  margin-bottom: 5px;
 }
 
 .progress-fill {
@@ -133,43 +142,52 @@ export default {
   transition: width 0.3s ease;
 }
 
-.stats-container {
-  margin-top: 5px;
-  width: 100%;
-  height: auto;
-  max-width: 380px;
-  background-color: white;
-  border-radius: 6px;
-  padding: 5px;
+/* Section des stats */
+.stats-section {
+  display: flex;
+  gap: 20px;
 }
 
-.info-block {
-  text-align: center;
-  margin-bottom: 16px;
+.stat-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.info-line {
+.stat-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 4px;
 }
 
-.value {
-  font-size: 1.5rem;
+.icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.stat-value {
+  font-size: 0.9rem;
   font-weight: bold;
-  color: #333;
+  color: white;
+  margin: 0;
 }
 
-.argent-icon {
-  width: 24px;
-  height: auto;
-  margin-left: 8px;
-}
+@media (max-width: 768px) {
+  .game-ui-nav {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
 
-@media (max-width: 600px) {
-  .game-ui-container {
-    max-width: 90%;
-    padding: 16px;
+  .date-section {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .stats-section {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 </style>

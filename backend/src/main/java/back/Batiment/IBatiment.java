@@ -73,9 +73,9 @@ public abstract class IBatiment {
         return tempsConstruction;
     }
 
-    public void construireParJour(){
+    public void construireParJour(double pointsConstruction){
         if(progression < 100){
-            progression += (tempsConstruction * 30) / 30;
+            progression += (tempsConstruction * 30) * (1 + (pointsConstruction / 10)) / 30;
         } else {
             setOperationnel(true);
             setEnConstruction(false);

@@ -1,11 +1,13 @@
 <template>
   <div id="app">
-    <!-- Display component -->
-    <AffichageArgent class="affichage-argent" />
-
     <!-- Navigation -->
     <nav class="navbar">
       <div class="navbar-container">
+        <!-- Affichage component intégré dans la navbar -->
+        <div class="navbar-left">
+          <AffichageArgent />
+        </div>
+        
         <button class="navbar-toggle" @click="toggleMenu">
           ☰
         </button>
@@ -39,7 +41,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref } from "vue";
 import AffichageArgent from "./components/affichageUIDroit.vue";
@@ -58,17 +59,17 @@ const closeMenu = () => {
 <style>
 .main-content {
   width: 100%;
-  display: flex; /* Activer Flexbox */
-  flex-direction: column; /* Permet d'empiler les enfants verticalement */
-  justify-content: center; /* Centre verticalement */
-  align-items: center; /* Centre horizontalement */
-  flex-grow: 1; /* Permet à la section de prendre tout l'espace disponible */
-  min-height: calc(100vh - 60px); /* Ajuster en fonction de la hauteur de la navbar */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  min-height: calc(100vh - 60px);
   box-sizing: border-box;
 }
 
 .market-icon {
-  width: 24px; /* Ajustez la taille selon votre besoin */
+  width: 24px;
   height: auto;
 }
 
@@ -85,19 +86,16 @@ const closeMenu = () => {
 
 .navbar-container {
   display: flex;
-  justify-content: flex-end;  /* Align navbar content to the right */
+  justify-content: space-between;  /* Changed to space-between */
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-.navbar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
-}
-
-.navbar-brand a {
-  text-decoration: none;
-  color: inherit;
+.navbar-left {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-toggle {
@@ -131,11 +129,21 @@ const closeMenu = () => {
 
 /* Responsive styles */
 @media (max-width: 768px) {
+  .navbar-container {
+    flex-wrap: wrap;
+  }
+
   .navbar-toggle {
     display: block;
+    order: 2;
+  }
+
+  .navbar-left {
+    order: 1;
   }
 
   .navbar-menu {
+    order: 3;
     position: absolute;
     top: 100%;
     left: 0;
@@ -152,17 +160,5 @@ const closeMenu = () => {
   .navbar-menu-active {
     display: flex;
   }
-}
-
-/* Affichage argent styles */
-.affichage-argent {
-  position: fixed; 
-  top: 10px;   /* Place it slightly below the very top */
-  left: 10px;  /* Align to the left */
-  padding: 10px 20px;
-  border-radius: 8px;
-  background-color: #007BFF;
-  color: white;
-  z-index: 1100;  /* Ensures it stays above the navbar */
 }
 </style>

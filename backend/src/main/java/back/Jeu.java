@@ -3,6 +3,7 @@ package back;
 import back.Batiment.BatimentManager;
 import back.Batiment.IBatiment;
 import back.Ressources_Humaines.Ingenieur;
+import back.Ressources_Humaines.Ouvrier;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
 import back.Ressources_Humaines.Scientifique;
@@ -41,6 +42,8 @@ public class Jeu implements Runnable {
     // Attributs
     private int argent;
     private double pointsRecherche;
+    private double pointsConstruction;
+    private double pointsIngenieur;
 
     // element runnable
     private List<String> log;
@@ -87,18 +90,23 @@ public class Jeu implements Runnable {
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
-    private double pointsRechercheParMois;
 
     private final Lock researchLock;
+
+    private int argentParMoi;
 
     public Jeu(String[] nomsJoueurs) {
         this.argent = 1000;
         this.pointsRecherche = 0;
+        this.pointsConstruction = 0;
+        this.pointsIngenieur = 0;
+
+        this.argentParMoi = 1000;
+
         this.date = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
 
         this.missionEnCours = false;
         this.DecolageMoinsUneMinutes = false;
-        this.pointsRechercheParMois = 0.1;
 
         this.employes = new HashMap<>();
         this.marcheEmploi = new HashMap<>();
@@ -271,7 +279,6 @@ public class Jeu implements Runnable {
 
     public synchronized void ajouterArgent(int montant) {
         this.argent += montant;
-        GameServer.setEtatJeu("Mise à jour de l'argent");
     }
 
     public synchronized void retirerArgent(int montant) {
@@ -281,13 +288,16 @@ public class Jeu implements Runnable {
         }
     }
 
-    public synchronized void ajouterPointRecherche(double montant) {
-        this.pointsRecherche += montant;
-        GameServer.setEtatJeu("Mise à jour des points recherches");
+    public synchronized void setPointRecherche(double montant) {
+        this.pointsRecherche = montant;
     }
 
-    public double getPointsRecherche() {
-        return pointsRecherche;
+    public synchronized void setPointIngenieur(double montant) {
+        this.pointsIngenieur = montant;
+    }
+
+    public synchronized void setPointConstruction(double montant) {
+        this.pointsConstruction = montant;
     }
 
     public void creerUnProgramme(String nom, String objectif, double budget, int dureePrevu) {
@@ -499,13 +509,52 @@ public class Jeu implements Runnable {
         list.get(type).add(personne);
     }
 
-    public void afficherPersonnes(Map<String, List<Personne>> list) {
-        for (Map.Entry<String, List<Personne>> entry : list.entrySet()) {
-            System.out.println("Type: " + entry.getKey());
-            for (Personne personne : entry.getValue()) {
-                System.out.println(personne.toString());
+    public double getPointRecherche(){
+        return pointsRecherche;
+    }
+
+    public double getPointIngenieur(){
+        return pointsIngenieur;
+    }
+
+    public double getPointConstruction(){
+        return pointsConstruction;
+    }
+
+    public double calculerPointRecherche(){
+        double res = 0;
+        if (getEmployes().containsKey("Scientifique")) {
+            List<Personne> scientifiques = getEmployes().get("Scientifique");
+            
+            for (Personne p : scientifiques) {
+                Scientifique s = (Scientifique) p;
+                res += s.getTalent(); 
             }
         }
+
+        return res;
+    }
+
+    public double calculerPointConstruction(){
+        double res = 0;
+        if (getEmployes().containsKey("Ouvrier")) {
+            List<Personne> ouvriers = getEmployes().get("Ouvrier");
+            res = ouvriers.size();
+        }
+        return res;
+    }
+
+    public double calculerPointIngenieur(){
+        double res = 0;
+        if (getEmployes().containsKey("Ingenieur")) {
+            List<Personne> ingenieurs = getEmployes().get("Ingenieur");
+            
+            for (Personne p : ingenieurs) {
+                Ingenieur i = (Ingenieur) p;
+                res += i.getTalent(); 
+            }
+        }
+        return res;
     }
 
     public void embaucherPersonne(Personne personne) {
@@ -516,8 +565,6 @@ public class Jeu implements Runnable {
 
             employes.putIfAbsent(type, new ArrayList<>());
             employes.get(type).add(personne);
-
-            System.out.println("Personne embauchée avec succès : " + personne.getClePrimaire());
         } else {
             System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
         }
@@ -562,22 +609,23 @@ public class Jeu implements Runnable {
     private void actionFinDeMoi() {
         if (date.toLocalDate().getDayOfMonth() == date.toLocalDate().lengthOfMonth()) {
             retirerArgent(coutSalaireTotal());
-            ajouterPointRecherche(pointsRechercheParMois);
+            setPointRecherche(calculerPointRecherche());
+            setPointIngenieur(calculerPointRecherche());
+            setPointConstruction(calculerPointRecherche());
         }
     }
 
     private void actionFinJour() {
         if (!missionEnCours) {
-            ajouterArgent(1000);
+            ajouterArgent(argentParMoi);
             incrementerDate();
             for (IBatiment b : getBatimentsEnConstruction()) {
-                b.construireParJour();
+                b.construireParJour(this.pointsConstruction);
             }
         } 
     }
 
     public void ajouterBatiment(IBatiment batiment){
-        System.out.println("ici");
         this.batimentPosseder.add(batiment);
     }
 
@@ -607,7 +655,6 @@ public class Jeu implements Runnable {
         return missionEnCours;
     }
 
-    // Ajouter une mission
     public void addMission(Mission mission) {
         missions.add(mission);
     }
@@ -618,7 +665,6 @@ public class Jeu implements Runnable {
         
         while (!estFinie()) {
             Mission currentMission = missions.get(0);
-            
             if (!missionEnCours && currentMission != null) {
                 LocalDateTime launchTime = currentMission.getDateHeureLancement();
                 if (date.equals(launchTime)) {
@@ -632,7 +678,6 @@ public class Jeu implements Runnable {
             GameServer.sendGameStateToClients("all");
 
             try {
-                incrementerDate();
                 sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -764,10 +809,6 @@ public class Jeu implements Runnable {
 
     public void setArgent(int argent) {
         this.argent = argent;
-    }
-
-    public void setPointsRecherche(Integer pointsRecherche) {
-        this.pointsRecherche = pointsRecherche;
     }
 
     public List<String> getLog() {

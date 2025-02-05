@@ -19,4 +19,6 @@ public class Scientifique extends PersonneSimple {
     public int getSalaire(){
         return talent * super.getSalaire();
     }
+
+    
 }

@@ -171,14 +171,6 @@ public class GameServer {
             Thread.currentThread().interrupt();
         }
     }
-
-    private static void cleanupResources() {
-        clients.values().removeIf(session -> !session.isOpen());
-        if (jsonCache.size() > CACHE_SIZE) {
-            jsonCache.clear();
-        }
-        System.gc();
-    }
     
     public static void addInput(String message) {
         if (message != null && !message.trim().isEmpty()) {
@@ -191,7 +183,10 @@ public class GameServer {
         gameState.put("etatJeu", etatJeu);
         gameState.put("argent", jeu.getArgent());
         gameState.put("date", jeu.getDate());
-        
+        gameState.put("pointRecherche", jeu.getPointRecherche());
+        gameState.put("pointConstruction", jeu.getPointConstruction());
+        gameState.put("pointIngenieur", jeu.getPointIngenieur());
+
         String gameStateStr = gameState.toString();
         
         clients.values().removeIf(session -> !session.isOpen());
