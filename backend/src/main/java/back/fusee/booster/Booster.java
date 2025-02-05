@@ -6,11 +6,12 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import back.fusee.Ifusee;
 import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
 
-public class Booster {
+public class Booster extends Ifusee {
 
     // Spécification basique
     public String nom;
@@ -47,6 +48,7 @@ public class Booster {
                    Boolean estReetulisable, Boolean aSystèmeAutoDestruction, 
                    int etat, Boolean nécessiteMaintenance, 
                    List<String> historiquesLancement) {
+                    
         this.nom = nom;
         this.taille = taille;
         this.diametre = diametre;

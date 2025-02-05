@@ -1,6 +1,7 @@
 package back;
 
 import back.Batiment.BatimentManager;
+import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Ouvrier;
@@ -8,6 +9,7 @@ import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
 import back.Ressources_Humaines.Scientifique;
 import back.fusee.Fusee;
+import back.fusee.Ifusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
@@ -615,10 +617,21 @@ public class Jeu implements Runnable {
         }
     }
 
+    private void assemblerFusee(){
+        for (IBatiment b : batimentPosseder) {
+            if(b instanceof HangarAssemblage){
+                HangarAssemblage h = (HangarAssemblage) b;
+                h.assemblerTouteFusee(this.pointsIngenieur);
+            }
+        }
+    }
+
     private void actionFinJour() {
         if (!missionEnCours) {
             ajouterArgent(argentParMoi);
             incrementerDate();
+            assemblerFusee();
+            
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);
             }

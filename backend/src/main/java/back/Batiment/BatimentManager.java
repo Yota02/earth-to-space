@@ -23,10 +23,10 @@ public class BatimentManager {
     private void initializeBatiments() {
         List<IBatiment> batimentsAssemblage = new ArrayList<>();
         
-        batimentsAssemblage.add(new HangarAssemblage("Tente", 100, 1, 5));
-        batimentsAssemblage.add(new HangarAssemblage("HighBay", 200, 3, 10));
-        batimentsAssemblage.add(new HangarAssemblage("MegaBay", 300, 10, 12));
-        batimentsAssemblage.add(new HangarAssemblage("GigaBay", 500, 20, 24));
+        batimentsAssemblage.add(new HangarAssemblage("Tente", 100, 1, 5, 10));
+        batimentsAssemblage.add(new HangarAssemblage("HighBay", 200, 3, 10, 40));
+        batimentsAssemblage.add(new HangarAssemblage("MegaBay", 300, 5, 12, 80));
+        batimentsAssemblage.add(new HangarAssemblage("GigaBay", 1000, 20, 24, 120));
         
         batimentMap.put("assemblage", batimentsAssemblage);
     }

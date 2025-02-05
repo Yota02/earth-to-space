@@ -202,7 +202,8 @@ public class WebSocketClient {
                 nomBatiment + " (" + superficie + "m²)", 
                 superficie, 
                 prototypeBatiment.getCapacite() * (superficie / 100), 
-                prototypeBatiment.getTempsConstruction()
+                prototypeBatiment.getTempsConstruction(),
+                ((HangarAssemblage) prototypeBatiment).getHauteur()
             );
             
             // Marquer comme en construction et ajouter
