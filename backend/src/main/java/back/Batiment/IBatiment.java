@@ -10,7 +10,7 @@ public abstract class IBatiment {
     int etat = 0;
     String nom;
     int superficie;
-    int capacite;
+    
     LocalDateTime anneeConstruction;
     boolean operationnel = false;
     int tempsConstruction; // en mois
@@ -35,10 +35,6 @@ public abstract class IBatiment {
 
     public int getSuperficie() {
         return this.superficie;
-    }
-
-    public int getCapacite() {
-        return this.capacite;
     }
 
     public LocalDateTime getAnneeConstruction() {
@@ -88,7 +84,6 @@ public abstract class IBatiment {
     
         json.put("nom", this.nom);
         json.put("superficie", this.superficie);
-        json.put("capacite", this.capacite);
         
         if (this.anneeConstruction != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;

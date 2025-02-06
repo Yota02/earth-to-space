@@ -201,7 +201,7 @@ public class WebSocketClient {
             HangarAssemblage nouveauBatiment = new HangarAssemblage(
                 nomBatiment + " (" + superficie + "m²)", 
                 superficie, 
-                prototypeBatiment.getCapacite() * (superficie / 100), 
+                ((HangarAssemblage) prototypeBatiment).getCapacite() * (superficie / 100), 
                 prototypeBatiment.getTempsConstruction(),
                 ((HangarAssemblage) prototypeBatiment).getHauteur()
             );

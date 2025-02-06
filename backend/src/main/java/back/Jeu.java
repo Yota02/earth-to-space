@@ -3,6 +3,7 @@ package back;
 import back.Batiment.BatimentManager;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
+import back.Batiment.UsineProductionCarburant;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Ouvrier;
 import back.Ressources_Humaines.Personne;
@@ -173,27 +174,30 @@ public class Jeu implements Runnable {
         }
     }
 
+    public double ajouterCarburant(Ergol ergol, double quantite) {
+        double quantiteRestante = quantite;
+        
+        for (Reservoir r : reservoirs) {
+            if (r.getErgol().equals(ergol)) {
+                double espaceDisponible = r.getQuantiteTotal() - r.getQuantite();
+                if (quantiteRestante <= espaceDisponible) {
+                    r.ajouterErgol(quantiteRestante);
+                    return 0; // Tout a été stocké
+                } else {
+                    r.ajouterErgol(espaceDisponible);
+                    quantiteRestante -= espaceDisponible;
+                }
+            }
+        }
+        
+        return quantiteRestante; // Retourne la quantité qui n'a pas pu être stockée
+    }
+
     public void effectuerAchatCarburant(CarburantAchetable carburantAchetable, Ergol ergol) {
         // carburantAchetable.effectuerAchat(this);
 
         double quantiteAajouter = carburantAchetable.getQuantite();
-        for (Reservoir r : reservoirs) {
-            if (r.getErgol().equals(ergol)) {
-                double espaceDisponible = r.getQuantiteTotal() - r.getQuantite();
-                if (quantiteAajouter <= espaceDisponible) {
-                    r.ajouterErgol(quantiteAajouter);
-                    break; // On a ajouté toute la quantité, on peut sortir de la boucle
-                } else {
-                    r.ajouterErgol(espaceDisponible); // Remplir le réservoir à sa capacité maximale
-                    quantiteAajouter -= espaceDisponible; // Réduire la quantité restante à ajouter
-                }
-            }
-        }
-
-        // Si il reste de la quantité à ajouter après avoir parcouru tous les réservoirs
-        if (quantiteAajouter > 0) {
-            throw new IllegalStateException("Impossible d'ajouter toute la quantité, stockage insuffisant.");
-        }
+        ajouterCarburant(ergol, quantiteAajouter);
 
         retirerArgent(carburantAchetable.getPrix());
     }
@@ -381,6 +385,9 @@ public class Jeu implements Runnable {
     }
 
     public void init() {
+
+        batimentPosseder.add(new UsineProductionCarburant("1", 100, 10, 1, Ergol.OXYGEN, 0.9));
+
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
                 .setNom("Reservoir 1")
                 .setErgol(Ergol.OXYGEN)
@@ -626,11 +633,21 @@ public class Jeu implements Runnable {
         }
     }
 
+    private void productionCarburant() {
+        for (IBatiment b : batimentPosseder) {
+            if(b instanceof UsineProductionCarburant) {
+                UsineProductionCarburant u = (UsineProductionCarburant) b;
+                double nonStocke = ajouterCarburant(u.getErgol(), u.getQuantiteProduiteParJour());
+            }
+        }
+    }
+
     private void actionFinJour() {
         if (!missionEnCours) {
             ajouterArgent(argentParMoi);
             incrementerDate();
             assemblerFusee();
+            productionCarburant();
             
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);
@@ -677,15 +694,15 @@ public class Jeu implements Runnable {
         init();
         
         while (!estFinie()) {
-            Mission currentMission = missions.get(0);
+            /* Mission currentMission = missions.get(0);
             if (!missionEnCours && currentMission != null) {
                 LocalDateTime launchTime = currentMission.getDateHeureLancement();
                 if (date.equals(launchTime)) {
                     setmissionEnCours(true);
                     fusees.get(0).decoler();
                 }
-            }
-            
+            } */
+
             actionFinJour();
             actionFinDeMoi();
             GameServer.sendGameStateToClients("all");
