@@ -25,6 +25,7 @@
             </router-link>
           </li>
           <li><router-link to="/lanceur" @click="closeMenu">Lanceur</router-link></li>
+          <li><router-link to="/politique" @click="closeMenu">Politique</router-link></li>
           <li><router-link to="/ergol" @click="closeMenu">Ergol</router-link></li>
           <li><router-link to="/marketBatiment" @click="closeMenu"> 
             <img src="./assets/img/icone/construction.png" alt="" class="market-icon"> 

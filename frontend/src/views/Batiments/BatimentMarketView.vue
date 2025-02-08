@@ -1,4 +1,3 @@
-<!-- src/views/BuildingMarket.vue -->
 <template>
   <div class="p-4 flex gap-4">
     <!-- Marché des bâtiments -->

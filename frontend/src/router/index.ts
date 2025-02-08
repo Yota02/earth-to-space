@@ -15,6 +15,7 @@ import MarcheEmploie from '../views/RessourceHumaines/MarcheEmploieView.vue';
 import Lancement from '../views/LancementView.vue';
 import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue";
 import marketBatimentView from "../views/Batiments/BatimentMarketView.vue";
+import politiqueView from "../views/Politique/PolitiqueView.vue";
 
 
 const routes = [
@@ -27,6 +28,11 @@ const routes = [
     path: '/about',
     name: 'about',
     component: AboutView
+  },
+  {
+    path: '/politique',
+    name: 'politique',
+    component: politiqueView
   },
   {
     path: '/marketBatiment',

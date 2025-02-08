@@ -1,7 +1,6 @@
 package back.politique;
 
 import org.json.JSONObject;
-import java.util.UUID;
 
 public class Subvention {
 
@@ -11,16 +10,26 @@ public class Subvention {
     private String nom;
     private int quantite;
     private int duree;
+    private boolean active;
 
     public Subvention(String nom, int quantite, int duree) {
         this.id = nextId++; // Générer un ID unique
         this.nom = nom;
         this.quantite = quantite;
         this.duree = duree;
+        this.active = false;
     }
 
     public int getId() {
         return id;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getNom() {
@@ -37,10 +46,11 @@ public class Subvention {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("id", this.id); // Ajouter l'ID au JSON
+        json.put("id", this.id);
         json.put("nom", this.nom);
         json.put("quantite", this.quantite);
         json.put("duree", this.duree);
+        json.put("active", this.active);
         return json;
     }
 }

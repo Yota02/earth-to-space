@@ -37,16 +37,20 @@ public class WebSocketClient {
     public void onMessage(Session session, String message) {
         try {
             JSONObject jsonMessage = new JSONObject(message);
-            String action = jsonMessage.getString("action");
+
+            String messageType = jsonMessage.has("type") ? 
+                jsonMessage.getString("type") : 
+                jsonMessage.getString("action");
+
             JSONObject response = new JSONObject();
 
-            switch (action) {
+            switch (messageType) {
                 case "startResearch":
                 case "buyObject":
                 case "buyCarburant":
                 case "sellObject":
                     String name = jsonMessage.getString("name");
-                    handleActionWithName(action, name, session, response);
+                    handleActionWithName(messageType, name, session, response);
                     break;
 
                 case "getProgrammeState":
@@ -99,12 +103,22 @@ public class WebSocketClient {
                 
                 case "getSubventionsState":
                     getSubventions(session);
+                    break;
 
                 case "activateSubvention":
-                    String subventionNom = jsonMessage.getString("subventionNom");
                     int subventionId = Integer.parseInt(jsonMessage.getString("subventionId")); 
-                
-                    activateSubvention(GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId));
+                    Subvention subvention = GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId);
+                    if (subvention != null) {
+                        activateSubvention(subvention);
+                        // Send updated state to all clients
+                        getSubventions(session);
+                    } else {
+                        response.put("type", "error");
+                        response.put("message", "Subvention not found with ID: " + subventionId);
+                        session.getBasicRemote().sendText(response.toString());
+                    }
+                    break;
+
                 case "licencierEmploye":
                     handlelicencierEmploye(jsonMessage, session);
                     break;
@@ -119,7 +133,7 @@ public class WebSocketClient {
                     break;
 
                 default:
-                    response.put("error", "Unknown action: " + action);
+                    response.put("error", "Unknown action: " + messageType);
                     session.getBasicRemote().sendText(response.toString());
             }
         } catch (JSONException e) {
@@ -134,9 +148,17 @@ public class WebSocketClient {
         }
     }
 
-    private void activateSubvention(Subvention subvention){
+    public int activateSubvention(Subvention subvention) {
         PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
         GameServer.jeu.ajouterArgent(politiqueManager.activateSubvention(subvention));
+
+        if (!politiqueManager.getSubventionsPosseder().contains(subvention)) {
+            subvention.setActive(true);
+            politiqueManager.getSubventionsPosseder().add(subvention);
+            politiqueManager.getSubventions().remove(subvention);  
+            return subvention.getQuantite();
+        }
+        return 0;
     }
 
     @OnClose
@@ -466,21 +488,29 @@ public class WebSocketClient {
 
     private void getSubventions(Session session) throws IOException {
         PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
+
+        JSONArray subventionsActives = new JSONArray();
+        JSONArray subventionsDisponibles = new JSONArray();
         
-        JSONArray subventionsArray = new JSONArray(); 
-    
+        // Ajouter les subventions possédées (actives)
+        for (Subvention sub : politiqueManager.getSubventionsPosseder()) {
+            subventionsActives.put(sub.toJson());
+        }
+        
+        // Ajouter les subventions disponibles (non possédées)
         for (Subvention sub : politiqueManager.getSubventions()) {
-            subventionsArray.put(sub.toJson());
+            if (!politiqueManager.getSubventionsPosseder().contains(sub)) {
+                subventionsDisponibles.put(sub.toJson());
+            }
         }
     
         JSONObject response = new JSONObject();
-        response.put("action", "subventionsState");
-        response.put("subventions", subventionsArray);
+        response.put("action", "getSubventionsState");
+        response.put("subventionsActives", subventionsActives);
+        response.put("subventionsDisponibles", subventionsDisponibles);
     
         session.getBasicRemote().sendText(response.toString());
     }
-    
-    
 
     private void getEmployes(Session session) throws IOException {
         Map<String, List<Personne>> employes = GameServer.jeu.getEmployes();
