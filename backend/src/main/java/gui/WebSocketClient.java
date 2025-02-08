@@ -10,6 +10,8 @@ import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
+import back.politique.PolitiqueManager;
+import back.politique.Subvention;
 import back.programme.Programme;
 
 import org.json.JSONArray;
@@ -94,7 +96,15 @@ public class WebSocketClient {
                 case "getMissionState":
                     getMissions(session);
                     break;
+                
+                case "getSubventionsState":
+                    getSubventions(session);
 
+                case "activateSubvention":
+                    String subventionNom = jsonMessage.getString("subventionNom");
+                    int subventionId = Integer.parseInt(jsonMessage.getString("subventionId")); 
+                
+                    activateSubvention(GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId));
                 case "licencierEmploye":
                     handlelicencierEmploye(jsonMessage, session);
                     break;
@@ -122,6 +132,11 @@ public class WebSocketClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void activateSubvention(Subvention subvention){
+        PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
+        GameServer.jeu.ajouterArgent(politiqueManager.activateSubvention(subvention));
     }
 
     @OnClose
@@ -448,6 +463,24 @@ public class WebSocketClient {
 
         session.getBasicRemote().sendText(response.toString());
     }
+
+    private void getSubventions(Session session) throws IOException {
+        PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
+        
+        JSONArray subventionsArray = new JSONArray(); 
+    
+        for (Subvention sub : politiqueManager.getSubventions()) {
+            subventionsArray.put(sub.toJson());
+        }
+    
+        JSONObject response = new JSONObject();
+        response.put("action", "subventionsState");
+        response.put("subventions", subventionsArray);
+    
+        session.getBasicRemote().sendText(response.toString());
+    }
+    
+    
 
     private void getEmployes(Session session) throws IOException {
         Map<String, List<Personne>> employes = GameServer.jeu.getEmployes();

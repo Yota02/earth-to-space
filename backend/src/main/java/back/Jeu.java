@@ -26,6 +26,7 @@ import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
 import back.objectAchetable.ObjectAchetable;
+import back.politique.PolitiqueManager;
 import back.programme.Programme;
 import back.recherche.GestionnaireRecherche;
 import back.recherche.Recherche;
@@ -82,6 +83,8 @@ public class Jeu implements Runnable {
     private List<ObjectAchetable> objectTotals;
     private List<ObjectAchetable> objectAcheter;
 
+    private PolitiqueManager politiqueManager;
+
     //batiments 
     BatimentManager batimentManager;
     private List<IBatiment> batimentPosseder;
@@ -105,6 +108,8 @@ public class Jeu implements Runnable {
         this.pointsIngenieur = 0;
 
         this.argentParMoi = 1000;
+
+        this.politiqueManager = new PolitiqueManager();
 
         this.date = LocalDateTime.of(2000, 1, 1, 0, 0, 0);
 
@@ -153,6 +158,10 @@ public class Jeu implements Runnable {
 
         // this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
         // this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
+    }
+
+    public PolitiqueManager getPolitiqueManager(){
+        return politiqueManager;
     }
 
     public List<Personne> getPersonnesParType(String type) {
