@@ -1,52 +1,55 @@
 <template>
-  <div class="subventions-container">
-    <!-- Subventions actives -->
-    <div class="subventions-section">
-      <h3 class="subventions-title">Subventions actives</h3>
-      <div class="subventions-list" v-if="subventionsActives.length > 0">
-        <div v-for="(subvention, index) in subventionsActives" :key="subvention.id" class="subvention-item">
-          <div class="subvention-info">
-            <span class="subvention-id">#{{ subvention.id }}</span>
-            <span class="subvention-name">{{ subvention.nom }}</span>
-            <div class="subvention-details">
-              <span class="subvention-quantity">{{ subvention.quantite }}$</span>
-              <div class="duration-bar-container">
-                <div class="duration-bar">
-                  <span class="duration-text">{{ subvention.moisRestants }} mois restants</span>
+  <div class="subventions-page">
+    <h1>Subventions</h1>
+    <div class="subventions-container">
+      <!-- Subventions actives -->
+      <div class="subventions-section">
+        <h3 class="subventions-title">Subventions actives</h3>
+        <div class="subventions-list" v-if="subventionsActives.length > 0">
+          <div v-for="(subvention, index) in subventionsActives" :key="subvention.id" class="subvention-item">
+            <div class="subvention-info">
+              <span class="subvention-id">#{{ subvention.id }}</span>
+              <span class="subvention-name">{{ subvention.nom }}</span>
+              <div class="subvention-details">
+                <span class="subvention-quantity">{{ formatNumber(subvention.quantite) }}$</span>
+                <div class="duration-bar-container">
+                  <div class="duration-bar" :style="{ width: calculateProgressBar(subvention) + '%' }">
+                    <span class="duration-text">{{ formatTimeRemaining(subvention.dateFin) }}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div v-else class="no-subventions">
-        Aucune subvention active
-      </div>
-    </div>
-
-    <!-- Subventions disponibles -->
-    <div class="subventions-section">
-      <h3 class="subventions-title">Subventions disponibles</h3>
-      <div class="subventions-list" v-if="subventionsDisponibles.length > 0">
-        <div v-for="(subvention, index) in subventionsDisponibles" :key="subvention.id"
-          class="subvention-item available" @click="activerSubvention(subvention)"
-          :class="{ 'disabled': !canActivateSubvention(subvention) }">
-          <div class="subvention-info">
-            <span class="subvention-id">#{{ subvention.id }}</span>
-            <span class="subvention-name">{{ subvention.nom }}</span>
-            <div class="subvention-details">
-              <span class="subvention-quantity">{{ subvention.quantite }}$</span>
-              <span class="subvention-duration">Durée: {{ subvention.duree }} mois </span>
-            </div>
-          </div>
-          <button class="activate-btn" :disabled="!canActivateSubvention(subvention)"
-            :title="!canActivateSubvention(subvention) ? 'Ressources insuffisantes' : 'Activer la subvention'">
-            Activer
-          </button>
+        <div v-else class="no-subventions">
+          Aucune subvention active
         </div>
       </div>
-      <div v-else class="no-subventions">
-        Aucune subvention disponible
+
+      <!-- Subventions disponibles -->
+      <div class="subventions-section">
+        <h3 class="subventions-title">Subventions disponibles</h3>
+        <div class="subventions-list" v-if="subventionsDisponibles.length > 0">
+          <div v-for="(subvention, index) in subventionsDisponibles" :key="subvention.id"
+            class="subvention-item available" @click="activerSubvention(subvention)"
+            :class="{ 'disabled': !canActivateSubvention(subvention) }">
+            <div class="subvention-info">
+              <span class="subvention-id">#{{ subvention.id }}</span>
+              <span class="subvention-name">{{ subvention.nom }}</span>
+              <div class="subvention-details">
+                <span class="subvention-quantity">{{ formatNumber(subvention.quantite) }}$</span>
+                <span class="subvention-duration">Durée: {{ subvention.duree }} mois</span>
+              </div>
+            </div>
+            <button class="activate-btn" :disabled="!canActivateSubvention(subvention)"
+              :title="!canActivateSubvention(subvention) ? 'Ressources insuffisantes' : 'Activer la subvention'">
+              Activer
+            </button>
+          </div>
+        </div>
+        <div v-else class="no-subventions">
+          Aucune subvention disponible
+        </div>
       </div>
     </div>
   </div>
@@ -54,12 +57,13 @@
 
 <script>
 export default {
-  name: 'Subventions',
+  name: 'SubventionsView',
   data() {
     return {
       subventionsActives: [],
       subventionsDisponibles: [],
       socket: null,
+      updateInterval: null,
       gameData: {
         argent: 0,
         date: null,
@@ -70,6 +74,40 @@ export default {
     };
   },
   methods: {
+    formatNumber(number) {
+      return new Intl.NumberFormat().format(number);
+    },
+    
+    formatTimeRemaining(dateFin) {
+      if (!dateFin) return '';
+      
+      const endDate = new Date(dateFin);
+      const now = new Date();
+      const diff = endDate - now;
+      
+      if (diff <= 0) return 'Expiré';
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      return `${days}j ${hours}h ${minutes}m`;
+    },
+
+    calculateProgressBar(subvention) {
+      if (!subvention.dateFin) return 0;
+      
+      const endDate = new Date(subvention.dateFin);
+      const now = new Date();
+      const startDate = new Date(endDate - (subvention.duree * 30 * 24 * 60 * 60 * 1000));
+      
+      const totalDuration = endDate - startDate;
+      const elapsed = now - startDate;
+      
+      const progress = Math.max(0, Math.min(100, (1 - (elapsed / totalDuration)) * 100));
+      return progress;
+    },
+
     activerSubvention(subvention) {
       if (!this.canActivateSubvention(subvention)) return;
 
@@ -84,7 +122,14 @@ export default {
     },
 
     canActivateSubvention(subvention) {
+      // Logique de vérification des ressources ici
       return true;
+    },
+
+    updateSubventionsState() {
+      this.socket.send(JSON.stringify({
+        type: "getSubventionsState"
+      }));
     },
 
     handleWebSocketMessage(event) {
@@ -93,10 +138,7 @@ export default {
 
         switch (data.action) {
           case "getSubventionsState":
-            this.subventionsActives = data.subventionsActives.map(subvention => ({
-              ...subvention,
-              moisRestants: subvention.moisRestants || subvention.duree
-            }));
+            this.subventionsActives = data.subventionsActives;
             this.subventionsDisponibles = data.subventionsDisponibles || [];
             break;
 
@@ -106,6 +148,7 @@ export default {
 
           case "subventionActivated":
             this.handleSubventionActivation(data.subvention);
+            this.updateSubventionsState();
             break;
         }
       } catch (error) {
@@ -120,13 +163,13 @@ export default {
 
   mounted() {
     this.socket = new WebSocket("ws://localhost:3232");
-
     this.socket.onmessage = this.handleWebSocketMessage;
 
     this.socket.onopen = () => {
-      this.socket.send(JSON.stringify({
-        type: "getSubventionsState"
-      }));
+      this.updateSubventionsState();
+      this.updateInterval = setInterval(() => {
+        this.updateSubventionsState();
+      }, 30000);
     };
 
     this.socket.onerror = (error) => {
@@ -138,17 +181,24 @@ export default {
     if (this.socket) {
       this.socket.close();
     }
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   }
 };
 </script>
 
 <style scoped>
+.subventions-page {
+  padding: 20px;
+}
+
 .subventions-container {
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 8px;
   padding: 16px;
-  max-width: 400px;
-  color: white;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .subventions-section {
@@ -220,6 +270,13 @@ export default {
   align-items: center;
   padding: 0 8px;
   transition: width 0.3s ease;
+  min-width: fit-content;
+}
+
+.duration-text {
+  color: white;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .subvention-duration {
@@ -251,6 +308,8 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
   padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
 }
 
 .available {
@@ -270,6 +329,15 @@ export default {
 @media (max-width: 768px) {
   .subventions-container {
     max-width: 100%;
+  }
+
+  .subvention-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .duration-bar-container {
+    width: 100%;
   }
 }
 </style>

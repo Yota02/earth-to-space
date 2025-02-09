@@ -28,6 +28,10 @@ public class Objectif {
         return proprietaire;
     }
 
+    public Boolean isTerminee() {
+        return terminee;
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("titre", this.titre);

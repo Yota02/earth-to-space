@@ -8,6 +8,7 @@ public class PolitiqueManager {
 
     private List<Subvention> subventions;
     private List<Objectif> objectifs;
+    
     private List<Subvention> subventionsPosssede;
 
     public PolitiqueManager() {
@@ -85,6 +86,10 @@ public class PolitiqueManager {
 
     public List<Subvention> getSubventionsPosseder() {
         return subventionsPosssede;
+    }
+
+    public List<Objectif> getObjectifs(){
+        return objectifs;
     }
 
 }

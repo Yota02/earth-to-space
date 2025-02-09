@@ -10,6 +10,7 @@ import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.ObjectAchetable;
+import back.politique.Objectif;
 import back.politique.PolitiqueManager;
 import back.politique.Subvention;
 import back.programme.Programme;
@@ -38,9 +39,8 @@ public class WebSocketClient {
         try {
             JSONObject jsonMessage = new JSONObject(message);
 
-            String messageType = jsonMessage.has("type") ? 
-                jsonMessage.getString("type") : 
-                jsonMessage.getString("action");
+            String messageType = jsonMessage.has("type") ? jsonMessage.getString("type")
+                    : jsonMessage.getString("action");
 
             JSONObject response = new JSONObject();
 
@@ -77,6 +77,10 @@ public class WebSocketClient {
                     getCarburant(session);
                     break;
 
+                case "getObjectifsState":
+                    getObjectifsState(session);
+                    break;
+
                 case "creerUnProgramme":
                     handleCreerUnProgramme(jsonMessage, session);
                     break;
@@ -100,13 +104,13 @@ public class WebSocketClient {
                 case "getMissionState":
                     getMissions(session);
                     break;
-                
+
                 case "getSubventionsState":
                     getSubventions(session);
                     break;
 
                 case "activateSubvention":
-                    int subventionId = Integer.parseInt(jsonMessage.getString("subventionId")); 
+                    int subventionId = Integer.parseInt(jsonMessage.getString("subventionId"));
                     Subvention subvention = GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId);
                     if (subvention != null) {
                         activateSubvention(subvention);
@@ -148,6 +152,28 @@ public class WebSocketClient {
         }
     }
 
+    public void getObjectifsState(Session session) throws IOException {
+        PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
+
+        JSONArray objectifsActifs = new JSONArray();
+        JSONArray objectifsTermines = new JSONArray();
+
+        for (Objectif obj : politiqueManager.getObjectifs()) {
+            if (!obj.isTerminee()) {
+                objectifsActifs.put(obj.toJson());
+            } else {
+                objectifsTermines.put(obj.toJson());
+            }
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "getObjectifsState");
+        response.put("objectifsActifs", objectifsActifs);
+        response.put("objectifsTermines", objectifsTermines);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
     public int activateSubvention(Subvention subvention) {
         PolitiqueManager politiqueManager = GameServer.jeu.getPolitiqueManager();
         GameServer.jeu.ajouterArgent(politiqueManager.activateSubvention(subvention));
@@ -155,7 +181,7 @@ public class WebSocketClient {
         if (!politiqueManager.getSubventionsPosseder().contains(subvention)) {
             subvention.setActive(true);
             politiqueManager.getSubventionsPosseder().add(subvention);
-            politiqueManager.getSubventions().remove(subvention);  
+            politiqueManager.getSubventions().remove(subvention);
             return subvention.getQuantite();
         }
         return 0;
@@ -208,13 +234,13 @@ public class WebSocketClient {
 
     private void handleAcheterBatiment(JSONObject jsonMessage, Session session) throws IOException {
         JSONObject response = new JSONObject();
-    
+
         try {
             // Récupérer les informations du bâtiment à acheter
             JSONObject batimentJson = jsonMessage.getJSONObject("batiment");
             String nomBatiment = batimentJson.getString("nom");
             int superficie = batimentJson.getInt("superficie");
-    
+
             // Trouver le prototype de bâtiment correspondant
             IBatiment prototypeBatiment = findBatimentPrototype(nomBatiment);
             if (prototypeBatiment == null) {
@@ -222,7 +248,7 @@ public class WebSocketClient {
                 session.getBasicRemote().sendText(response.toString());
                 return;
             }
-    
+
             // Calculer le coût
             int coutBatiment = prototypeBatiment.getCout();
             if (GameServer.jeu.getArgent() < coutBatiment) {
@@ -230,37 +256,36 @@ public class WebSocketClient {
                 session.getBasicRemote().sendText(response.toString());
                 return;
             }
-    
+
             // Retirer l'argent
             GameServer.jeu.retirerArgent(coutBatiment);
-    
+
             // Créer une nouvelle instance de bâtiment basée sur le prototype
             HangarAssemblage nouveauBatiment = new HangarAssemblage(
-                nomBatiment + " (" + superficie + "m²)", 
-                superficie, 
-                ((HangarAssemblage) prototypeBatiment).getCapacite() * (superficie / 100), 
-                prototypeBatiment.getTempsConstruction(),
-                ((HangarAssemblage) prototypeBatiment).getHauteur()
-            );
-            
+                    nomBatiment + " (" + superficie + "m²)",
+                    superficie,
+                    ((HangarAssemblage) prototypeBatiment).getCapacite() * (superficie / 100),
+                    prototypeBatiment.getTempsConstruction(),
+                    ((HangarAssemblage) prototypeBatiment).getHauteur());
+
             // Marquer comme en construction et ajouter
             nouveauBatiment.setEnConstruction(true);
             nouveauBatiment.setAnneeConstruction(GameServer.jeu.getDate());
             GameServer.jeu.ajouterBatiment(nouveauBatiment);
-    
+
             response.put("success", true);
             response.put("batiment", nouveauBatiment.toJson());
             session.getBasicRemote().sendText(response.toString());
-    
+
             // Notifier tous les clients de la mise à jour des bâtiments
             GameServer.sendGameStateToClients("batiments");
-    
+
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'achat du bâtiment : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
     }
-    
+
     private IBatiment findBatimentPrototype(String nom) {
         for (List<IBatiment> batiments : GameServer.jeu.getBatimentManager().getBatimentMap().values()) {
             for (IBatiment batiment : batiments) {
@@ -491,24 +516,24 @@ public class WebSocketClient {
 
         JSONArray subventionsActives = new JSONArray();
         JSONArray subventionsDisponibles = new JSONArray();
-        
+
         // Ajouter les subventions possédées (actives)
         for (Subvention sub : politiqueManager.getSubventionsPosseder()) {
             subventionsActives.put(sub.toJson());
         }
-        
+
         // Ajouter les subventions disponibles (non possédées)
         for (Subvention sub : politiqueManager.getSubventions()) {
             if (!politiqueManager.getSubventionsPosseder().contains(sub)) {
                 subventionsDisponibles.put(sub.toJson());
             }
         }
-    
+
         JSONObject response = new JSONObject();
         response.put("action", "getSubventionsState");
         response.put("subventionsActives", subventionsActives);
         response.put("subventionsDisponibles", subventionsDisponibles);
-    
+
         session.getBasicRemote().sendText(response.toString());
     }
 
