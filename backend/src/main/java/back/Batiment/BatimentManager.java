@@ -22,6 +22,19 @@ public class BatimentManager {
     public Map<String, List<IBatiment>> getBatimentMap(){
         return batimentMap;
     }
+    
+    public List<UsineProductionCarburant> getUsineCarburants() {
+        List<UsineProductionCarburant> usines = new ArrayList<>();
+
+        for(IBatiment b : batimentsPossedes){
+            if(b instanceof UsineProductionCarburant){
+                usines.add((UsineProductionCarburant) b);
+            }
+        }
+
+        return usines;
+    }
+    
 
     private void initializeBatiments() {
         initializeHangarAssemblage();
@@ -29,6 +42,7 @@ public class BatimentManager {
     }
 
     private void initializeProductionCarburant() {
+        
         List<IBatiment> usinesCarburants = new ArrayList<>();
         
         usinesCarburants.add(new UsineProductionCarburant(
@@ -76,7 +90,9 @@ public class BatimentManager {
             0.9   
         ));
         
-        batimentMap.put("usineProductionCarburant", usinesCarburants);
+        ajouterTypeBatiment("usineProductionCarburant", usinesCarburants);
+
+        ajouterBatimentPossede(new UsineProductionCarburant("1", 100, 10, 1, Ergol.OXYGEN, 0.9));
      }
 
     private void initializeHangarAssemblage() {

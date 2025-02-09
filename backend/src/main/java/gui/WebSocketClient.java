@@ -2,6 +2,7 @@ package gui;
 
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
+import back.Batiment.UsineProductionCarburant;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
@@ -109,6 +110,10 @@ public class WebSocketClient {
                     getSubventions(session);
                     break;
 
+                case "getUsineCarburants":
+                    getUsineCarburant(session);
+                    break;
+
                 case "activateSubvention":
                     int subventionId = Integer.parseInt(jsonMessage.getString("subventionId"));
                     Subvention subvention = GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId);
@@ -133,6 +138,7 @@ public class WebSocketClient {
                     break;
 
                 case "getCarburantQuantite":
+
                     handleGetCarburantQuantite(jsonMessage, session);
                     break;
 
@@ -271,7 +277,7 @@ public class WebSocketClient {
             // Marquer comme en construction et ajouter
             nouveauBatiment.setEnConstruction(true);
             nouveauBatiment.setAnneeConstruction(GameServer.jeu.getDate());
-            GameServer.jeu.ajouterBatiment(nouveauBatiment);
+            GameServer.jeu.getBatimentManager().ajouterBatimentPossede(nouveauBatiment);
 
             response.put("success", true);
             response.put("batiment", nouveauBatiment.toJson());
@@ -652,6 +658,22 @@ public class WebSocketClient {
             response.put("error", "Missing required fields for action 'creerUnProgramme'");
             session.getBasicRemote().sendText(response.toString());
         }
+    }
+
+    private void getUsineCarburant(Session session) throws IOException {
+        List<UsineProductionCarburant> usines = GameServer.jeu.getBatimentManager().getUsineCarburants();
+
+        JSONArray usinesArray = new JSONArray();
+        for (UsineProductionCarburant usine : usines) {
+            JSONObject usineJson = usine.toJson();
+            usinesArray.put(usineJson);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "usineCarburantsState");
+        response.put("usineCarburants", usinesArray);
+
+        session.getBasicRemote().sendText(response.toString());
     }
 
     private void handleGetCarburantQuantite(JSONObject jsonMessage, Session session) throws IOException {

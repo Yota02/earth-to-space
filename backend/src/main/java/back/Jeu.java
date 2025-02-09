@@ -87,8 +87,6 @@ public class Jeu implements Runnable {
 
     //batiments 
     BatimentManager batimentManager;
-    private List<IBatiment> batimentPosseder;
-
     // Date
     private LocalDateTime date;
 
@@ -150,8 +148,6 @@ public class Jeu implements Runnable {
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
-
-        this.batimentPosseder = new ArrayList<>();
 
         // this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
         // this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
@@ -394,9 +390,6 @@ public class Jeu implements Runnable {
     }
 
     public void init() {
-
-        batimentPosseder.add(new UsineProductionCarburant("1", 100, 10, 1, Ergol.OXYGEN, 0.9));
-
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
                 .setNom("Reservoir 1")
                 .setErgol(Ergol.OXYGEN)
@@ -634,7 +627,7 @@ public class Jeu implements Runnable {
     }
 
     private void assemblerFusee(){
-        for (IBatiment b : batimentPosseder) {
+        for (IBatiment b : batimentManager.getBatimentsPossedes()) {
             if(b instanceof HangarAssemblage){
                 HangarAssemblage h = (HangarAssemblage) b;
                 h.assemblerTouteFusee(this.pointsIngenieur);
@@ -643,7 +636,7 @@ public class Jeu implements Runnable {
     }
 
     private void productionCarburant() {
-        for (IBatiment b : batimentPosseder) {
+        for (IBatiment b : batimentManager.getBatimentsPossedes()) {
             if(b instanceof UsineProductionCarburant) {
                 UsineProductionCarburant u = (UsineProductionCarburant) b;
                 double nonStocke = ajouterCarburant(u.getErgol(), u.getQuantiteProduiteParJour());
@@ -664,13 +657,9 @@ public class Jeu implements Runnable {
         } 
     }
 
-    public void ajouterBatiment(IBatiment batiment){
-        this.batimentPosseder.add(batiment);
-    }
-
     public List<IBatiment> getBatimentsEnConstruction(){
         List<IBatiment> liste = new ArrayList<>();
-        for (IBatiment b : batimentPosseder) {
+        for (IBatiment b : batimentManager.getBatimentsPossedes()) {
             if(b.getEnConstruction()){
                 liste.add(b);
             }
