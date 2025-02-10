@@ -1,7 +1,6 @@
 <template>
   <h2>Usine</h2>
   <div class="container">
-
     <div class="">
       <div v-if="connectionStatus === 'error'" class="error-message">
         Erreur de connexion au serveur. Veuillez rafraîchir la page.
@@ -18,10 +17,13 @@
               <div class="usine-image-container">
                 <img 
                   src="../../assets/img/icone/usinecarburant.png" 
-                  class="usine-image" 
-                  :style="{ filter: `drop-shadow(0 0 10px ${getUsineColor(usine)})` }"
+                  class="usine-image"
                   alt="Usine de carburant"
                 />
+                <div 
+                  class="status-indicator"
+                  :style="{ backgroundColor: getUsineColor(usine) }"
+                ></div>
               </div>
             </div>
           </div>
@@ -33,7 +35,6 @@
 </template>
 
 <script>
-// Le script reste identique
 export default {
   data() {
     return {
@@ -99,9 +100,9 @@ export default {
   margin-left: 5%;
   padding: 0.15rem; 
   box-sizing: border-box;
-  background-color: gray;
+  background-color: transparent;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: gray;
 }
 
 .usine-list {
@@ -109,13 +110,13 @@ export default {
   height: 100%;
   max-height: 300px;
   display: flex;
-  align-items: center; /* Centre verticalement */
+  align-items: center;
   gap: 0.25rem;
 }
 
 .usine-list-horizontal {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(25px, 1fr)); /* Réduit encore la taille minimale */
+  grid-template-columns: repeat(auto-fit, minmax(25px, 1fr));
   gap: 0.15rem;
   width: 100%;
   padding: 0.15rem;
@@ -135,12 +136,29 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .usine-image {
   width: 20px;
   height: 20px;
   object-fit: contain;
+}
+
+.usine-image:hover {
+  width: 23px;
+  height: 23px;
+  transition: 0.2s;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Messages d'erreur et de connexion */
