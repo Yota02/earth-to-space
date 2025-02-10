@@ -178,7 +178,7 @@ public class WebSocketClient {
         }
 
         JSONObject response = new JSONObject();
-        response.put("action", "getObjectifsState");
+        response.put("action", "ObjectifsState");
         response.put("objectifsActifs", objectifsActifs);
         response.put("objectifsTermines", objectifsTermines);
 
@@ -591,7 +591,7 @@ public class WebSocketClient {
         }
 
         JSONObject response = new JSONObject();
-        response.put("action", "rechercheState");
+        response.put("action", "recherchesState");
         response.put("recherches", objectsArray);
 
         session.getBasicRemote().sendText(response.toString());

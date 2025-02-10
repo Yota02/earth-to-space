@@ -95,9 +95,10 @@ const closeMenu = () => {
   justify-content: center;
   align-items: center;
   flex-grow: 1;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 60px); /* Assure que la hauteur minimale est ajustée pour être en dessous de la navbar */
   background-color: #0a0b1e;
   box-sizing: border-box;
+  padding-top: 60px; /* Ajoute de l'espace pour la navbar */
 }
 
 /* Navbar styles */
@@ -111,6 +112,7 @@ const closeMenu = () => {
   backdrop-filter: blur(10px);
   z-index: 1000;
   border-bottom: 1px solid rgba(88, 103, 221, 0.2);
+  height: 60px; /* Définit explicitement la hauteur de la navbar */
 }
 
 .navbar-container {
@@ -127,7 +129,7 @@ const closeMenu = () => {
   align-items: center;
 }
 
-h1, h2, h3, h4, p {
+h1, h2, h3, h4 {
   color: #fff;
 }
 
@@ -254,4 +256,5 @@ h1, h2, h3, h4, p {
     transform: rotate(-45deg);
   }
 }
+
 </style>

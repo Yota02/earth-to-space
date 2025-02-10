@@ -100,7 +100,7 @@
   
       updateObjectivesState() {
         this.socket.send(JSON.stringify({
-          type: "getObjectifsState"
+          action: "ObjectifsState"
         }));
       },
   

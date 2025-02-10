@@ -28,6 +28,19 @@ public class Recherche {
         this.progression = 0;
     }
 
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, int niveau) {
+        this.id = nextId++;
+        this.prix = prix;
+        this.nom = nom;
+        this.temps = temps;
+        this.description = description;
+        this.categorie = categorie;
+        this.sousType = null;  
+        this.niveau = niveau;
+        this.etat = 0;
+        this.progression = 0;
+    }
+
     public void ajouterProgression(int quantite){
         progression = Math.min(progression + quantite, 100);
     }
@@ -119,7 +132,7 @@ public class Recherche {
         json.put("nom", this.nom);
         json.put("temps", this.temps);
         json.put("description", this.description);
-        json.put("soustype", this.sousType);
+        json.put("sousCategorie", this.sousType);
         json.put("categorie", this.categorie);
         json.put("niveau", this.niveau);
         json.put("etat", this.etat);
