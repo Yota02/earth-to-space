@@ -35,8 +35,7 @@ public class GestionnaireRecherche {
     public void initRecherchePropulsion() {
         ajouterRecherche(new Recherche(1000, "Moteur de Niveau 1", 5.0, "", CategorieRecherche.PROPULSION, SousTypeRecherche.MOTEURS, 1));
         ajouterRecherche(new Recherche(1500, "Fuel de Niveau 1", 7.0, "", CategorieRecherche.PROPULSION, SousTypeRecherche.FUEL, 1));
-        ajouterRecherche(new Recherche(2000, "Système de Propulsion de Niveau 1", 10.0, "", CategorieRecherche.PROPULSION, SousTypeRecherche.SYSTEMES_DE_PROPULSION, 1));
-    }
+        }
     
     public void initRechercheExploration() {
         ajouterRecherche(new Recherche(1000, "Capteurs de Niveau 1", 5.0, "", CategorieRecherche.EXPLORATION, SousTypeRecherche.CAPTEURS, 1));

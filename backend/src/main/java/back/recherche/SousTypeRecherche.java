@@ -4,7 +4,6 @@ public enum SousTypeRecherche {
     // Sous-types pour PROPULSION
     MOTEURS,
     FUEL,
-    SYSTEMES_DE_PROPULSION,
 
     //Sous-types pour Exploration
     CAPTEURS,
