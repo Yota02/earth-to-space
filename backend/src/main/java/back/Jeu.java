@@ -323,53 +323,7 @@ public class Jeu implements Runnable {
         programmes.add(new Programme(nom, objectif, budget, dureePrevu));
     }
 
-    public void demarrerRecherche(String rechercheName) {
-        System.out.println("Recherche de : " + rechercheName);
-        System.out.println("Recherches disponibles : "
-                + recherchesTotal.stream().map(Recherche::getNom).collect(Collectors.toList()));
-
-        Recherche recherche = findRechercheByName(rechercheName);
-        if (recherche != null) {
-            executorService.submit(() -> {
-                try {
-                    recherche.setEtat("en cours");
-                    recherche.setProgression(0);
-
-                    GameServer.setEtatJeu("Recherche en cours : " + rechercheName);
-
-                    for (int i = 0; i <= 100; i++) {
-                        Thread.sleep(1000);
-                        double currentProgress = recherche.getProgression();
-                        double increment = 100.0 / recherche.getTemps();
-                        double newProgress = Math.min(100.0, currentProgress + increment);
-
-                        recherche.setProgression(newProgress);
-                    }
-
-                    if (recherche.getProgression() == 100.0) {
-                        recherche.setEtat("terminée");
-                        rechercheObtenue.add(recherche);
-                    }
-
-                } catch (InterruptedException e) {
-                    recherche.setEtat("échouée");
-                    System.out.println("La recherche '" + rechercheName + "' a été interrompue.");
-
-                }
-            });
-        } else {
-            System.out.println("La recherche '" + rechercheName + "' n'a pas été trouvée.");
-        }
-    }
-
-    private Recherche findRechercheByName(String name) {
-        for (Recherche recherche : recherchesTotal) {
-            if (recherche.getNom().equals(name)) {
-                return recherche;
-            }
-        }
-        return null;
-    }
+    
 
     public CarburantAchetable findCarburantByName(String name) {
         for (CarburantAchetable carburantAchetable : carburantAchetables) {
@@ -623,6 +577,8 @@ public class Jeu implements Runnable {
             setPointRecherche(calculerPointRecherche());
             setPointIngenieur(calculerPointRecherche());
             setPointConstruction(calculerPointRecherche());
+
+            gestionnaireRecherche.rechercheParMoi();
         }
     }
 
@@ -639,7 +595,7 @@ public class Jeu implements Runnable {
         for (IBatiment b : batimentManager.getBatimentsPossedes()) {
             if(b instanceof UsineProductionCarburant) {
                 UsineProductionCarburant u = (UsineProductionCarburant) b;
-                double nonStocke = ajouterCarburant(u.getErgol(), u.getQuantiteProduiteParJour());
+                ajouterCarburant(u.getErgol(), u.getQuantiteProduiteParJour());
             }
         }
     }

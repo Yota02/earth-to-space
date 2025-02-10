@@ -1,0 +1,26 @@
+package back.recherche;
+
+public enum CategorieRecherche {
+    PROPULSION,
+    NAVIGATION,
+    ENERGIE,
+    COMMUNICATIONS,
+
+    EXPLORATION, 
+    TRANSPORT_HABITE,
+    COLONISATION,
+
+    ASTRONOMIE,
+
+    BATIMENTS,
+    RH,
+    FINANCIER,
+
+    MATERIAUX,
+
+    ROBOTIQUE,
+    INTELLIGENCE_ARTIFICIELLE,
+    // SYSTEMES_EMBARQUES,
+
+    EXOBIOLOGIE,
+}

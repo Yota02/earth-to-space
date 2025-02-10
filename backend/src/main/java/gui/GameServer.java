@@ -226,23 +226,6 @@ public class GameServer {
         return objectsArray.toString();
     }
 
-    public static String convertResearchesToJson(List<Recherche> researches) {
-        JSONArray jsonArray = new JSONArray();
-        for (Recherche recherche : researches) {
-            JSONObject researchObj = new JSONObject();
-            researchObj.put("nom", recherche.getNom());
-            researchObj.put("prix", recherche.getPrix());
-            researchObj.put("temps", recherche.getTemps());
-            researchObj.put("description", recherche.getDescription());
-            researchObj.put("type", recherche.getType());
-            researchObj.put("niveau", recherche.getNiveau());
-            researchObj.put("etat", recherche.getEtat());
-            researchObj.put("progression", recherche.getProgression());
-            jsonArray.put(researchObj);
-        }
-        return jsonArray.toString();
-    }
-
     public static void setEtatJeu(String string) {
         etatJeu = string;
     }

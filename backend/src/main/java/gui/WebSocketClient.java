@@ -15,6 +15,7 @@ import back.politique.Objectif;
 import back.politique.PolitiqueManager;
 import back.politique.Subvention;
 import back.programme.Programme;
+import back.recherche.Recherche;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -130,6 +131,10 @@ public class WebSocketClient {
 
                 case "licencierEmploye":
                     handlelicencierEmploye(jsonMessage, session);
+                    break;
+
+                case "getRecherches":
+                    getRecherches(session);
                     break;
 
                 case "addReservoir":
@@ -357,7 +362,7 @@ public class WebSocketClient {
             throws IOException {
         switch (action) {
             case "startResearch":
-                GameServer.jeu.demarrerRecherche(name);
+                GameServer.jeu.getGestionnaireRecherche().demarrerRecherche(0);
                 break;
 
             case "buyObject":
@@ -574,6 +579,20 @@ public class WebSocketClient {
         response.put("action", "employesState");
         response.put("salaireTotal", GameServer.jeu.coutSalaireTotal());
         response.put("employes", mainArray);
+
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getRecherches(Session session) throws IOException {
+
+        JSONArray objectsArray = new JSONArray();
+        for (Recherche r : GameServer.jeu.getGestionnaireRecherche().getRecherches()) {
+            objectsArray.put(r.toJson());
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "rechercheState");
+        response.put("recherches", objectsArray);
 
         session.getBasicRemote().sendText(response.toString());
     }

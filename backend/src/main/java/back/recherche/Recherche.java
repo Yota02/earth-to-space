@@ -1,34 +1,46 @@
 package back.recherche;
-
-import java.util.UUID;
+import org.json.JSONObject;
 
 public class Recherche {
 
-    private final String id;
+    static int nextId;
+    private int id;
     private int prix;
     private String nom;
     private double temps;
     private String description;
-    private String type;
-    private String categorie;
+    private SousTypeRecherche sousType;  // Nouveau champ pour sous-type
+    private CategorieRecherche categorie;
     private int niveau;
-    private String etat;
+    private int etat;
     private double progression;
 
-    private Recherche(Builder builder) {
-        this.id = UUID.randomUUID().toString();
-        this.prix = builder.prix;
-        this.nom = builder.nom;
-        this.temps = builder.temps;
-        this.description = builder.description;
-        this.type = builder.type;
-        this.categorie = builder.categorie;
-        this.niveau = builder.niveau;
-        this.etat = builder.etat;
-        this.progression = builder.progression;
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, SousTypeRecherche sousType, int niveau) {
+        this.id = nextId++;
+        this.prix = prix;
+        this.nom = nom;
+        this.temps = temps;
+        this.description = description;
+        this.categorie = categorie;
+        this.sousType = sousType;  // Initialisation du sous-type
+        this.niveau = niveau;
+        this.etat = 0;
+        this.progression = 0;
     }
 
-    public String getId() {
+    public void ajouterProgression(int quantite){
+        progression = Math.min(progression + quantite, 100);
+    }
+
+    public SousTypeRecherche getSousType() {
+        return sousType;
+    }
+
+    public void setSousType(SousTypeRecherche sousType) {
+        this.sousType = sousType;
+    }
+
+    public int getId() {
         return id;
     }
 
@@ -36,104 +48,82 @@ public class Recherche {
         return prix;
     }
 
+    public void setPrix(int prix) {
+        this.prix = prix;
+    }
+
     public String getNom() {
         return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public double getTemps() {
         return temps;
     }
 
+    public void setTemps(double temps) {
+        this.temps = temps;
+    }
+
     public String getDescription() {
         return description;
     }
 
-    public String getType() {
-        return type;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getCategorie() {
+    public CategorieRecherche getCategorie() {
         return categorie;
+    }
+
+    public void setCategorie(CategorieRecherche categorie) {
+        this.categorie = categorie;
     }
 
     public int getNiveau() {
         return niveau;
     }
 
-    public String getEtat() {
+    public void setNiveau(int niveau) {
+        this.niveau = niveau;
+    }
+
+    public int getEtat() {
         return etat;
+    }
+
+    public void setEtat(int etat) {
+        this.etat = etat;
     }
 
     public double getProgression() {
         return progression;
     }
 
-    public void setEtat(String etat) {
-        this.etat = etat;
-    }
-
     public void setProgression(double progression) {
         this.progression = progression;
     }
 
-    public static class Builder {
-        private int prix;
-        private String nom;
-        private double temps;
-        private String description;
-        private String type;
-        private String categorie;
-        private int niveau;
-        private String etat;
-        private double progression;
+    public int getNbprogressionParMoi(){
+        return 1;
+    }
 
-        public Builder setPrix(int prix) {
-            this.prix = prix;
-            return this;
-        }
-
-        public Builder setNom(String nom) {
-            this.nom = nom;
-            return this;
-        }
-
-        public Builder setTemps(double temps) {
-            this.temps = temps;
-            return this;
-        }
-
-        public Builder setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder setType(String type) {
-            this.type = type;
-            return this;
-        }
-
-        public Builder setCategorie(String categorie) {
-            this.categorie = categorie;
-            return this;
-        }
-
-        public Builder setNiveau(int niveau) {
-            this.niveau = niveau;
-            return this;
-        }
-
-        public Builder setEtat(String etat) {
-            this.etat = etat;
-            return this;
-        }
-
-        public Builder setProgression(double progression) {
-            this.progression = progression;
-            return this;
-        }
-
-        public Recherche build() {
-            return new Recherche(this);
-        }
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("id", this.id);
+        json.put("prix", this.prix);
+        json.put("nom", this.nom);
+        json.put("temps", this.temps);
+        json.put("description", this.description);
+        json.put("soustype", this.sousType);
+        json.put("categorie", this.categorie);
+        json.put("niveau", this.niveau);
+        json.put("etat", this.etat);
+        json.put("progression", this.progression);
+        return json;
     }
 }
