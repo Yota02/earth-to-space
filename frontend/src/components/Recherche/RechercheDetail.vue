@@ -24,6 +24,9 @@
                     <h3>Description</h3>
                     <p>{{ selectedRecherche.description || 'Aucune description disponible.' }}</p>
                 </div>
+
+                <p> {{ selectedRecherche.typeEffet || 'Aucune description disponible.' }} </p>
+                
                 <div class="research-details">
                     <h3>Détails</h3>
                     <ul>

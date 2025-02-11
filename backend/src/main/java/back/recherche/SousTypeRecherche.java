@@ -5,14 +5,15 @@ public enum SousTypeRecherche {
     MOTEURS,
     FUEL,
 
-
     HANGAR_ASSEMBLAGE,
+    PAS_DE_TIR,
+    DEVIATEUR_DE_FLAMME,
 
     //Sous-types pour Exploration
     CAPTEURS,
 
     // Sous-types pour ENERGIE
-    PANNEAUX_SOLAIRES, // ok
+    PANNEAUX_SOLAIRES, 
     REACTEURS,
     BATTERIES,
 

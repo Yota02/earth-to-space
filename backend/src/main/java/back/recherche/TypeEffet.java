@@ -1,9 +1,9 @@
 package back.recherche;
 
 enum TypeEffet {
-    AMELIORATION,
+    FIABILITE, 
+    QUALITE, 
+    RENTABILITE,
+    ACCELERATION,
     DEBLOCAGE,
-    BONUS,
-    REDUCTION_COUT,
-    ACCELERATION_RECHERCHE
 }

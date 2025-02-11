@@ -9,87 +9,113 @@ public class GestionnaireRecherche {
     private final Map<String, Recherche> recherchesMap = new HashMap<>();
     BatimentManager batimentManager;
     GestionaireRechercheDeblocage rechercheDeblocage;
+    GestionaireEffet gestionaireEffet;
 
-
-    public GestionnaireRecherche(BatimentManager batimentManager){
+    public GestionnaireRecherche(BatimentManager batimentManager) {
         this.batimentManager = batimentManager;
+        this.gestionaireEffet = new GestionaireEffet();
         this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager);
     }
-    
-    public void initRechercheBatiments(){
+
+    public void initRechercheBatiments() {
         initRechercheUsineCarburant();
-        
+
         for (Recherche recherche : rechercheDeblocage.initeHangarAssemblageRecherche()) {
             ajouterRecherche(recherche);
         }
 
     }
 
-    public void initRechercheEnergie(){
+    public void initRechercheEnergie() {
         initRecherchesPanneauxSolaires();
-        //initRecherchesReacteur();
-        //initRecherchesBatteris();
+        // initRecherchesReacteur();
+        // initRecherchesBatteris();
     }
 
-    public void initRechercheUsineCarburant(){
-        ajouterRecherche(new Recherche(1000, "Usine Ergol de Niveau 1", 5.0, "", CategorieRecherche.BATIMENTS,  1));
+    public void initRechercheUsineCarburant() {
+        ajouterRecherche(new Recherche(1000, "Usine Ergol de Niveau 1", 5.0, "", CategorieRecherche.BATIMENTS, 1,
+                TypeEffet.RENTABILITE));
     }
 
     public void initRecherchesPanneauxSolaires() {
-        ajouterRecherche(new Recherche(1000, "Panneaux Solaires de Niveau 1", 5.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES,  1));
-        ajouterRecherche(new Recherche(1500, "Panneaux Solaires de Niveau 2", 7.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES, 2));
-        ajouterRecherche(new Recherche(2000, "Panneaux Solaires de Niveau 3", 9.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES,  3));
-        ajouterRecherche(new Recherche(2500, "Panneaux Solaires de Niveau 4", 12.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES, 4));
-        ajouterRecherche(new Recherche(3000, "Panneaux Solaires de Niveau 5", 15.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES, 5));
-        ajouterRecherche(new Recherche(4000, "Panneaux Solaires de Niveau 6", 18.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES,  6));
-        ajouterRecherche(new Recherche(5000, "Panneaux Solaires de Niveau 7", 22.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES, 7));
-        ajouterRecherche(new Recherche(6000, "Panneaux Solaires de Niveau 8", 25.0, "", CategorieRecherche.ENERGIE, SousTypeRecherche.PANNEAUX_SOLAIRES, 8));
+        ajouterRecherche(new Recherche(1000, "Panneaux Solaires de Niveau 1", 5.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 1, TypeEffet.RENTABILITE, 0.1));
+        ajouterRecherche(new Recherche(1500, "Panneaux Solaires de Niveau 2", 7.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 2, TypeEffet.RENTABILITE, 0.2));
+        ajouterRecherche(new Recherche(2000, "Panneaux Solaires de Niveau 3", 9.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 3, TypeEffet.RENTABILITE, 0.4));
+        ajouterRecherche(new Recherche(2500, "Panneaux Solaires de Niveau 4", 12.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 4, TypeEffet.RENTABILITE, 0.6));
+        ajouterRecherche(new Recherche(3000, "Panneaux Solaires de Niveau 5", 15.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 5, TypeEffet.RENTABILITE, 0.8));
+        ajouterRecherche(new Recherche(4000, "Panneaux Solaires de Niveau 6", 18.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 6, TypeEffet.RENTABILITE, 1.1));
+        ajouterRecherche(new Recherche(5000, "Panneaux Solaires de Niveau 7", 22.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 7, TypeEffet.RENTABILITE, 1.8));
+        ajouterRecherche(new Recherche(6000, "Panneaux Solaires de Niveau 8", 25.0, "", CategorieRecherche.ENERGIE,
+                SousTypeRecherche.PANNEAUX_SOLAIRES, 8, TypeEffet.RENTABILITE, 2.5));
     }
 
     public void initRecherchePropulsion() {
-        ajouterRecherche(new Recherche(1000, "Moteur de Niveau 1", 5.0, "", CategorieRecherche.PROPULSION, SousTypeRecherche.MOTEURS, 1));
-        ajouterRecherche(new Recherche(1500, "Fuel de Niveau 1", 7.0, "", CategorieRecherche.PROPULSION, SousTypeRecherche.FUEL, 1));
-        }
-    
+        ajouterRecherche(new Recherche(1000, "Moteur de Niveau 1", 5.0, "", CategorieRecherche.PROPULSION,
+                SousTypeRecherche.MOTEURS, 1, TypeEffet.RENTABILITE, 0.1));
+        ajouterRecherche(new Recherche(1500, "Fuel de Niveau 1", 7.0, "", CategorieRecherche.PROPULSION,
+                SousTypeRecherche.FUEL, 1, TypeEffet.RENTABILITE, 0.2));
+    }
+
     public void initRechercheExploration() {
-        ajouterRecherche(new Recherche(1000, "Capteurs de Niveau 1", 5.0, "", CategorieRecherche.EXPLORATION, SousTypeRecherche.CAPTEURS, 1));
+        ajouterRecherche(new Recherche(1000, "Capteurs de Niveau 1", 5.0, "", CategorieRecherche.EXPLORATION,
+                SousTypeRecherche.CAPTEURS, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheRobotiques() {
-        ajouterRecherche(new Recherche(1000, "Automatisation de Niveau 1", 5.0, "", CategorieRecherche.ROBOTIQUE, SousTypeRecherche.AUTOMATISATION, 1));
+        ajouterRecherche(new Recherche(1000, "Automatisation de Niveau 1", 5.0, "", CategorieRecherche.ROBOTIQUE,
+                SousTypeRecherche.AUTOMATISATION, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheTransportHabite() {
-        ajouterRecherche(new Recherche(1000, "Systèmes de Transport de Niveau 1", 5.0, "", CategorieRecherche.TRANSPORT_HABITE, SousTypeRecherche.SYSTEMES_DE_TRANSPORT, 1));
-        ajouterRecherche(new Recherche(1500, "Vie Spatiale de Niveau 1", 7.0, "", CategorieRecherche.TRANSPORT_HABITE, SousTypeRecherche.VIE_SPATIALE, 1));
+        ajouterRecherche(
+                new Recherche(1000, "Systèmes de Transport de Niveau 1", 5.0, "", CategorieRecherche.TRANSPORT_HABITE,
+                        SousTypeRecherche.SYSTEMES_DE_TRANSPORT, 1, TypeEffet.RENTABILITE, 0.2));
+        ajouterRecherche(new Recherche(1500, "Vie Spatiale de Niveau 1", 7.0, "", CategorieRecherche.TRANSPORT_HABITE,
+                SousTypeRecherche.VIE_SPATIALE, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheColonisation() {
-        ajouterRecherche(new Recherche(1000, "Infrastructures de Niveau 1", 5.0, "", CategorieRecherche.COLONISATION, SousTypeRecherche.INFRASTRUCTURES, 1));
-        ajouterRecherche(new Recherche(1500, "Habitats de Niveau 1", 7.0, "", CategorieRecherche.COLONISATION, SousTypeRecherche.HABITATS, 1));
-        ajouterRecherche(new Recherche(2000, "Agriculture Spatiale de Niveau 1", 10.0, "", CategorieRecherche.COLONISATION, SousTypeRecherche.AGRICULTURE_SPATIALE, 1));
+        ajouterRecherche(new Recherche(1000, "Infrastructures de Niveau 1", 5.0, "", CategorieRecherche.COLONISATION,
+                SousTypeRecherche.INFRASTRUCTURES, 1, TypeEffet.RENTABILITE, 0.2));
+        ajouterRecherche(new Recherche(1500, "Habitats de Niveau 1", 7.0, "", CategorieRecherche.COLONISATION,
+                SousTypeRecherche.HABITATS, 1, TypeEffet.RENTABILITE, 0.2));
+        ajouterRecherche(
+                new Recherche(2000, "Agriculture Spatiale de Niveau 1", 10.0, "", CategorieRecherche.COLONISATION,
+                        SousTypeRecherche.AGRICULTURE_SPATIALE, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheAstronomie() {
-        ajouterRecherche(new Recherche(1000, "Observation Astronomique de Niveau 1", 5.0, "", CategorieRecherche.ASTRONOMIE, null, 1));
+        ajouterRecherche(new Recherche(1000, "Observation Astronomique de Niveau 1", 5.0, "",
+                CategorieRecherche.ASTRONOMIE, null, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheRessourcesHumaines() {
-        ajouterRecherche(new Recherche(1000, "Gestion des Ressources Humaines de Niveau 1", 5.0, "", CategorieRecherche.RH, null, 1));
+        ajouterRecherche(new Recherche(1000, "Gestion des Ressources Humaines de Niveau 1", 5.0, "",
+                CategorieRecherche.RH, null, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheFinancier() {
-        ajouterRecherche(new Recherche(1000, "Gestion Financière de Niveau 1", 5.0, "", CategorieRecherche.FINANCIER, null, 1));
+        ajouterRecherche(new Recherche(1000, "Gestion Financière de Niveau 1", 5.0, "", CategorieRecherche.FINANCIER,
+                null, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheMateriaux() {
-        ajouterRecherche(new Recherche(1000, "Matériaux Avancés de Niveau 1", 5.0, "", CategorieRecherche.MATERIAUX, null, 1));
+        ajouterRecherche(new Recherche(1000, "Matériaux Avancés de Niveau 1", 5.0, "", CategorieRecherche.MATERIAUX,
+                null, 1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initRechercheExobiologie() {
-        ajouterRecherche(new Recherche(1000, "Exobiologie de Niveau 1", 5.0, "", CategorieRecherche.EXOBIOLOGIE, null, 1));
+        ajouterRecherche(new Recherche(1000, "Exobiologie de Niveau 1", 5.0, "", CategorieRecherche.EXOBIOLOGIE, null,
+                1, TypeEffet.RENTABILITE, 0.2));
     }
-    
+
     public void initialiserRecherches() {
         initRechercheEnergie();
         initRechercheBatiments();
@@ -104,9 +130,6 @@ public class GestionnaireRecherche {
         initRechercheMateriaux();
         initRechercheExobiologie();
     }
-    
-    
-    
 
     public Recherche getRecherche(String nom) {
         return recherchesMap.get(nom);
@@ -131,11 +154,48 @@ public class GestionnaireRecherche {
         for (Recherche r : rechercheTotal) {
             if (r.getEtat() == 1) {
                 r.ajouterProgression(r.getNbprogressionParMoi());
-    
-                if (r.getEtat() == 1 && r.getProgression() >= 100) { 
+
+                if (r.getEtat() == 1 && r.getProgression() >= 100) {
                     r.setEtat(2);
-                    if (r instanceof RechercheDeblocage) {
-                        ((RechercheDeblocage) r).getObjectAchetable().debloquer(); 
+
+                    switch (r.getTypeEffet()) {
+                        case FIABILITE:
+
+                            switch (r.getSousType()) {
+                                case CAPTEURS:
+                                    gestionaireEffet.ajouterFiabiliteCapteurs(r.getEffet());
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                            /* switch (r.getCategorie()) {
+                                case COLONISATION:
+                                    gestionaireEffet.ajouterRENTABILITEConstruction(r.getEffet());
+                                    break;
+
+                                default:
+                                    break;
+                            } */
+                            break;
+
+                        case QUALITE:
+                            break;
+
+                        case RENTABILITE:
+                            break;
+
+                        case ACCELERATION:
+                            break;
+
+                        case DEBLOCAGE:
+                            ((RechercheDeblocage) r).getObjectAchetable().debloquer();
+
+                            break;
+
+                        default:
+                            break;
                     }
                 }
             }
@@ -150,6 +210,5 @@ public class GestionnaireRecherche {
         }
         return null;
     }
-
 
 }

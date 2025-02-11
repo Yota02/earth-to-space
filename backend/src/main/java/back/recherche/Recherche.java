@@ -9,26 +9,31 @@ public class Recherche {
     private String nom;
     private double temps;
     private String description;
+    private TypeEffet typeEffet;
+    private double effet;
+
     private SousTypeRecherche sousType;  // Nouveau champ pour sous-type
     private CategorieRecherche categorie;
     private int niveau;
     private int etat;
     private double progression;
 
-    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, SousTypeRecherche sousType, int niveau) {
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, SousTypeRecherche sousType, int niveau, TypeEffet typeEffet, double effet) {
         this.id = nextId++;
         this.prix = prix;
         this.nom = nom;
         this.temps = temps;
         this.description = description;
         this.categorie = categorie;
-        this.sousType = sousType;  // Initialisation du sous-type
+        this.sousType = sousType; 
         this.niveau = niveau;
         this.etat = 0;
         this.progression = 0;
+        this.typeEffet = typeEffet;
+        this.effet = effet;
     }
 
-    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, int niveau) {
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, int niveau, TypeEffet typeEffet, double effet) {
         this.id = nextId++;
         this.prix = prix;
         this.nom = nom;
@@ -39,6 +44,41 @@ public class Recherche {
         this.niveau = niveau;
         this.etat = 0;
         this.progression = 0;
+        this.typeEffet = typeEffet;
+        this.effet = effet;
+    }
+
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, int niveau, TypeEffet typeEffet) {
+        this.id = nextId++;
+        this.prix = prix;
+        this.nom = nom;
+        this.temps = temps;
+        this.description = description;
+        this.categorie = categorie;
+        this.sousType = null;  
+        this.niveau = niveau;
+        this.etat = 0;
+        this.progression = 0;
+        this.typeEffet = typeEffet;
+    }
+
+    public Recherche(int prix, String nom, double temps, String description, CategorieRecherche categorie, SousTypeRecherche sousType, int niveau, TypeEffet typeEffet) {
+        this.id = nextId++;
+        this.prix = prix;
+        this.nom = nom;
+        this.temps = temps;
+        this.description = description;
+        this.categorie = categorie;
+        this.sousType = null;  
+        this.niveau = niveau;
+        this.etat = 0;
+        this.progression = 0;
+        this.typeEffet = typeEffet;
+        this.sousType = sousType;
+    }
+
+    public double getEffet() {
+        return effet;
     }
 
     public void ajouterProgression(int quantite){
@@ -125,6 +165,10 @@ public class Recherche {
         return 100;
     }
 
+    public TypeEffet getTypeEffet(){
+        return this.typeEffet;
+    }
+
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("id", this.id);
@@ -137,6 +181,7 @@ public class Recherche {
         json.put("niveau", this.niveau);
         json.put("etat", this.etat);
         json.put("progression", this.progression);
+        json.put("typeEffet", this.typeEffet);
         return json;
     }
 }

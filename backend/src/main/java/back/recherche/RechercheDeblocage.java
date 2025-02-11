@@ -7,8 +7,8 @@ public class RechercheDeblocage extends Recherche{
     ObjectDeblocable objectAchetable;
 
     public RechercheDeblocage(int prix, String nom, double temps, String description, CategorieRecherche categorie,
-            SousTypeRecherche sousType, int niveau, ObjectDeblocable objectAchetable) {
-        super(prix, nom, temps, description, categorie, sousType, niveau);
+            SousTypeRecherche sousType, int niveau, TypeEffet typeEffet, ObjectDeblocable objectAchetable) {
+        super(prix, nom, temps, description, categorie, sousType, niveau, typeEffet);
         this.objectAchetable = objectAchetable;   
     }
 
