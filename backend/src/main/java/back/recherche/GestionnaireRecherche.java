@@ -109,7 +109,7 @@ public class GestionnaireRecherche {
 
     public void demarrerRecherche(int rechercheName) {
         Recherche recherche = findRechercheById(rechercheName);
-
+        System.out.println("demarer recherche " + recherche.getNom());
         recherche.setEtat(1);
     }
 

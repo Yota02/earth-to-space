@@ -1,15 +1,20 @@
 <template>
     <div class="research-detail-container">
+        <div v-if="connectionError" class="connection-status error">
+            Erreur de connexion au serveur
+        </div>
+
         <div v-if="selectedRecherche" class="research-detail">
             <div class="research-image">
-                <img :src="getImageUrl(selectedRecherche.sousCategorie, selectedRecherche.categorie)" :alt="selectedRecherche.nom">
+                <img :src="getImageUrl(selectedRecherche.sousCategorie, selectedRecherche.categorie)"
+                    :alt="selectedRecherche.nom">
             </div>
             <div class="research-info">
                 <h2>{{ selectedRecherche.nom }}</h2>
                 <div class="research-metadata">
-                    <p><strong>Catégorie:</strong> {{ selectedRecherche.categorie }}</p>
-                    <p><strong>Sous-Catégorie:</strong> {{ selectedRecherche.sousCategorie }}</p>
-                    <p><strong>Progression:</strong>
+                    <p><strong>Catégorie : </strong> {{ selectedRecherche.categorie }}</p>
+                    <p><strong>Sous-Catégorie : </strong> {{ selectedRecherche.sousCategorie }}</p>
+                    <p><strong>Progression : </strong>
                         <span :style="{ color: getProgressColor(selectedRecherche) }">
                             {{ selectedRecherche.progression }}%
                         </span>
@@ -23,18 +28,26 @@
                     <h3>Détails</h3>
                     <ul>
                         <li v-if="selectedRecherche.dureeEstimee">
-                            <strong>Durée estimée:</strong> {{ selectedRecherche.dureeEstimee }} jours
+                            <strong>Durée estimée : </strong> {{ selectedRecherche.dureeEstimee }} jours
                         </li>
                         <li v-if="selectedRecherche.coutEstime">
-                            <strong>Coût estimé:</strong> {{ selectedRecherche.coutEstime }} €
+                            <strong>Coût estimé : </strong> {{ selectedRecherche.coutEstime }} €
                         </li>
                         <li v-if="selectedRecherche.responsable">
-                            <strong>Responsable:</strong> {{ selectedRecherche.responsable }}
+                            <strong>Responsable : </strong> {{ selectedRecherche.responsable }}
                         </li>
                     </ul>
                 </div>
+
                 <div class="research-actions">
-                    <button @click="demarerRecherche" :disabled="selectedRecherche.progression >= 100">
+                    <!-- Afficher "Annuler" si la recherche est en cours -->
+                    <button v-if="selectedRecherche.etat === 1" @click="annulerRecherche" class="cancel-button">
+                        Annuler
+                    </button>
+
+                    <!-- Afficher "Démarrer" si la recherche n'est pas en cours -->
+                    <button v-else @click="demarrerRecherche"
+                        :disabled="selectedRecherche.progression >= 100 || connectionError">
                         {{ selectedRecherche.progression >= 100 ? 'Terminé' : 'Démarrer' }}
                     </button>
                 </div>
@@ -48,15 +61,19 @@
 
 <script>
 export default {
+    name: 'ResearchDetail',
     props: {
         selectedRecherche: {
             type: Object,
             default: null
         }
     },
-    methods: {
-        getImageUrl(sousCategorie, categorie) {
-            const defaultImages = {
+    data() {
+        return {
+            socket: null,
+            connectionError: false,
+            rechercheEnCours: false,
+            defaultImages: {
                 // Catégories par défaut
                 "PROPULSION": "src/assets/img/bandeau/propulsion.jpg",
                 "EXPLORATION": "src/assets/img/bandeau/exploration.jpg",
@@ -69,7 +86,7 @@ export default {
                 "ASTRONOMIE": "src/assets/img/bandeau/observatoire.jpg",
                 "MATERIAUX": "src/assets/img/bandeau/materiaux.jpg",
                 "EXOBIOLOGIE": "src/assets/img/bandeau/exobiologie.webp",
-                "FINANCIER" : "src/assets/img/bandeau/financier.jpg",
+                "FINANCIER": "src/assets/img/bandeau/financier.jpg",
 
                 // Sous-catégories spécifiques
                 "MOTEURS": "src/assets/img/bandeau/moteur.png",
@@ -79,23 +96,126 @@ export default {
                 "REACTEURS": "src/assets/img/bandeau/reacteur.png",
                 "BATTERIES": "src/assets/img/bandeau/batterie.png",
                 "AUTOMATISATION": "src/assets/img/bandeau/automatisation.png",
-                "SYSTÈMES_AUTONOMES": "/images/robotique-systemes.jpg",
+                "SYSTÈMES_AUTONOMES": "",
                 "SYSTEMES_DE_TRANSPORT": "src/assets/img/bandeau/navette.jpg",
-                "VIE_SPATIALE": "/images/transport-vie.jpg",
+                "VIE_SPATIALE": "src/assets/img/bandeau/station_spatial.png",
                 "INFRASTRUCTURES": "/images/colonisation-infrastructures.jpg",
                 "HABITATS": "src/assets/img/bandeau/habitats.jpg",
                 "AGRICULTURE_SPATIALE": "src/assets/img/bandeau/agriculture.jpg",
-                "CONSTRUCTION": "/images/batiments-construction.jpg",
-                "STOCKAGE": "/images/batiments-stockage.jpg"
-            };
+                "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
+                "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg"
+            }
+        }
+    },
+    created() {
+        this.initWebSocket();
+    },
+    methods: {
+        initWebSocket() {
+            try {
+                this.socket = new WebSocket("ws://localhost:3232");
+                this.socket.onmessage = this.handleWebSocketMessage;
 
-            return defaultImages[sousCategorie] || defaultImages[categorie] || "@/../../assets/1.png";
+                this.socket.onopen = () => {
+                    console.log('WebSocket connection established');
+                    this.connectionError = false;
+                };
+
+                this.socket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.connectionError = true;
+                };
+
+                this.socket.onclose = (event) => {
+                    console.log('WebSocket connection closed:', event.code, event.reason);
+                    this.connectionError = true;
+                    setTimeout(() => this.initWebSocket(), 5000);
+                };
+
+                this.socket.onmessage = (event) => {
+                    try {
+                        const response = JSON.parse(event.data);
+                        console.log('Received WebSocket message:', response);
+
+                        if (response.action === 'startResearchSuccess') {
+                            console.log('Research started successfully:', response.name);
+                            this.rechercheEnCours = true;
+                            this.$emit('research-started', response.name);
+                        } else if (response.action === 'cancelResearchSuccess') {
+                            console.log('Research cancelled:', response.name);
+                            this.rechercheEnCours = false;
+                        } else if (response.error) {
+                            console.error('Server error:', response.error);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing WebSocket message:', e);
+                    }
+                };
+            } catch (e) {
+                console.error('Error initializing WebSocket:', e);
+                this.connectionError = true;
+            }
         },
+
+        demarrerRecherche() {
+            if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+                console.error('WebSocket is not connected');
+                this.connectionError = true;
+                return;
+            }
+
+            try {
+                const message = {
+                    type: "startResearch",
+                    name: this.selectedRecherche.nom
+                };
+                console.log('Sending research start command:', message);
+                this.socket.send(JSON.stringify(message));
+            } catch (e) {
+                console.error('Error sending research start command:', e);
+                this.connectionError = true;
+            }
+        },
+
+        annulerRecherche() {
+            if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
+                console.error('WebSocket is not connected');
+                this.connectionError = true;
+                return;
+            }
+
+            try {
+                const message = {
+                    type: "cancelResearch",
+                    name: this.selectedRecherche.nom
+                };
+                console.log('Sending research cancel command:', message);
+                this.socket.send(JSON.stringify(message));
+            } catch (e) {
+                console.error('Error sending research cancel command:', e);
+                this.connectionError = true;
+            }
+        },
+
+        getImageUrl(sousCategorie, categorie) {
+            return this.defaultImages[sousCategorie] ||
+                this.defaultImages[categorie] ||
+                "@/../../assets/1.png";
+        },
+
         getProgressColor(recherche) {
             return recherche.progression >= 100 ? '#4CAF50' : '#FF9800';
-        },
-        demarerRecherche() {
-            this.$emit('start-recherche', this.selectedRecherche);
+        }
+    },
+    beforeDestroy() {
+        if (this.socket) {
+            this.socket.close();
+            console.log('WebSocket connection closed on component destroy');
+        }
+    },
+    watch: {
+        selectedRecherche(newVal) {
+            console.log('Selected research changed:', newVal);
         }
     }
 };
@@ -111,6 +231,15 @@ export default {
     overflow-y: auto;
 }
 
+.connection-status.error {
+    background-color: #ff5252;
+    color: white;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+
 .research-image img {
     width: 100%;
     height: 250px;
@@ -119,40 +248,13 @@ export default {
     margin-bottom: 15px;
 }
 
-.research-info h2 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.research-metadata {
-    background-color: #e9e9e9;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
-
-.research-description,
-.research-details {
-    margin-bottom: 15px;
-}
-
-.research-details ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.research-details li {
-    margin-bottom: 10px;
-}
-
 .research-actions button {
     width: 100%;
     padding: 10px;
-    background-color: #4CAF50;
-    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .research-actions button:disabled {
@@ -160,11 +262,23 @@ export default {
     cursor: not-allowed;
 }
 
-.no-selection {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: #888;
+/* Bouton "Démarrer" */
+.research-actions button:not(.cancel-button) {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.research-actions button:not(.cancel-button):hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+/* Bouton "Annuler" */
+.cancel-button {
+    background-color: #d32f2f;
+    color: white;
+}
+
+.cancel-button:hover {
+    background-color: #b71c1c;
 }
 </style>

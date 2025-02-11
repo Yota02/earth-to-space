@@ -47,7 +47,6 @@ public class WebSocketClient {
             JSONObject response = new JSONObject();
 
             switch (messageType) {
-                case "startResearch":
                 case "buyObject":
                 case "buyCarburant":
                 case "sellObject":
@@ -143,8 +142,22 @@ public class WebSocketClient {
                     break;
 
                 case "getCarburantQuantite":
-
                     handleGetCarburantQuantite(jsonMessage, session);
+                    break;
+
+                case "startResearch":
+                    String name2 = jsonMessage.getString("name");
+                    Recherche recherche = GameServer.jeu.getGestionnaireRecherche().getRecherche(name2);
+                    if (recherche != null) {
+                        GameServer.jeu.getGestionnaireRecherche().demarrerRecherche(recherche.getId());
+                        response.put("action", "startResearchSuccess");
+                        response.put("name", recherche.getNom());
+                        session.getBasicRemote().sendText(response.toString());
+                        getRecherches(session);
+                    } else {
+                        response.put("error", "Research not found: " + name2);
+                        session.getBasicRemote().sendText(response.toString());
+                    }
                     break;
 
                 default:
@@ -361,9 +374,7 @@ public class WebSocketClient {
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
         switch (action) {
-            case "startResearch":
-                GameServer.jeu.getGestionnaireRecherche().demarrerRecherche(0);
-                break;
+            
 
             case "buyObject":
                 ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);

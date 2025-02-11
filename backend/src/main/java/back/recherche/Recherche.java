@@ -122,7 +122,7 @@ public class Recherche {
     }
 
     public int getNbprogressionParMoi(){
-        return 1;
+        return 5;
     }
 
     public JSONObject toJson() {

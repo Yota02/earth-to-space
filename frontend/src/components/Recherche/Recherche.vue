@@ -2,33 +2,27 @@
     <div class="app-container">
         <header class="app-header">
             <h1>Centre de Recherche Spatiale</h1>
-           
         </header>
-        
+
         <main class="research-management">
             <div class="research-sidebar">
                 <nav class="research-categories">
-                    <button 
-                        v-for="categorie in categories" 
-                        :key="categorie"
-                        @click="selectedCategory = categorie"
-                        :class="{ 'active': selectedCategory === categorie }"
-                    >
+                    <button v-for="categorie in categories" :key="categorie" @click="setCategory(categorie)"
+                        :class="{ 'active': selectedCategory === categorie }">
                         {{ categorie }}
                     </button>
                 </nav>
             </div>
-            
+
             <div class="research-content">
-                <RecherchesList 
-                    :recherches="filteredRecherches"
-                    @select-recherche="selectRecherche"
-                />
+                <RecherchesList :recherches="filteredRecherches" @select-recherche="selectRecherche" />
                 
-                <RechercheDetail 
-                    :selectedRecherche="selectedRecherche"
-                    @start-recherche="demarerRecherche"
-                />
+                
+                <ResearchTree v-if="selectedCategory !== null"
+                    :recherches="filteredRecherches.length > 0 ? filteredRecherches : []"
+                    @select-recherche="selectRecherche" />
+
+                <RechercheDetail :selectedRecherche="selectedRecherche" @start-recherche="demarerRecherche" />
             </div>
         </main>
     </div>
@@ -36,12 +30,14 @@
 
 <script>
 import RecherchesList from './RecherchesList.vue';
+import ResearchTree from './ResearchTree.vue';
 import RechercheDetail from './RechercheDetail.vue';
 
 export default {
     components: {
         RecherchesList,
-        RechercheDetail
+        RechercheDetail,
+        ResearchTree
     },
     data() {
         return {
@@ -51,9 +47,9 @@ export default {
             selectedRecherche: null,
             selectedCategory: null,
             categories: [
-                'PROPULSION', 'NAVIGATION', 'ENERGIE', 'COMMUNICATIONS', 
-                'EXPLORATION', 'TRANSPORT_HABITE', 'COLONISATION', 
-                'BATIMENTS', 'ROBOTIQUE', 'INTELLIGENCE_ARTIFICIELLE', 
+                'PROPULSION', 'NAVIGATION', 'ENERGIE', 'COMMUNICATIONS',
+                'EXPLORATION', 'TRANSPORT_HABITE', 'COLONISATION',
+                'BATIMENTS', 'ROBOTIQUE', 'INTELLIGENCE_ARTIFICIELLE',
                 'EXOBIOLOGIE'
             ]
         };
@@ -73,13 +69,20 @@ export default {
         }
     },
     methods: {
+        setCategory(categorie) {
+            this.selectedCategory = null; // Forcer la mise à jour
+            this.$nextTick(() => {
+                this.selectedCategory = categorie;
+            });
+        },
+
         initWebSocket() {
             this.ws = new WebSocket('ws://localhost:3232');
 
             this.ws.onopen = () => {
                 this.connectionStatus = 'connected';
                 this.requestRecherches();
-                this.heartbeat = setInterval(() => this.requestRecherches(), 5000);
+                this.heartbeat = setInterval(() => this.requestRecherches(), 30000);
             };
 
             this.ws.onclose = () => {
@@ -109,9 +112,9 @@ export default {
         },
         demarerRecherche(recherche) {
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({ 
-                    action: 'demarerRecherche', 
-                    rechercheId: recherche.id 
+                this.ws.send(JSON.stringify({
+                    action: 'demarerRecherche',
+                    rechercheId: recherche.id
                 }));
             }
         }
@@ -150,18 +153,6 @@ export default {
 .connection-status {
     padding: 5px 10px;
     border-radius: 5px;
-}
-
-.status-connected {
-    background-color: #27ae60;
-}
-
-.status-connecting {
-    background-color: #f39c12;
-}
-
-.status-error {
-    background-color: #e74c3c;
 }
 
 .research-management {
