@@ -1,17 +1,20 @@
 <template>
     <div class="research-tree">
-        <ul>
+        <ul v-if="groupedRecherches.length">
             <li v-for="categorie in groupedRecherches" :key="categorie.nom">
                 <span @click="toggleCategory(categorie.nom)">
                     {{ categorie.nom }}
                 </span>
                 <ul v-if="openedCategories.includes(categorie.nom)">
                     <li v-for="sousCategorie in categorie.sousCategories" :key="sousCategorie.nom">
-                        <span @click="toggleSousCategorie(sousCategorie.nom)">
-                            {{ sousCategorie.nom }}
-                        </span>
+                        <div class="sous-categorie" @click="toggleSousCategorie(sousCategorie.nom)">
+                            <img :src="getSousCategorieImage(sousCategorie.nom)" alt="Icône" class="sous-categorie-img" />
+                            <span>{{ sousCategorie.nom }}</span>
+                        </div>
                         <ul v-if="openedSousCategories.includes(sousCategorie.nom)">
-                            <li v-for="recherche in sousCategorie.recherches" :key="recherche.id" @click="selectRecherche(recherche)">
+                            <li v-for="recherche in sousCategorie.recherches" 
+                                :key="recherche.id" 
+                                @click="selectRecherche(recherche)">
                                 {{ recherche.nom }}
                             </li>
                         </ul>
@@ -19,22 +22,46 @@
                 </ul>
             </li>
         </ul>
+        <p v-else>Aucune recherche disponible.</p>
     </div>
 </template>
 
 <script>
 export default {
     props: {
-        recherches: Array
+        recherches: {
+            type: Array,
+            required: true
+        }
     },
     data() {
         return {
             openedCategories: [],
-            openedSousCategories: []
+            openedSousCategories: [],
+            sousCategorieImages: {
+                "MOTEURS": "src/assets/img/bandeau/moteur.png",
+                "FUEL": "src/assets/img/bandeau/fuel.png",
+                "CAPTEURS": "src/assets/img/bandeau/capteur.jpg",
+                "PANNEAUX_SOLAIRES": "src/assets/img/bandeau/panneau_solaire.png",
+                "REACTEURS": "src/assets/img/bandeau/reacteur.png",
+                "BATTERIES": "src/assets/img/bandeau/batterie.png",
+                "AUTOMATISATION": "src/assets/img/bandeau/automatisation.png",
+                "SYSTÈMES_AUTONOMES": "",
+                "SYSTEMES_DE_TRANSPORT": "src/assets/img/bandeau/navette.jpg",
+                "VIE_SPATIALE": "src/assets/img/bandeau/station_spatial.png",
+                "INFRASTRUCTURES": "/images/colonisation-infrastructures.jpg",
+                "HABITATS": "src/assets/img/bandeau/habitats.jpg",
+                "AGRICULTURE_SPATIALE": "src/assets/img/bandeau/agriculture.jpg",
+                "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
+                "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg", 
+                "HANGAR_ASSEMBLAGE" : "src/assets/img/bandeau/megabay.jpg",
+            }
         };
     },
     computed: {
         groupedRecherches() {
+            if (!this.recherches || this.recherches.length === 0) return [];
+
             const grouped = {};
 
             this.recherches.forEach(recherche => {
@@ -78,6 +105,9 @@ export default {
         },
         selectRecherche(recherche) {
             this.$emit('select-recherche', recherche);
+        },
+        getSousCategorieImage(sousCategorie) {
+            return this.sousCategorieImages[sousCategorie] || 'src/assets/img/default.png';
         }
     }
 };
@@ -101,5 +131,19 @@ export default {
 
 .research-tree span:hover {
     color: #3498db;
+}
+
+.sous-categorie {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sous-categorie-img {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 5px;
+    object-fit: cover;
 }
 </style>

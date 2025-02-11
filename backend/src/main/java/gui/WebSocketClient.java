@@ -24,7 +24,6 @@ import org.json.JSONObject;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -466,7 +465,9 @@ public class WebSocketClient {
         // Bâtiments disponibles
         JSONArray batimentsDisponibles = new JSONArray();
         for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsParType("assemblage")) {
-            batimentsDisponibles.put(batiment.toJson());
+            if(batiment.estDebloquer()){
+                batimentsDisponibles.put(batiment.toJson());
+            }
         }
         response.put("batimentsDisponibles", batimentsDisponibles);
 

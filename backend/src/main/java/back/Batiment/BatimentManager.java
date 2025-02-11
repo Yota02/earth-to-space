@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import back.fusee.moteur.Ergol;
-
 import java.util.Collections;
 
 public class BatimentManager {
     private final Map<String, List<IBatiment>> batimentMap;
     private final List<IBatiment> batimentsPossedes;
-    
+
     public BatimentManager() {
         this.batimentMap = new HashMap<>();
         this.batimentsPossedes = new ArrayList<>();
@@ -97,11 +95,15 @@ public class BatimentManager {
 
     private void initializeHangarAssemblage() {
         List<IBatiment> batimentsAssemblage = new ArrayList<>();
-        batimentsAssemblage.add(new HangarAssemblage("Tente", 100, 1, 5, 10));
-        batimentsAssemblage.add(new HangarAssemblage("HighBay", 200, 3, 10, 40));
+
+        IBatiment tente = new HangarAssemblage("Tente", 100, 1, 5, 10);
+        tente.debloquer();
+
+        batimentsAssemblage.add(tente);
+        batimentsAssemblage.add(new HangarAssemblage("HighBay", 200, 3, 10, 40 ));
         batimentsAssemblage.add(new HangarAssemblage("MegaBay", 300, 5, 12, 80));
         batimentsAssemblage.add(new HangarAssemblage("GigaBay", 1000, 20, 24, 120));
-        
+
         batimentMap.put("assemblage", batimentsAssemblage);
     }
     
@@ -116,6 +118,17 @@ public class BatimentManager {
             return batimentsPossedes.add(batiment);
         }
         return false;
+    }
+
+    public IBatiment getBatiment(String n) {
+        for (List<IBatiment> batiments : batimentMap.values()) {
+            for (IBatiment batiment : batiments) {
+                if (batiment.getNom().equals(n)) {
+                    return batiment;
+                }
+            }
+        }
+        return null; 
     }
     
     public List<IBatiment> getBatimentsPossedes() {

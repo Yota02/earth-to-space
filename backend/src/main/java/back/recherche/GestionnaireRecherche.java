@@ -2,13 +2,27 @@ package back.recherche;
 
 import java.util.*;
 
+import back.Batiment.BatimentManager;
+
 public class GestionnaireRecherche {
     private final List<Recherche> rechercheTotal = new ArrayList<>();
     private final Map<String, Recherche> recherchesMap = new HashMap<>();
+    BatimentManager batimentManager;
+    GestionaireRechercheDeblocage rechercheDeblocage;
 
 
+    public GestionnaireRecherche(BatimentManager batimentManager){
+        this.batimentManager = batimentManager;
+        this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager);
+    }
+    
     public void initRechercheBatiments(){
         initRechercheUsineCarburant();
+        
+        for (Recherche recherche : rechercheDeblocage.initeHangarAssemblageRecherche()) {
+            ajouterRecherche(recherche);
+        }
+
     }
 
     public void initRechercheEnergie(){
@@ -98,7 +112,7 @@ public class GestionnaireRecherche {
         return recherchesMap.get(nom);
     }
 
-    private void ajouterRecherche(Recherche recherche) {
+    protected void ajouterRecherche(Recherche recherche) {
         rechercheTotal.add(recherche);
         recherchesMap.put(recherche.getNom(), recherche);
     }
@@ -113,13 +127,16 @@ public class GestionnaireRecherche {
         recherche.setEtat(1);
     }
 
-    public void rechercheParMoi(){
-        for(Recherche r : rechercheTotal){
-            if(r.getEtat() == 1){
+    public void rechercheParMoi() {
+        for (Recherche r : rechercheTotal) {
+            if (r.getEtat() == 1) {
                 r.ajouterProgression(r.getNbprogressionParMoi());
-
-                if(r.getEtat() == 1 && r.getProgression() == 100){
+    
+                if (r.getEtat() == 1 && r.getProgression() >= 100) { 
                     r.setEtat(2);
+                    if (r instanceof RechercheDeblocage) {
+                        ((RechercheDeblocage) r).getObjectAchetable().debloquer(); 
+                    }
                 }
             }
         }

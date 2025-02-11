@@ -5,6 +5,9 @@ public enum SousTypeRecherche {
     MOTEURS,
     FUEL,
 
+
+    HANGAR_ASSEMBLAGE,
+
     //Sous-types pour Exploration
     CAPTEURS,
 

@@ -1,39 +1,51 @@
 <template>
-  <div class="app-container">
-      <header class="app-header">
-          <h1>Centre de Recherche Spatiale</h1>
-      </header>
-      
-      <main class="research-management">
-          <div class="research-sidebar">
-              <nav class="research-categories">
-                  <button 
-                      v-for="categorie in categories" 
-                      :key="categorie"
-                      @click="selectedCategory = categorie"
-                      :class="{ 'active': selectedCategory === categorie }"
-                  >
-                      {{ categorie }}
-                  </button>
-              </nav>
-          </div>
-          
-          <div class="research-content">
-              <RecherchesList 
-                  :recherches="filteredRecherches"
-                  @select-recherche="selectRecherche"
-              />
-              
-              <RechercheDetail 
-                  :selectedRecherche="selectedRecherche"
-                  @start-recherche="demarerRecherche"
-              />
-          </div>
-      </main>
-  </div>
-</template>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Centre de Recherche Spatiale</h1>
+        </header>
+        
+        <main class="research-management">
+            <div class="research-sidebar">
+                <nav class="research-categories">
+                    <button 
+                        v-for="categorie in categories" 
+                        :key="categorie"
+                        @click="selectedCategory = categorie"
+                        :class="{ 'active': selectedCategory === categorie }"
+                    >
+                        {{ categorie }}
+                    </button>
+                </nav>
+            </div>
+            
+            <div class="research-content">
+                <!-- Affichage de la liste des recherches -->
+                <RecherchesList 
+                    :recherches="filteredRecherches"
+                    @select-recherche="selectRecherche"
+                />
+                
+                <!-- Affichage de l'arbre de recherche si une catégorie est sélectionnée -->
+                <div v-if="selectedCategory">
+                    <ResearchTree 
+                        :recherches="filteredRecherches"
+                        @select-recherche="selectRecherche"
+                    />
+                </div>
+                
+                <!-- Détails de la recherche sélectionnée -->
+                <RechercheDetail 
+                    v-if="selectedRecherche"
+                    :selectedRecherche="selectedRecherche"
+                    @start-recherche="demarerRecherche"
+                />
+            </div>
+        </main>
+    </div>
+  </template>  
 
 <script>
+import ResearchTree from '../components/Recherche/ResearchTree.vue';
 import RecherchesList from '../components/Recherche/RecherchesList.vue';
 import RechercheDetail from '../components/Recherche/RechercheDetail.vue';
 

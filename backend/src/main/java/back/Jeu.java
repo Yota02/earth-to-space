@@ -137,7 +137,7 @@ public class Jeu implements Runnable {
 
         this.researchLock = new ReentrantLock();
 
-        gestionnaireRecherche = new GestionnaireRecherche();
+        gestionnaireRecherche = new GestionnaireRecherche(batimentManager);
         gestionnaireRecherche.initialiserRecherches();
         this.recherchesTotal = gestionnaireRecherche.getRecherches();
 

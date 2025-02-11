@@ -5,7 +5,9 @@ import java.time.format.DateTimeFormatter;
 
 import org.json.JSONObject;
 
-public abstract class IBatiment {
+import back.ObjectDeblocable;
+
+public abstract class IBatiment extends ObjectDeblocable{
 
     int etat = 0;
     String nom;
@@ -13,6 +15,7 @@ public abstract class IBatiment {
     
     LocalDateTime anneeConstruction;
     boolean operationnel = false;
+
     int tempsConstruction; // en mois
     double progression = 0; // en pourcent
     boolean enConstruction = false;

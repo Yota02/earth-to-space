@@ -103,7 +103,8 @@ export default {
                 "HABITATS": "src/assets/img/bandeau/habitats.jpg",
                 "AGRICULTURE_SPATIALE": "src/assets/img/bandeau/agriculture.jpg",
                 "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
-                "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg"
+                "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg",
+                "HANGAR_ASSEMBLAGE" : "src/assets/img/bandeau/megabay.jpg",
             }
         }
     },

@@ -7,12 +7,22 @@ import java.util.List;
 import org.json.JSONObject;
 
 import back.fusee.Ifusee;
+import back.recherche.Recherche;
 
 public class HangarAssemblage extends IBatiment {
 
     private int hauteur;
     private List<Ifusee> fusees;
     private int capacite;
+
+    public HangarAssemblage(String nom, int superficie, int capacite, int tempsConstruction, int hauteur, Recherche rechercheAssociee) {
+        this.nom = nom;
+        this.superficie = superficie;
+        this.capacite = capacite;
+        this.tempsConstruction = tempsConstruction;
+        this.hauteur = hauteur;
+        this.fusees = new ArrayList<>();
+    }
 
     public HangarAssemblage(String nom, int superficie, int capacite, int tempsConstruction, int hauteur) {
         this.nom = nom;
