@@ -5,10 +5,18 @@
         </div>
 
         <div v-if="selectedRecherche" class="research-detail">
-            <div class="research-image">
-                <img :src="getImageUrl(selectedRecherche.sousCategorie, selectedRecherche.categorie)"
-                    :alt="selectedRecherche.nom">
+            <div class="research-image-container">
+                <div class="effect-bubble" v-if="selectedRecherche.typeEffet">
+                    <img :src="getEffectIcon(selectedRecherche.typeEffet)" :alt="selectedRecherche.typeEffet"
+                        class="effect-icon">
+                    <span class="effect-text">{{ selectedRecherche.typeEffet }}</span>
+                </div>
+                <div class="research-image">
+                    <img :src="getImageUrl(selectedRecherche.sousCategorie, selectedRecherche.categorie)"
+                        :alt="selectedRecherche.nom">
+                </div>
             </div>
+
             <div class="research-info">
                 <h2>{{ selectedRecherche.nom }}</h2>
                 <div class="research-metadata">
@@ -25,36 +33,31 @@
                     <p>{{ selectedRecherche.description || 'Aucune description disponible.' }}</p>
                 </div>
 
-                <p> {{ selectedRecherche.typeEffet || 'Aucune description disponible.' }} </p>
-                
                 <div class="research-details">
                     <h3>Détails</h3>
-                    <ul>
-                        <li v-if="selectedRecherche.dureeEstimee">
-                            <strong>Durée estimée : </strong> {{ selectedRecherche.dureeEstimee }} jours
-                        </li>
-                        <li v-if="selectedRecherche.coutEstime">
-                            <strong>Coût estimé : </strong> {{ selectedRecherche.coutEstime }} €
-                        </li>
-                        <li v-if="selectedRecherche.responsable">
-                            <strong>Responsable : </strong> {{ selectedRecherche.responsable }}
-                        </li>
-                    </ul>
+                    <div class="detail-item" v-if="selectedRecherche.temps">
+                        <strong>Durée estimée : </strong> {{ selectedRecherche.temps }} mois
+                    </div>
+                    <div class="detail-item" v-if="selectedRecherche.prix">
+                        <strong>Coût estimé : </strong> {{ selectedRecherche.prix }}
+                    </div>
+                    <div class="detail-item" v-if="selectedRecherche.effet">
+                        <strong>Effet : </strong> + {{ selectedRecherche.effet }}
+                    </div>
                 </div>
 
                 <div class="research-actions">
-                    <!-- Afficher "Annuler" si la recherche est en cours -->
                     <button v-if="selectedRecherche.etat === 1" @click="annulerRecherche" class="cancel-button">
                         Annuler
                     </button>
-
-                    <!-- Afficher "Démarrer" si la recherche n'est pas en cours -->
                     <button v-else @click="demarrerRecherche"
                         :disabled="selectedRecherche.progression >= 100 || connectionError">
                         {{ selectedRecherche.progression >= 100 ? 'Terminé' : 'Démarrer' }}
                     </button>
                 </div>
+
             </div>
+
         </div>
         <div v-else class="no-selection">
             <p>Sélectionnez une recherche pour voir les détails</p>
@@ -107,7 +110,14 @@ export default {
                 "AGRICULTURE_SPATIALE": "src/assets/img/bandeau/agriculture.jpg",
                 "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
                 "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg",
-                "HANGAR_ASSEMBLAGE" : "src/assets/img/bandeau/megabay.jpg",
+                "HANGAR_ASSEMBLAGE": "src/assets/img/bandeau/megabay.jpg",
+            },
+            effectIcons: {
+                'FIABILITE': 'src/assets/img/icone/fiabilite.png',
+                'QUALITE': 'src/assets/img/icone/qualite.png',
+                'RENTABILITE': 'src/assets/img/icone/rentabilite.png',
+                'ACCELERATION': 'src/assets/img/icone/acceleration.png',
+                'DEBLOCAGE': 'src/assets/img/icone/deblocage.png'
             }
         }
     },
@@ -159,6 +169,9 @@ export default {
                 console.error('Error initializing WebSocket:', e);
                 this.connectionError = true;
             }
+        },
+        getEffectIcon(typeEffet) {
+            return this.effectIcons[typeEffet] || 'src/assets/img/icone/default.png';
         },
 
         demarrerRecherche() {
@@ -226,6 +239,60 @@ export default {
 </script>
 
 <style scoped>
+h3 {
+    color: black;
+}
+
+.research-image-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.effect-bubble {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 8px 12px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    transition: transform 0.2s ease;
+}
+
+.effect-bubble:hover {
+    transform: scale(1.05);
+}
+
+.effect-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 6px;
+}
+
+.effect-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    text-transform: capitalize;
+}
+
+.research-image {
+    width: 100%;
+    height: 250px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.research-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .research-detail-container {
     background-color: #f4f4f4;
     border-radius: 10px;
@@ -235,6 +302,18 @@ export default {
     overflow-y: auto;
 }
 
+.research-metadata p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.research-details div {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
 .connection-status.error {
     background-color: #ff5252;
     color: white;
@@ -242,14 +321,6 @@ export default {
     margin-bottom: 15px;
     border-radius: 5px;
     text-align: center;
-}
-
-.research-image img {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 15px;
 }
 
 .research-actions button {
@@ -266,7 +337,6 @@ export default {
     cursor: not-allowed;
 }
 
-/* Bouton "Démarrer" */
 .research-actions button:not(.cancel-button) {
     background-color: #4CAF50;
     color: white;
@@ -276,7 +346,6 @@ export default {
     background-color: #45a049;
 }
 
-/* Bouton "Annuler" */
 .cancel-button {
     background-color: #d32f2f;
     color: white;
@@ -285,4 +354,39 @@ export default {
 .cancel-button:hover {
     background-color: #b71c1c;
 }
+
+.research-info {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.research-info h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.research-metadata p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.research-description h3,
+.research-details h3 {
+    font-size: 1.2rem;
+    color: #444;
+    margin-top: 15px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.research-details .detail-item {
+    font-size: 0.95rem;
+    color: #555;
+    margin-top: 8px;
+}
+
 </style>

@@ -129,9 +129,7 @@ const closeMenu = () => {
   align-items: center;
 }
 
-h1, h2, h3, h4 {
-  color: #fff;
-}
+
 
 /* Hamburger menu button */
 .navbar-toggle {

@@ -182,6 +182,7 @@ public class Recherche {
         json.put("etat", this.etat);
         json.put("progression", this.progression);
         json.put("typeEffet", this.typeEffet);
+        json.put("effet", this.effet);
         return json;
     }
 }
