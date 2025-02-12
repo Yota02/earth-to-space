@@ -23,7 +23,6 @@ public class GestionnaireRecherche {
         for (Recherche recherche : rechercheDeblocage.initeHangarAssemblageRecherche()) {
             ajouterRecherche(recherche);
         }
-
     }
 
     public void initRechercheEnergie() {
@@ -86,7 +85,7 @@ public class GestionnaireRecherche {
                 SousTypeRecherche.INFRASTRUCTURES, 1, TypeEffet.RENTABILITE, 0.2));
         ajouterRecherche(new Recherche(1500, "Habitats de Niveau 1", 7.0, "", CategorieRecherche.COLONISATION,
                 SousTypeRecherche.HABITATS, 1, TypeEffet.RENTABILITE, 0.2));
-        ajouterRecherche(
+        ajouterRecherche(   
                 new Recherche(2000, "Agriculture Spatiale de Niveau 1", 10.0, "", CategorieRecherche.COLONISATION,
                         SousTypeRecherche.AGRICULTURE_SPATIALE, 1, TypeEffet.RENTABILITE, 0.2));
     }
@@ -146,7 +145,6 @@ public class GestionnaireRecherche {
 
     public void demarrerRecherche(int rechercheName) {
         Recherche recherche = findRechercheById(rechercheName);
-        System.out.println("demarer recherche " + recherche.getNom());
         recherche.setEtat(1);
     }
 
@@ -160,38 +158,232 @@ public class GestionnaireRecherche {
 
                     switch (r.getTypeEffet()) {
                         case FIABILITE:
-
                             switch (r.getSousType()) {
+                                case HANGAR_ASSEMBLAGE:
+                                    gestionaireEffet.ajouterFiabiliteAssemblage(r.getEffet());
+                                    break;
+                                case MOTEURS:
+                                    gestionaireEffet.ajouterFiabiliteMoteurs(r.getEffet());
+                                    break;
+                                case FUEL:
+                                    gestionaireEffet.ajouterFiabiliteFuel(r.getEffet());
+                                    break;
                                 case CAPTEURS:
                                     gestionaireEffet.ajouterFiabiliteCapteurs(r.getEffet());
                                     break;
-
+                                case PANNEAUX_SOLAIRES:
+                                    gestionaireEffet.ajouterFiabilitePanneauxSolaires(r.getEffet());
+                                    break;
+                                case REACTEURS:
+                                    gestionaireEffet.ajouterFiabiliteReacteurs(r.getEffet());
+                                    break;
+                                case BATTERIES:
+                                    gestionaireEffet.ajouterFiabiliteBatteries(r.getEffet());
+                                    break;
+                                case AUTOMATISATION:
+                                    gestionaireEffet.ajouterFiabiliteAutomatisation(r.getEffet());
+                                    break;
+                                /*
+                                 * case SYSTEMES_AUTONOMES:
+                                 * gestionaireEffet.ajouterFiabiliteSystemesAutonomes(r.getEffet());
+                                 * break;
+                                 */
+                                case SYSTEMES_DE_TRANSPORT:
+                                    gestionaireEffet.ajouterFiabiliteSystemesDeTransport(r.getEffet());
+                                    break;
+                                case VIE_SPATIALE:
+                                    gestionaireEffet.ajouterFiabiliteVieSpatiale(r.getEffet());
+                                    break;
+                                case INFRASTRUCTURES:
+                                    gestionaireEffet.ajouterFiabiliteInfrastructures(r.getEffet());
+                                    break;
+                                case HABITATS:
+                                    gestionaireEffet.ajouterFiabiliteHabitats(r.getEffet());
+                                    break;
+                                case AGRICULTURE_SPATIALE:
+                                    gestionaireEffet.ajouterFiabiliteAgricultureSpatiale(r.getEffet());
+                                    break;
                                 default:
                                     break;
                             }
-
-                            /* switch (r.getCategorie()) {
-                                case COLONISATION:
-                                    gestionaireEffet.ajouterRENTABILITEConstruction(r.getEffet());
-                                    break;
-
-                                default:
-                                    break;
-                            } */
                             break;
 
                         case QUALITE:
+                            switch (r.getSousType()) {
+                                case CONSTRUCTION:
+                                    gestionaireEffet.ajouterQualiteConstruction(r.getEffet());
+                                    break;
+                                /*
+                                 * case RECHERCHE:
+                                 * gestionaireEffet.ajouterQualiteRecherche(r.getEffet());
+                                 * break;
+                                 */
+                                case HANGAR_ASSEMBLAGE:
+                                    gestionaireEffet.ajouterQualiteAssemblage(r.getEffet());
+                                    break;
+                                case MOTEURS:
+                                    gestionaireEffet.ajouterQualiteMoteurs(r.getEffet());
+                                    break;
+                                case CAPTEURS:
+                                    gestionaireEffet.ajouterQualiteCapteurs(r.getEffet());
+                                    break;
+                                case PANNEAUX_SOLAIRES:
+                                    gestionaireEffet.ajouterQualitePanneauxSolaires(r.getEffet());
+                                    break;
+                                case REACTEURS:
+                                    gestionaireEffet.ajouterQualiteReacteurs(r.getEffet());
+                                    break;
+                                case BATTERIES:
+                                    gestionaireEffet.ajouterQualiteBatteries(r.getEffet());
+                                    break;
+                                case AUTOMATISATION:
+                                    gestionaireEffet.ajouterQualiteAutomatisation(r.getEffet());
+                                    break;
+                                /*
+                                 * case SYSTEMES_AUTONOMES:
+                                 * gestionaireEffet.ajouterQualiteSystemesAutonomes(r.getEffet());
+                                 * break;
+                                 */
+                                case SYSTEMES_DE_TRANSPORT:
+                                    gestionaireEffet.ajouterQualiteSystemesDeTransport(r.getEffet());
+                                    break;
+                                case VIE_SPATIALE:
+                                    gestionaireEffet.ajouterQualiteVieSpatiale(r.getEffet());
+                                    break;
+                                case INFRASTRUCTURES:
+                                    gestionaireEffet.ajouterQualiteInfrastructures(r.getEffet());
+                                    break;
+                                case HABITATS:
+                                    gestionaireEffet.ajouterQualiteHabitats(r.getEffet());
+                                    break;
+                                case AGRICULTURE_SPATIALE:
+                                    gestionaireEffet.ajouterQualiteAgricultureSpatiale(r.getEffet());
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
 
                         case RENTABILITE:
+                            switch (r.getSousType()) {
+                                case CONSTRUCTION:
+                                    gestionaireEffet.ajouterRentabiliteConstruction(r.getEffet());
+                                    break;
+                                /*
+                                 * case RECHERCHE:
+                                 * gestionaireEffet.ajouterRentabiliteRecherche(r.getEffet());
+                                 * break;
+                                 */
+                                case HANGAR_ASSEMBLAGE:
+                                    gestionaireEffet.ajouterRentabiliteAssemblage(r.getEffet());
+                                    break;
+                                case MOTEURS:
+                                    gestionaireEffet.ajouterRentabiliteMoteurs(r.getEffet());
+                                    break;
+                                case FUEL:
+                                    gestionaireEffet.ajouterRentabiliteFuel(r.getEffet());
+                                    break;
+                                case CAPTEURS:
+                                    gestionaireEffet.ajouterRentabiliteCapteurs(r.getEffet());
+                                    break;
+                                case PANNEAUX_SOLAIRES:
+                                    gestionaireEffet.ajouterRentabilitePanneauxSolaires(r.getEffet());
+                                    break;
+                                case REACTEURS:
+                                    gestionaireEffet.ajouterRentabiliteReacteurs(r.getEffet());
+                                    break;
+                                case BATTERIES:
+                                    gestionaireEffet.ajouterRentabiliteBatteries(r.getEffet());
+                                    break;
+                                case AUTOMATISATION:
+                                    gestionaireEffet.ajouterRentabiliteAutomatisation(r.getEffet());
+                                    break;
+                                /*
+                                 * case SYSTEMES_AUTONOMES:
+                                 * gestionaireEffet.ajouterRentabiliteSystemesAutonomes(r.getEffet());
+                                 * break;
+                                 */
+                                case SYSTEMES_DE_TRANSPORT:
+                                    gestionaireEffet.ajouterRentabiliteSystemesDeTransport(r.getEffet());
+                                    break;
+                                case VIE_SPATIALE:
+                                    gestionaireEffet.ajouterRentabiliteVieSpatiale(r.getEffet());
+                                    break;
+                                case INFRASTRUCTURES:
+                                    gestionaireEffet.ajouterRentabiliteInfrastructures(r.getEffet());
+                                    break;
+                                case HABITATS:
+                                    gestionaireEffet.ajouterRentabiliteHabitats(r.getEffet());
+                                    break;
+                                case AGRICULTURE_SPATIALE:
+                                    gestionaireEffet.ajouterRentabiliteAgricultureSpatiale(r.getEffet());
+                                    break;
+                                case STOCKAGE:
+                                    gestionaireEffet.ajouterRentabiliteStockage(r.getEffet());
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
 
                         case ACCELERATION:
+                            switch (r.getSousType()) {
+                                case CONSTRUCTION:
+                                    gestionaireEffet.ajouterAccelerationConstruction(r.getEffet());
+                                    break;
+                                /*
+                                 * case RECHERCHE:
+                                 * gestionaireEffet.ajouterAccelerationRecherche(r.getEffet());
+                                 * break;
+                                 */
+                                case HANGAR_ASSEMBLAGE:
+                                    gestionaireEffet.ajouterAccelerationAssemblage(r.getEffet());
+                                    break;
+                                case MOTEURS:
+                                    gestionaireEffet.ajouterAccelerationMoteurs(r.getEffet());
+                                    break;
+                                case FUEL:
+                                    gestionaireEffet.ajouterAccelerationFuel(r.getEffet());
+                                    break;
+                                case CAPTEURS:
+                                    gestionaireEffet.ajouterAccelerationCapteurs(r.getEffet());
+                                    break;
+                                case PANNEAUX_SOLAIRES:
+                                    gestionaireEffet.ajouterAccelerationPanneauxSolaires(r.getEffet());
+                                    break;
+                                case REACTEURS:
+                                    gestionaireEffet.ajouterAccelerationReacteurs(r.getEffet());
+                                    break;
+                                case BATTERIES:
+                                    gestionaireEffet.ajouterAccelerationBatteries(r.getEffet());
+                                    break;
+                                case AUTOMATISATION:
+                                    gestionaireEffet.ajouterAccelerationAutomatisation(r.getEffet());
+                                    break;
+                                /*
+                                 * case SYSTEMES_AUTONOMES:
+                                 * gestionaireEffet.ajouterAccelerationSystemesAutonomes(r.getEffet());
+                                 * break;
+                                 */
+                                case SYSTEMES_DE_TRANSPORT:
+                                    gestionaireEffet.ajouterAccelerationSystemesDeTransport(r.getEffet());
+                                    break;
+                                case VIE_SPATIALE:
+                                    gestionaireEffet.ajouterAccelerationVieSpatiale(r.getEffet());
+                                    break;
+                                case INFRASTRUCTURES:
+                                    gestionaireEffet.ajouterAccelerationInfrastructures(r.getEffet());
+                                    break;
+                                case AGRICULTURE_SPATIALE:
+                                    gestionaireEffet.ajouterAccelerationAgricultureSpatiale(r.getEffet());
+                                    break;
+                                default:
+                                    break;
+                            }
                             break;
 
                         case DEBLOCAGE:
                             ((RechercheDeblocage) r).getObjectAchetable().debloquer();
-
                             break;
 
                         default:
