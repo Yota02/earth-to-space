@@ -25,6 +25,10 @@ export default {
 </script>
 
 <style scoped>
+h3 {
+  color: white;
+}
+
 .usine-container {
   position: absolute;
   top: 0;

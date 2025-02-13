@@ -85,7 +85,7 @@ public class Jeu implements Runnable {
 
     private PolitiqueManager politiqueManager;
 
-    //batiments 
+    // batiments
     BatimentManager batimentManager;
     // Date
     private LocalDateTime date;
@@ -156,17 +156,17 @@ public class Jeu implements Runnable {
         // this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
     }
 
-    public PolitiqueManager getPolitiqueManager(){
+    public PolitiqueManager getPolitiqueManager() {
         return politiqueManager;
     }
 
     public List<Personne> getPersonnesParType(String type) {
         return marcheEmploi.getOrDefault(type, new ArrayList<>());
-    } 
+    }
 
     public BatimentManager getBatimentManager() {
         return batimentManager;
-    } 
+    }
 
     public void acheter(ObjectAchetable objectAchetable) {
         synchronized (objectAcheter) {
@@ -181,7 +181,7 @@ public class Jeu implements Runnable {
 
     public double ajouterCarburant(Ergol ergol, double quantite) {
         double quantiteRestante = quantite;
-        
+
         for (Reservoir r : reservoirs) {
             if (r.getErgol().equals(ergol)) {
                 double espaceDisponible = r.getQuantiteTotal() - r.getQuantite();
@@ -194,7 +194,7 @@ public class Jeu implements Runnable {
                 }
             }
         }
-        
+
         return quantiteRestante; // Retourne la quantité qui n'a pas pu être stockée
     }
 
@@ -205,6 +205,26 @@ public class Jeu implements Runnable {
         ajouterCarburant(ergol, quantiteAajouter);
 
         retirerArgent(carburantAchetable.getPrix());
+    }
+
+    public void achatErgolFinDuMoi() {
+        for (CarburantAchetable carburant : getCarburantAchetables()) {
+            if (carburant.getDemandeMonthly() >= 0) {
+
+                int totalCost = carburant.getDemandeMonthly() * carburant.getPrix();
+
+                if (getArgent() >= totalCost) {
+                    try {
+
+                        carburant.effectuerAchat(this, true);
+                        
+                        retirerArgent(totalCost);
+                    } catch (IllegalStateException e) {
+                        System.err.println(carburant.getNom() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
     }
 
     public double getCapaciteMaximaleErgol(Ergol ergol) {
@@ -322,8 +342,6 @@ public class Jeu implements Runnable {
 
         programmes.add(new Programme(nom, objectif, budget, dureePrevu));
     }
-
-    
 
     public CarburantAchetable findCarburantByName(String name) {
         for (CarburantAchetable carburantAchetable : carburantAchetables) {
@@ -474,33 +492,33 @@ public class Jeu implements Runnable {
         list.get(type).add(personne);
     }
 
-    public double getPointRecherche(){
+    public double getPointRecherche() {
         return pointsRecherche;
     }
 
-    public double getPointIngenieur(){
+    public double getPointIngenieur() {
         return pointsIngenieur;
     }
 
-    public double getPointConstruction(){
+    public double getPointConstruction() {
         return pointsConstruction;
     }
 
-    public double calculerPointRecherche(){
+    public double calculerPointRecherche() {
         double res = 0;
         if (getEmployes().containsKey("Scientifique")) {
             List<Personne> scientifiques = getEmployes().get("Scientifique");
-            
+
             for (Personne p : scientifiques) {
                 Scientifique s = (Scientifique) p;
-                res += s.getTalent(); 
+                res += s.getTalent();
             }
         }
 
         return res;
     }
 
-    public double calculerPointConstruction(){
+    public double calculerPointConstruction() {
         double res = 0;
         if (getEmployes().containsKey("Ouvrier")) {
             List<Personne> ouvriers = getEmployes().get("Ouvrier");
@@ -509,14 +527,14 @@ public class Jeu implements Runnable {
         return res;
     }
 
-    public double calculerPointIngenieur(){
+    public double calculerPointIngenieur() {
         double res = 0;
         if (getEmployes().containsKey("Ingenieur")) {
             List<Personne> ingenieurs = getEmployes().get("Ingenieur");
-            
+
             for (Personne p : ingenieurs) {
                 Ingenieur i = (Ingenieur) p;
-                res += i.getTalent(); 
+                res += i.getTalent();
             }
         }
         return res;
@@ -578,13 +596,15 @@ public class Jeu implements Runnable {
             setPointIngenieur(calculerPointRecherche());
             setPointConstruction(calculerPointRecherche());
 
+            achatErgolFinDuMoi();
+
             gestionnaireRecherche.rechercheParMoi();
         }
     }
 
-    private void assemblerFusee(){
+    private void assemblerFusee() {
         for (IBatiment b : batimentManager.getBatimentsPossedes()) {
-            if(b instanceof HangarAssemblage){
+            if (b instanceof HangarAssemblage) {
                 HangarAssemblage h = (HangarAssemblage) b;
                 h.assemblerTouteFusee(this.pointsIngenieur);
             }
@@ -593,7 +613,7 @@ public class Jeu implements Runnable {
 
     private void productionCarburant() {
         for (IBatiment b : batimentManager.getBatimentsPossedes()) {
-            if(b instanceof UsineProductionCarburant) {
+            if (b instanceof UsineProductionCarburant) {
                 UsineProductionCarburant u = (UsineProductionCarburant) b;
                 ajouterCarburant(u.getErgol(), u.getQuantiteProduiteParJour());
             }
@@ -606,17 +626,17 @@ public class Jeu implements Runnable {
             incrementerDate();
             assemblerFusee();
             productionCarburant();
-            
+
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);
             }
-        } 
+        }
     }
 
-    public List<IBatiment> getBatimentsEnConstruction(){
+    public List<IBatiment> getBatimentsEnConstruction() {
         List<IBatiment> liste = new ArrayList<>();
         for (IBatiment b : batimentManager.getBatimentsPossedes()) {
-            if(b.getEnConstruction()){
+            if (b.getEnConstruction()) {
                 liste.add(b);
             }
         }
@@ -646,16 +666,18 @@ public class Jeu implements Runnable {
     @Override
     public void run() {
         init();
-        
+
         while (!estFinie()) {
-            /* Mission currentMission = missions.get(0);
-            if (!missionEnCours && currentMission != null) {
-                LocalDateTime launchTime = currentMission.getDateHeureLancement();
-                if (date.equals(launchTime)) {
-                    setmissionEnCours(true);
-                    fusees.get(0).decoler();
-                }
-            } */
+            /*
+             * Mission currentMission = missions.get(0);
+             * if (!missionEnCours && currentMission != null) {
+             * LocalDateTime launchTime = currentMission.getDateHeureLancement();
+             * if (date.equals(launchTime)) {
+             * setmissionEnCours(true);
+             * fusees.get(0).decoler();
+             * }
+             * }
+             */
 
             actionFinJour();
             actionFinDeMoi();
@@ -675,27 +697,29 @@ public class Jeu implements Runnable {
         if (date == null) {
             throw new IllegalStateException("La date n'est pas initialisée !");
         }
-    
+
         date = date.plusDays(1);
 
-        /* if (missionEnCours) {
-            date = date.plusMinutes(1);
-        } else {
-            Mission currentMission = missions.get(0);
-            LocalDateTime launchTime = currentMission.getDateHeureLancement();
-            Duration timeToLaunch = Duration.between(date, launchTime);
-            long minutesToLaunch = Math.abs(timeToLaunch.toMinutes());
-            
-            if (minutesToLaunch <= 10) {
-                date = date.plusSeconds(1);
-                if (date.equals(launchTime)) {
-                    setmissionEnCours(true);
-                    fusees.get(0).decoler();
-                }
-            } else {
-                date = date.plusDays(1);
-            }
-        } */
+        /*
+         * if (missionEnCours) {
+         * date = date.plusMinutes(1);
+         * } else {
+         * Mission currentMission = missions.get(0);
+         * LocalDateTime launchTime = currentMission.getDateHeureLancement();
+         * Duration timeToLaunch = Duration.between(date, launchTime);
+         * long minutesToLaunch = Math.abs(timeToLaunch.toMinutes());
+         * 
+         * if (minutesToLaunch <= 10) {
+         * date = date.plusSeconds(1);
+         * if (date.equals(launchTime)) {
+         * setmissionEnCours(true);
+         * fusees.get(0).decoler();
+         * }
+         * } else {
+         * date = date.plusDays(1);
+         * }
+         * }
+         */
     }
 
     public int coutSalaireTotal() {

@@ -53,6 +53,10 @@ public class WebSocketClient {
                     handleActionWithName(messageType, name, session, response);
                     break;
 
+                case "updateMonthlyDemand":
+                    handleMonthlyDemand(session, jsonMessage);
+                    break;
+
                 case "getProgrammeState":
                     handleGetProgrammeState(session);
                     break;
@@ -209,6 +213,48 @@ public class WebSocketClient {
         }
         return 0;
     }
+
+    private void handleMonthlyDemand(Session session, JSONObject jsonMessage) throws IOException {
+        try {
+            if (jsonMessage.has("data")) {
+                JSONArray data = jsonMessage.getJSONArray("data");
+                for (int i = 0; i < data.length(); i++) {
+                    JSONObject fuelData = data.getJSONObject(i);
+
+                    String name = fuelData.getString("name");
+                    
+                    // Vérification que "monthlyDemand" existe dans fuelData
+                    if (!fuelData.has("monthlyDemand")) {
+                        System.err.println("Erreur: 'monthlyDemand' est manquant pour le carburant: " + name);
+                        continue;
+                    }
+                    
+                    int monthlyQuantity = fuelData.getInt("monthlyDemand");
+    
+                    CarburantAchetable carburant = GameServer.jeu.findCarburantByName(name);
+                    if (carburant != null) {
+    
+                        carburant.setDemandeMonthly(monthlyQuantity);
+    
+                        JSONObject response = new JSONObject();
+                        response.put("action", "updateMonthlyDemandSuccess");
+                        response.put("name", name);
+                        response.put("quantity", monthlyQuantity);
+                        session.getBasicRemote().sendText(response.toString());
+                    } else {
+                        System.err.println("Carburant non trouvé pour le nom: " + name);
+                    }
+                }
+                GameServer.sendGameStateToClients("carburants");
+            } else {
+                System.err.println("Erreur : le champ 'data' est manquant dans le message !");
+            }
+    
+        } catch (JSONException e) {
+            onError(session, e);
+        }
+    }
+    
 
     @OnClose
     public void onClose(Session session) throws IOException {
@@ -373,7 +419,6 @@ public class WebSocketClient {
     private void handleActionWithName(String action, String name, Session session, JSONObject response)
             throws IOException {
         switch (action) {
-            
 
             case "buyObject":
                 ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);
@@ -465,7 +510,7 @@ public class WebSocketClient {
         // Bâtiments disponibles
         JSONArray batimentsDisponibles = new JSONArray();
         for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsParType("assemblage")) {
-            if(batiment.estDebloquer()){
+            if (batiment.estDebloquer()) {
                 batimentsDisponibles.put(batiment.toJson());
             }
         }
