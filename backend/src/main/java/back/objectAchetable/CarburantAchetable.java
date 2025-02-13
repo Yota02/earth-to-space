@@ -58,35 +58,37 @@ public class CarburantAchetable {
     public void effectuerAchat(Jeu jeu, boolean isMonthly) {
         double capaciteDisponible = jeu.getCapaciteMaximaleErgol(this.getCarburant()) 
             - jeu.calculerQuantiteTotaleErgol(carburant.getNom());
-        
+    
         double quantiteAAcheter = isMonthly ? demandeMonthly : quantite;
-
+    
         if (capaciteDisponible < quantiteAAcheter) {
             throw new IllegalStateException("Capacité de stockage insuffisante pour " + carburant.getNom());
         }
-
+    
         double quantiteRestante = quantiteAAcheter;
+    
+        // ✅ Correction du calcul de l'espace disponible
         for (Reservoir reservoir : jeu.getReservoirs()) {
             if (reservoir.getErgol().equals(carburant)) {
-                double espaceDisponible = reservoir.getQuantiteTotal() - reservoir.getQuantite();
+                double espaceDisponible = jeu.getCapaciteMaximaleErgol(this.getCarburant())  - reservoir.getQuantite(); // Correction ici
                 if (espaceDisponible > 0) {
                     double quantiteAAjouter = Math.min(quantiteRestante, espaceDisponible);
                     reservoir.ajouterErgol(quantiteAAjouter);
                     quantiteRestante -= quantiteAAjouter;
-
+    
                     if (quantiteRestante <= 0) {
                         break;
                     }
                 }
             }
         }
-
+    
+        // ✅ Vérification après tentative de remplissage
         if (quantiteRestante > 0) {
-            throw new IllegalStateException("Impossible d'ajouter toute la quantité au stockage.");
+            throw new IllegalStateException("Impossible d'ajouter toute la quantité au stockage. Quantité restante : " + quantiteRestante);
         }
-
-        jeu.calculerQuantiteTotaleErgol(carburant.getNom());
     }
+    
 
     public static class Builder {
         private Ergol carburant;
