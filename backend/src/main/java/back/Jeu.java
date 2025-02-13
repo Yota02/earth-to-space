@@ -4,13 +4,12 @@ import back.Batiment.BatimentManager;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Batiment.UsineProductionCarburant;
+import back.MarcheFinancier.GestionnaireMarche;
 import back.Ressources_Humaines.Ingenieur;
-import back.Ressources_Humaines.Ouvrier;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
 import back.Ressources_Humaines.Scientifique;
 import back.fusee.Fusee;
-import back.fusee.Ifusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
@@ -38,7 +37,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
 
@@ -85,6 +83,8 @@ public class Jeu implements Runnable {
 
     private PolitiqueManager politiqueManager;
 
+    private GestionnaireMarche gestionaireMarche;
+
     // batiments
     BatimentManager batimentManager;
     // Date
@@ -106,6 +106,8 @@ public class Jeu implements Runnable {
         this.pointsIngenieur = 0;
 
         this.argentParMoi = 1000;
+
+        
 
         this.politiqueManager = new PolitiqueManager();
 
@@ -149,11 +151,17 @@ public class Jeu implements Runnable {
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
 
+        this.gestionaireMarche = new GestionnaireMarche();
+
         // this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
         // this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
 
         // this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
         // this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
+    }
+
+    public GestionnaireMarche getGestionaireMarche(){
+        return gestionaireMarche;
     }
 
     public PolitiqueManager getPolitiqueManager() {

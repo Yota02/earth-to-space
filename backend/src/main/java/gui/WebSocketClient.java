@@ -3,6 +3,8 @@ package gui;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Batiment.UsineProductionCarburant;
+import back.MarcheFinancier.Entreprise;
+import back.MarcheFinancier.MarcheFinancier;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.booster.Booster;
@@ -117,6 +119,10 @@ public class WebSocketClient {
                     getUsineCarburant(session);
                     break;
 
+                case "getMarcheFinancierState":
+                    getMarcheFinancier(session);
+                    break;
+
                 case "activateSubvention":
                     int subventionId = Integer.parseInt(jsonMessage.getString("subventionId"));
                     Subvention subvention = GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId);
@@ -214,6 +220,55 @@ public class WebSocketClient {
         return 0;
     }
 
+    private void getMarcheFinancier(Session session) throws IOException {
+        try {            
+            List<MarcheFinancier> marches = GameServer.jeu.getGestionaireMarche().getMarcheFinanciers();
+            
+            JSONObject response = new JSONObject();
+            response.put("action", "getMarcheFinancierState");
+            
+            // Création du tableau des marchés financiers
+            JSONArray marchesArray = new JSONArray();
+            
+            for (MarcheFinancier marche : marches) {
+                
+                JSONObject marcheJson = new JSONObject();
+                marcheJson.put("nom", marche.getNom());
+                
+                // Création du tableau des parts de marché pour ce marché
+                JSONArray partMarcheArray = new JSONArray();
+                for (Map.Entry<Entreprise, Double> entry : marche.getPartMarche().entrySet()) {
+                    Entreprise entreprise = entry.getKey();
+                    Double part = entry.getValue();
+                    
+                    JSONObject entrepriseData = new JSONObject();
+                    JSONObject entrepriseJson = entreprise.toJson();
+                    entrepriseData.put("entreprise", entrepriseJson);
+                    entrepriseData.put("part", part);
+                    
+                    partMarcheArray.put(entrepriseData);
+                }
+                
+                marcheJson.put("partMarche", partMarcheArray);
+                marchesArray.put(marcheJson);
+            }
+            
+            response.put("marches", marchesArray);
+            String jsonResponse = response.toString();
+            
+            session.getBasicRemote().sendText(jsonResponse);
+           
+        } catch (Exception e) {
+            System.err.println("Erreur dans getMarcheFinancier : " + e.getMessage());
+            e.printStackTrace();
+            
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("action", "error");
+            errorResponse.put("message", "Erreur lors de la récupération des données du marché financier: " + e.getMessage());
+            session.getBasicRemote().sendText(errorResponse.toString());
+        }
+    }
+
     private void handleMonthlyDemand(Session session, JSONObject jsonMessage) throws IOException {
         try {
             if (jsonMessage.has("data")) {
@@ -222,20 +277,20 @@ public class WebSocketClient {
                     JSONObject fuelData = data.getJSONObject(i);
 
                     String name = fuelData.getString("name");
-                    
+
                     // Vérification que "monthlyDemand" existe dans fuelData
                     if (!fuelData.has("monthlyDemand")) {
                         System.err.println("Erreur: 'monthlyDemand' est manquant pour le carburant: " + name);
                         continue;
                     }
-                    
+
                     int monthlyQuantity = fuelData.getInt("monthlyDemand");
-    
+
                     CarburantAchetable carburant = GameServer.jeu.findCarburantByName(name);
                     if (carburant != null) {
-    
+
                         carburant.setDemandeMonthly(monthlyQuantity);
-    
+
                         JSONObject response = new JSONObject();
                         response.put("action", "updateMonthlyDemandSuccess");
                         response.put("name", name);
@@ -249,12 +304,11 @@ public class WebSocketClient {
             } else {
                 System.err.println("Erreur : le champ 'data' est manquant dans le message !");
             }
-    
+
         } catch (JSONException e) {
             onError(session, e);
         }
     }
-    
 
     @OnClose
     public void onClose(Session session) throws IOException {

@@ -67,7 +67,6 @@ public class CarburantAchetable {
     
         double quantiteRestante = quantiteAAcheter;
     
-        // ✅ Correction du calcul de l'espace disponible
         for (Reservoir reservoir : jeu.getReservoirs()) {
             if (reservoir.getErgol().equals(carburant)) {
                 double espaceDisponible = jeu.getCapaciteMaximaleErgol(this.getCarburant())  - reservoir.getQuantite(); // Correction ici
@@ -83,7 +82,6 @@ public class CarburantAchetable {
             }
         }
     
-        // ✅ Vérification après tentative de remplissage
         if (quantiteRestante > 0) {
             throw new IllegalStateException("Impossible d'ajouter toute la quantité au stockage. Quantité restante : " + quantiteRestante);
         }

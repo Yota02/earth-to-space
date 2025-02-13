@@ -23,6 +23,11 @@
             </router-link>
           </li>
           <li>
+            <router-link to="/marcheFinancier" @click="closeMenu" class="nav-link">
+              <span>Marche Financier</span>
+            </router-link>
+          </li>
+          <li>
             <router-link to="/lancement" @click="closeMenu" class="nav-link">
               <span>Lancement</span>
             </router-link>

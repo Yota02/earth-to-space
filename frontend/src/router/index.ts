@@ -16,7 +16,7 @@ import Lancement from '../views/LancementView.vue';
 import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue";
 import marketBatimentView from "../views/Batiments/BatimentMarketView.vue";
 import politiqueView from "../views/Politique/PolitiqueView.vue";
-
+import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue";
 
 const routes = [
   {
@@ -33,6 +33,11 @@ const routes = [
     path: '/politique',
     name: 'politique',
     component: politiqueView
+  },
+  {
+    path: '/marcheFinancier',
+    name: 'marcheFinancier',
+    component: marcheFinancierView
   },
   {
     path: '/marketBatiment',
