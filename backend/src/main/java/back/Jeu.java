@@ -52,6 +52,8 @@ public class Jeu implements Runnable {
     private Scanner scanner;
     private ExecutorService executorService;
 
+
+
     // Carburant
     private List<ReservoirPose> reservoirs;
     private List<CarburantAchetable> carburantAchetables;
@@ -77,9 +79,10 @@ public class Jeu implements Runnable {
     private List<Recherche> rechercheObtenue;
 
     // Collections pour les objets achetables
-    private List<ObjectAchetable> objectAchetables;
-    private List<ObjectAchetable> objectTotals;
-    private List<ObjectAchetable> objectAcheter;
+
+
+
+
 
     private PolitiqueManager politiqueManager;
 
@@ -125,8 +128,6 @@ public class Jeu implements Runnable {
 
         this.rechercheObtenue = Collections.synchronizedList(new ArrayList<>());
 
-        this.objectTotals = new ArrayList<>();
-        this.objectAcheter = new ArrayList<>();
         this.programmes = new ArrayList<>();
         this.lanceurs = new ArrayList<>();
         this.fusees = new ArrayList<>();
@@ -144,8 +145,6 @@ public class Jeu implements Runnable {
         this.recherchesTotal = gestionnaireRecherche.getRecherches();
 
         gestionnaireObject = new GestionnaireObject();
-        gestionnaireObject.initialiserObject();
-        this.objectAchetables = gestionnaireObject.getObjects();
 
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
@@ -168,16 +167,8 @@ public class Jeu implements Runnable {
         return politiqueManager;
     }
 
-    public List<Personne> getPersonnesParType(String type) {
-        return marcheEmploi.getOrDefault(type, new ArrayList<>());
-    }
-
-    public BatimentManager getBatimentManager() {
-        return batimentManager;
-    }
-
     public void acheter(ObjectAchetable objectAchetable) {
-        synchronized (objectAcheter) {
+        synchronized (gestionnaireObject.getObjectAcheter()) {
             if (getArgent() >= objectAchetable.getPrix()) {
                 objectAchetable.effectuerAchat(this);
                 retirerArgent(objectAchetable.getPrix());
@@ -185,6 +176,20 @@ public class Jeu implements Runnable {
                 System.out.println("Vous n'avez pas assez d'argent");
             }
         }
+    }
+
+    public void vendre(ObjectAchetable objectAchetable) {
+        synchronized (gestionnaireObject.getObjectAcheter()) {
+            gestionnaireObject.getObjectAcheter().remove(objectAchetable);
+        }
+    }
+
+    public List<Personne> getPersonnesParType(String type) {
+        return marcheEmploi.getOrDefault(type, new ArrayList<>());
+    }
+
+    public BatimentManager getBatimentManager() {
+        return batimentManager;
     }
 
     public double ajouterCarburant(Ergol ergol, double quantite) {
@@ -310,11 +315,7 @@ public class Jeu implements Runnable {
         }
     }
 
-    public void vendre(ObjectAchetable objectAchetable) {
-        synchronized (objectAcheter) {
-            objectAcheter.remove(objectAchetable);
-        }
-    }
+    
 
     public synchronized void ajouterArgent(int montant) {
         this.argent += montant;
@@ -740,15 +741,7 @@ public class Jeu implements Runnable {
         return coutTotal;
     }
 
-    public ObjectAchetable findObjectByName(String name) {
-        for (ObjectAchetable objectAchetable : objectAchetables) {
-            if (objectAchetable.getNom().equals(name)) {
-                return objectAchetable;
-            }
-        }
-        return null;
-    }
-
+   
     public double getQuantiteCarburant(Ergol name) {
         double quantite = 0.0;
         for (ReservoirPose r : getReservoirs()) {
@@ -784,31 +777,16 @@ public class Jeu implements Runnable {
     }
 
     public List<ObjectAchetable> getObjectAchetables() {
-        return objectAchetables;
-    }
-
-    public void setObjectAchetables(List<ObjectAchetable> objectAchetables) {
-        this.objectAchetables = objectAchetables;
-    }
-
-    public List<ObjectAchetable> getObjectTotals() {
-        return objectTotals;
+        return gestionnaireObject.getObjects();
     }
 
     public List<Fusee> getFusees() {
         return fusees;
     }
 
-    public void setObjectTotals(List<ObjectAchetable> objectTotals) {
-        this.objectTotals = objectTotals;
-    }
 
     public List<ObjectAchetable> getObjectAcheter() {
-        return objectAcheter;
-    }
-
-    public void setObjectAcheter(List<ObjectAchetable> objectAcheter) {
-        this.objectAcheter = objectAcheter;
+        return gestionnaireObject.getObjectAcheter();
     }
 
     public String lireLigne() {

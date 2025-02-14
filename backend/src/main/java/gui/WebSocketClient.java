@@ -12,6 +12,7 @@ import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
+import back.objectAchetable.GestionnaireObject;
 import back.objectAchetable.ObjectAchetable;
 import back.politique.Objectif;
 import back.politique.PolitiqueManager;
@@ -145,6 +146,10 @@ public class WebSocketClient {
                     getRecherches(session);
                     break;
 
+                case "getObjectsAchetables":
+                    getObjectsAchetables(session);
+                    break;
+
                 case "addReservoir":
                     String fuelType = jsonMessage.getString("fuelType");
                     handleAddReservoir(session, fuelType);
@@ -221,50 +226,51 @@ public class WebSocketClient {
     }
 
     private void getMarcheFinancier(Session session) throws IOException {
-        try {            
+        try {
             List<MarcheFinancier> marches = GameServer.jeu.getGestionaireMarche().getMarcheFinanciers();
-            
+
             JSONObject response = new JSONObject();
             response.put("action", "getMarcheFinancierState");
-            
+
             // Création du tableau des marchés financiers
             JSONArray marchesArray = new JSONArray();
-            
+
             for (MarcheFinancier marche : marches) {
-                
+
                 JSONObject marcheJson = new JSONObject();
                 marcheJson.put("nom", marche.getNom());
-                
+
                 // Création du tableau des parts de marché pour ce marché
                 JSONArray partMarcheArray = new JSONArray();
                 for (Map.Entry<Entreprise, Double> entry : marche.getPartMarche().entrySet()) {
                     Entreprise entreprise = entry.getKey();
                     Double part = entry.getValue();
-                    
+
                     JSONObject entrepriseData = new JSONObject();
                     JSONObject entrepriseJson = entreprise.toJson();
                     entrepriseData.put("entreprise", entrepriseJson);
                     entrepriseData.put("part", part);
-                    
+
                     partMarcheArray.put(entrepriseData);
                 }
-                
+
                 marcheJson.put("partMarche", partMarcheArray);
                 marchesArray.put(marcheJson);
             }
-            
+
             response.put("marches", marchesArray);
             String jsonResponse = response.toString();
-            
+
             session.getBasicRemote().sendText(jsonResponse);
-           
+
         } catch (Exception e) {
             System.err.println("Erreur dans getMarcheFinancier : " + e.getMessage());
             e.printStackTrace();
-            
+
             JSONObject errorResponse = new JSONObject();
             errorResponse.put("action", "error");
-            errorResponse.put("message", "Erreur lors de la récupération des données du marché financier: " + e.getMessage());
+            errorResponse.put("message",
+                    "Erreur lors de la récupération des données du marché financier: " + e.getMessage());
             session.getBasicRemote().sendText(errorResponse.toString());
         }
     }
@@ -307,6 +313,27 @@ public class WebSocketClient {
 
         } catch (JSONException e) {
             onError(session, e);
+        }
+    }
+
+    private void getObjectsAchetables(Session session) {
+        try {
+            GestionnaireObject gestionnaireObject = GameServer.jeu.getGestionnaireObject();
+            List<ObjectAchetable> objects = gestionnaireObject.getObjects();
+
+            JSONObject response = new JSONObject();
+            response.put("action", "getObjectsAchetables");
+
+            JSONArray objectsArray = new JSONArray();
+            for (ObjectAchetable obj : objects) {
+                objectsArray.put(obj.toJson());
+            }
+
+            response.put("objectsAchetables", objectsArray);
+
+            session.getBasicRemote().sendText(response.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -475,7 +502,7 @@ public class WebSocketClient {
         switch (action) {
 
             case "buyObject":
-                ObjectAchetable objectToBuy = GameServer.jeu.findObjectByName(name);
+                ObjectAchetable objectToBuy = GameServer.jeu.getGestionnaireObject().findObjectByName(name);
                 if (objectToBuy != null) {
                     if (GameServer.jeu.getArgent() >= objectToBuy.getPrix()) {
                         GameServer.jeu.acheter(objectToBuy);
@@ -494,7 +521,7 @@ public class WebSocketClient {
                 break;
 
             case "sellObject":
-                ObjectAchetable objectToSell = GameServer.jeu.findObjectByName(name);
+                ObjectAchetable objectToSell = GameServer.jeu.getGestionnaireObject().findObjectByName(name);
                 if (objectToSell != null) {
                     GameServer.jeu.vendre(objectToSell);
                     GameServer.sendGameStateToClients("objectsAchetables");

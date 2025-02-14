@@ -124,7 +124,7 @@ export default {
         "PROPULSION_ELECTRIQUE": "src/assets/img/icone/ergol/electric.png",
         "ALCOOL": "src/assets/img/icone/ergol/ethanol.png",
         "GAZ_NATUREL": "src/assets/img/icone/ergol/gas.png",
-        "KEROSENE": "src/assets/img/icone/ergol/kerosene.png",
+        "KEROSENE": "src/assets/img/icone/ergol/petrol.png",
         "BIODIESEL": "src/assets/img/icone/ergol/biodiesel.png",
       };
       return images[fuelName] || "src/assets/img/icone/ergol/default.png";

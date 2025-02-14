@@ -5,6 +5,7 @@ import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.Reservoir;
 
 public class CarburantAchetable {
+    
     private Ergol carburant;
     private double quantite;
     private int demandeMonthly;

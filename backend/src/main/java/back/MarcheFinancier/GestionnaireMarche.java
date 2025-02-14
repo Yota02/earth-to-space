@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GestionnaireMarche {
-
+    
     private Entreprise monEntreprise;
     private List<Entreprise> marche;
     private List<MarcheFinancier> marcheFinanciers;

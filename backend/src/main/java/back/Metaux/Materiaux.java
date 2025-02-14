@@ -6,7 +6,8 @@ public enum Materiaux {
     TITANE("Titane", 4500, 1668, 462),
     ACIER("Acier", 7850, 1510, 500),
     CARBONE("Carbone composite", 1600, 3650, 1400),
-
+    FER("Fer", 8000, 1450, 16.0), 
+    
     INOX("Inox", 8000, 1450, 16.0), 
 
     INCONEL("Inconel", 8440, 1390, 14.2),

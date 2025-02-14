@@ -19,15 +19,31 @@ public class GestionnaireCarburant {
 
     public void initialisationCarburant() {
         CarburantAchetable hydrogen = new CarburantAchetable.Builder()
-                .setNom("Hydrogen liquide")
+                .setNom("Hydrogene liquide")
                 .setPrix(1000)
                 .setEstAchetable(true)
                 .setCarburant(Ergol.HYDROGENE)
                 .setQuantite(100.0)
                 .build();
 
+        CarburantAchetable azote = new CarburantAchetable.Builder()
+                .setNom("Azote liquide")
+                .setPrix(1000)
+                .setEstAchetable(true)
+                .setCarburant(Ergol.AZOTE)
+                .setQuantite(100.0)
+                .build();
+
+        CarburantAchetable kerosen = new CarburantAchetable.Builder()
+                .setNom("Kerosene")
+                .setPrix(1000)
+                .setEstAchetable(true)
+                .setCarburant(Ergol.KEROSENE)
+                .setQuantite(100.0)
+                .build();
+
         CarburantAchetable oxygen = new CarburantAchetable.Builder()
-                .setNom("Oxygen liquide")
+                .setNom("Oxygene liquide")
                 .setPrix(1000)
                 .setEstAchetable(true)
                 .setCarburant(Ergol.OXYGEN)
@@ -45,6 +61,8 @@ public class GestionnaireCarburant {
                 ajouterCarburantAchetable(hydrogen);
                 ajouterCarburantAchetable(oxygen);
                 ajouterCarburantAchetable(methane);
+                ajouterCarburantAchetable(kerosen);
+                ajouterCarburantAchetable(azote);
     }
 
     private void ajouterCarburantAchetable(CarburantAchetable object) {

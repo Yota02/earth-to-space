@@ -1,5 +1,9 @@
 package back.objectAchetable;
 
+import org.json.JSONObject;
+
+import com.google.gson.JsonObject;
+
 import back.Jeu;
 
 public abstract class ObjectAchetable {
@@ -24,6 +28,8 @@ public abstract class ObjectAchetable {
     public Boolean getEstAchetable() {
         return estAchetable;
     }
+
+    public abstract JSONObject toJson();
 
     // Abstract method for purchasing
     public abstract void effectuerAchat(Jeu jeu);
