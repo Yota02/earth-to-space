@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import back.Metaux.Materiaux;
+import back.fusee.Piece.PieceFusee;
 import back.fusee.moteur.Ergol;
 import java.util.Collections;
 
@@ -19,6 +22,18 @@ public class BatimentManager {
     
     public Map<String, List<IBatiment>> getBatimentMap(){
         return batimentMap;
+    }
+
+    public List<UsineProduction> getUsineProduction() {
+        List<UsineProduction> usines = new ArrayList<>();
+
+        for(IBatiment b : batimentsPossedes){
+            if(b instanceof UsineProduction){
+                usines.add((UsineProduction) b);
+            }
+        }
+
+        return usines;
     }
     
     public List<UsineProductionCarburant> getUsineCarburants() {
@@ -37,6 +52,7 @@ public class BatimentManager {
     private void initializeBatiments() {
         initializeHangarAssemblage();
         initializeProductionCarburant();
+        initializeUsineProduction();
     }
 
     private void initializeProductionCarburant() {
@@ -93,6 +109,18 @@ public class BatimentManager {
         ajouterBatimentPossede(new UsineProductionCarburant("1", 100, 10, 1, Ergol.OXYGEN, 0.9));
      }
 
+    private void initializeUsineProduction() {
+        List<IBatiment> usineProduction = new ArrayList<>();
+
+        usineProduction.add(new UsineProduction("Usine niveau 1", 100, 12, 30, Materiaux.FER, PieceFusee.MOTEUR, 50));
+        usineProduction.add(new UsineProduction("Usine niveau 2", 150, 15, 40, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 70));
+        usineProduction.add(new UsineProduction("Usine niveau 3", 200, 20, 50, Materiaux.TITANE, PieceFusee.COQUE, 100));
+        usineProduction.add(new UsineProduction("Usine niveau 4", 300, 15, 40, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 150));
+        usineProduction.add(new UsineProduction("Usine niveau 5", 400, 20, 50, Materiaux.TITANE, PieceFusee.COQUE, 200));
+
+        batimentMap.put("usineProduction", usineProduction);
+    }
+
     private void initializeHangarAssemblage() {
         List<IBatiment> batimentsAssemblage = new ArrayList<>();
 
@@ -105,6 +133,18 @@ public class BatimentManager {
         batimentsAssemblage.add(new HangarAssemblage("GigaBay", 1000, 20, 24, 120));
 
         batimentMap.put("assemblage", batimentsAssemblage);
+    }
+
+    public double getProductionParJour(PieceFusee piece) {
+        double production = 0;
+        for (IBatiment batiment : batimentsPossedes) {
+            if (batiment instanceof UsineProduction) {
+                if(((UsineProduction) batiment).getPieceProduite() == piece){
+                    production += ((UsineProduction) batiment).getProductionParJour();
+                }
+            }
+        }
+        return production;
     }
     
     public List<IBatiment> getBatimentsParType(String type) {
@@ -142,4 +182,5 @@ public class BatimentManager {
         }
         return false;
     }
+
 }

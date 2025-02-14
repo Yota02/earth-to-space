@@ -2,6 +2,7 @@ package gui;
 
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
+import back.Batiment.UsineProduction;
 import back.Batiment.UsineProductionCarburant;
 import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.MarcheFinancier;
@@ -153,6 +154,10 @@ public class WebSocketClient {
                 case "addReservoir":
                     String fuelType = jsonMessage.getString("fuelType");
                     handleAddReservoir(session, fuelType);
+                    break;
+
+                case "getProduction":
+                    getProduction(session);
                     break;
 
                 case "getCarburantQuantite":
@@ -495,6 +500,20 @@ public class WebSocketClient {
             response.put("error", "Erreur lors du licenciement : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());
         }
+    }
+
+    private void getProduction(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "productionState");
+
+        JSONArray productionArray = new JSONArray();
+        for (UsineProduction usine : GameServer.jeu.getBatimentManager().getUsineProduction()) {
+            productionArray.put(usine.toJson());
+        }
+
+        response.put("production", productionArray);
+
+        session.getBasicRemote().sendText(response.toString());
     }
 
     private void handleActionWithName(String action, String name, Session session, JSONObject response)

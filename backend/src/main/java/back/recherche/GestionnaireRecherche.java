@@ -23,6 +23,10 @@ public class GestionnaireRecherche {
         for (Recherche recherche : rechercheDeblocage.initeHangarAssemblageRecherche()) {
             ajouterRecherche(recherche);
         }
+
+        for (Recherche recherche : rechercheDeblocage.initUsineProductionRecherche()) {
+            ajouterRecherche(recherche);
+        }
     }
 
     public void initRechercheEnergie() {

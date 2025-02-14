@@ -111,6 +111,7 @@ export default {
                 "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
                 "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg",
                 "HANGAR_ASSEMBLAGE": "src/assets/img/bandeau/megabay.jpg",
+                "USINE_PRODUCTION": "src/assets/img/bandeau/usineproduction.png",
             },
             effectIcons: {
                 'FIABILITE': 'src/assets/img/icone/fiabilite.png',

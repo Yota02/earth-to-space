@@ -3,13 +3,16 @@ package back;
 import back.Batiment.BatimentManager;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
+import back.Batiment.UsineProduction;
 import back.Batiment.UsineProductionCarburant;
 import back.MarcheFinancier.GestionnaireMarche;
+import back.Metaux.Materiaux;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
 import back.Ressources_Humaines.Scientifique;
 import back.fusee.Fusee;
+import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
@@ -52,7 +55,7 @@ public class Jeu implements Runnable {
     private Scanner scanner;
     private ExecutorService executorService;
 
-
+    private Map<PieceFusee, Integer> stockPieces;
 
     // Carburant
     private List<ReservoirPose> reservoirs;
@@ -77,12 +80,6 @@ public class Jeu implements Runnable {
     // Collections pour les recherches
     private List<Recherche> recherchesTotal;
     private List<Recherche> rechercheObtenue;
-
-    // Collections pour les objets achetables
-
-
-
-
 
     private PolitiqueManager politiqueManager;
 
@@ -110,7 +107,7 @@ public class Jeu implements Runnable {
 
         this.argentParMoi = 1000;
 
-        
+        this.stockPieces = new HashMap<>();
 
         this.politiqueManager = new PolitiqueManager();
 
@@ -371,6 +368,7 @@ public class Jeu implements Runnable {
     }
 
     public void init() {
+
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
                 .setNom("Reservoir 1")
                 .setErgol(Ergol.OXYGEN)
@@ -629,17 +627,28 @@ public class Jeu implements Runnable {
         }
     }
 
+    private void ajouterPieceParJour(){
+        for (PieceFusee p : PieceFusee.values()) {
+            ajouterQuantiteAStockPiece(p, batimentManager.getProductionParJour(p)); 
+        }
+    }
+
     private void actionFinJour() {
         if (!missionEnCours) {
             ajouterArgent(argentParMoi);
             incrementerDate();
             assemblerFusee();
             productionCarburant();
-
+            ajouterPieceParJour();
+            
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);
             }
         }
+    }
+
+    public void ajouterQuantiteAStockPiece(PieceFusee piece, double quantite) {
+            stockPieces.put(piece, (int) (stockPieces.getOrDefault(piece, 0) + quantite));
     }
 
     public List<IBatiment> getBatimentsEnConstruction() {

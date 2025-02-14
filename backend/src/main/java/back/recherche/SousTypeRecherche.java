@@ -8,6 +8,7 @@ public enum SousTypeRecherche {
     HANGAR_ASSEMBLAGE,
     PAS_DE_TIR,
     DEVIATEUR_DE_FLAMME,
+    USINE_PRODUCTION,
 
     //Sous-types pour Exploration
     CAPTEURS,

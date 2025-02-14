@@ -28,13 +28,19 @@
             </router-link>
           </li>
           <li>
+            <router-link to="/Production" @click="closeMenu" class="nav-link">
+              <span>Production</span>
+            </router-link>
+          </li>
+
+          <li>
             <router-link to="/lancement" @click="closeMenu" class="nav-link">
-              <span>Lancement</span>
+              <span>L</span>
             </router-link>
           </li>
           <li>
             <router-link to="/programme" @click="closeMenu" class="nav-link">
-              <span>Programme</span>
+              <span>P</span>
             </router-link>
           </li>
           <li>

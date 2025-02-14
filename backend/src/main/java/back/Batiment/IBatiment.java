@@ -65,7 +65,7 @@ public abstract class IBatiment extends ObjectDeblocable{
     }
     
     public int getTempsRestant(){
-        return 1;
+        return 100;
     }
 
     public int getTempsConstruction(){

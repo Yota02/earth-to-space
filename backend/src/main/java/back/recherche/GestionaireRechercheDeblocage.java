@@ -13,6 +13,27 @@ public class GestionaireRechercheDeblocage {
         this.batimentManager = batimentManager;
     }
 
+    public List<RechercheDeblocage> initUsineProductionRecherche() {
+        List<RechercheDeblocage> res = new ArrayList<>();
+
+        res.add(new RechercheDeblocage(100, "Usine niveau 1", 100, "Deblocage de l'Usine niveau 1, permet de produire 50 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 1, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Usine niveau 1")));
+        res.add(new RechercheDeblocage(100, "Usine niveau 2", 150, "Deblocage de l'Usine niveau 2, permet de produire 70 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 2, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Usine niveau 2")));
+        res.add(new RechercheDeblocage(200, "Usine niveau 3", 200, "Deblocage de l'Usine niveau 3, permet de produire 100 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 5, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Usine niveau 3")));
+        res.add(new RechercheDeblocage(100, "Usine niveau 4", 300, "Deblocage de l'Usine niveau 4, permet de produire 150 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 7, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Usine niveau 4")));
+        res.add(new RechercheDeblocage(200, "Usine niveau 5", 400, "Deblocage de l'Usine niveau 5, permet de produire 200 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 9, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Usine niveau 5")));
+        return res;
+    }
+
     public List<RechercheDeblocage> initeHangarAssemblageRecherche() {
         List<RechercheDeblocage> res = new ArrayList<>();
 

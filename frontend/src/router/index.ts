@@ -17,12 +17,18 @@ import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue
 import marketBatimentView from "../views/Batiments/BatimentMarketView.vue";
 import politiqueView from "../views/Politique/PolitiqueView.vue";
 import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue";
+import ProductionGeneralView from '../views/Production/ProductionGeneralView.vue';
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomeView 
+  },
+  {
+    path: '/production',
+    name: 'production',
+    component: ProductionGeneralView 
   },
   {
     path: '/about',
