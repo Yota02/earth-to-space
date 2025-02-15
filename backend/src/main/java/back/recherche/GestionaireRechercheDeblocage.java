@@ -16,6 +16,32 @@ public class GestionaireRechercheDeblocage {
         this.moteurManager = moteurManager;
     }
 
+    public List<RechercheDeblocage> initRecherche() {
+        List<RechercheDeblocage> res = new ArrayList<>();
+        res.addAll(initUsineProductionRecherche());
+        res.addAll(initMoteurRecherche());
+        res.addAll(initeHangarAssemblageRecherche());
+        return res;
+    }
+
+    public List<RechercheDeblocage> initCentreEntrainement() {
+        List<RechercheDeblocage> res = new ArrayList<>();
+
+        res.add(new RechercheDeblocage(100, "Centre d'entrainement niveau 1", 10, "Deblocage du Centre d'entrainement niveau 1, permet d'entrainer 5 astronautes",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.CENTRE_ENTRAINEMENT, 1, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Centre d'entrainement niveau 1")));
+
+        res.add(new RechercheDeblocage(100, "Centre d'entrainement niveau 2", 15, "Deblocage du Centre d'entrainement niveau 2, permet d'entrainer 10 astronautes",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.CENTRE_ENTRAINEMENT, 2, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Centre d'entrainement niveau 2")));
+
+        res.add(new RechercheDeblocage(200, "Centre d'entrainement niveau 3", 20, "Deblocage du Centre d'entrainement niveau 3, permet d'entrainer 15 astronautes",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.CENTRE_ENTRAINEMENT, 3, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Centre d'entrainement niveau 3")));
+
+        return res;
+    }
+
     public List<RechercheDeblocage> initUsineProductionRecherche() {
         List<RechercheDeblocage> res = new ArrayList<>();
 

@@ -33,6 +33,10 @@ public class GestionnaireRecherche {
             ajouterRecherche(recherche);
         }
 
+        for (Recherche recherche : rechercheDeblocage.initCentreEntrainement()) {
+            ajouterRecherche(recherche);
+        }
+
     }
 
     public void initRechercheEnergie() {

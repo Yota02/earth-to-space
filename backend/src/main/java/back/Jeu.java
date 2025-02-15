@@ -7,6 +7,7 @@ import back.Batiment.UsineProduction;
 import back.Batiment.UsineProductionCarburant;
 import back.MarcheFinancier.GestionnaireMarche;
 import back.Metaux.Materiaux;
+import back.Ressources_Humaines.GestionnaireRessources_Humaines;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
 import back.Ressources_Humaines.PersonneSimple;
@@ -66,8 +67,6 @@ public class Jeu implements Runnable {
     private List<Programme> programmes;
 
     // resources Humaine
-    private Map<String, List<Personne>> employes;
-    private Map<String, List<Personne>> marcheEmploi;
 
     // Boosters
     private List<Booster> lanceurs;
@@ -96,6 +95,7 @@ public class Jeu implements Runnable {
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
     private GestionaireMoteur moteurManager;
+    private GestionnaireRessources_Humaines gestionnaireRH;
 
     private final Lock researchLock;
 
@@ -120,8 +120,6 @@ public class Jeu implements Runnable {
         this.missionEnCours = false;
         this.DecolageMoinsUneMinutes = false;
 
-        this.employes = new HashMap<>();
-        this.marcheEmploi = new HashMap<>();
 
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
@@ -141,6 +139,8 @@ public class Jeu implements Runnable {
 
         this.researchLock = new ReentrantLock();
 
+        gestionnaireRH = new GestionnaireRessources_Humaines();
+
         gestionnaireRecherche = new GestionnaireRecherche(batimentManager, moteurManager);
         gestionnaireRecherche.initialiserRecherches();
         this.recherchesTotal = gestionnaireRecherche.getRecherches();
@@ -154,12 +154,6 @@ public class Jeu implements Runnable {
         this.carburantAchetables = gestionnaireCarburant.getObjects();
 
         this.gestionaireMarche = new GestionnaireMarche();
-
-        // this.gestionnaireMarcheEmploie = new GestionnaireRessources_Humaines();
-        // this.marcheEmploi = this.gestionnaireMarcheEmploie.getPersonnesParTypeMap();
-
-        // this.gestionnaireEmployes = new GestionnaireRessources_Humaines();
-        // this.employes = this.gestionnaireEmployes.getPersonnesParTypeMap();
     }
 
     public GestionnaireMarche getGestionaireMarche(){
@@ -185,10 +179,6 @@ public class Jeu implements Runnable {
         synchronized (gestionnaireObject.getObjectAcheter()) {
             gestionnaireObject.getObjectAcheter().remove(objectAchetable);
         }
-    }
-
-    public List<Personne> getPersonnesParType(String type) {
-        return marcheEmploi.getOrDefault(type, new ArrayList<>());
     }
 
     public BatimentManager getBatimentManager() {
@@ -402,27 +392,6 @@ public class Jeu implements Runnable {
 
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
-        for (int i = 0; i < 10; i++) {
-            PersonneSimple nouvellePersonne = new PersonneSimple();
-            ajouterPersonne(nouvellePersonne, employes);
-        }
-
-        Personne chercheur1 = new Scientifique();
-        Personne ingenieur1 = new Ingenieur();
-
-        ajouterPersonne(chercheur1, marcheEmploi);
-        ajouterPersonne(ingenieur1, marcheEmploi);
-
-        for (int i = 0; i < 10; i++) {
-            PersonneSimple nouvellePersonne = new PersonneSimple();
-            ajouterPersonne(nouvellePersonne, marcheEmploi);
-        }
-    }
-
-    public void ajouterPersonne(Personne personne, Map<String, List<Personne>> list) {
-        String type = personne.getClass().getSimpleName();
-        list.putIfAbsent(type, new ArrayList<>());
-        list.get(type).add(personne);
     }
 
     public double getPointRecherche() {
@@ -439,8 +408,8 @@ public class Jeu implements Runnable {
 
     public double calculerPointRecherche() {
         double res = 0;
-        if (getEmployes().containsKey("Scientifique")) {
-            List<Personne> scientifiques = getEmployes().get("Scientifique");
+        if (gestionnaireRH.getPersonnesParTypeMap().containsKey("Scientifique")) {
+            List<Personne> scientifiques = gestionnaireRH.getPersonnesParTypeMap().get("Scientifique");
 
             for (Personne p : scientifiques) {
                 Scientifique s = (Scientifique) p;
@@ -453,8 +422,8 @@ public class Jeu implements Runnable {
 
     public double calculerPointConstruction() {
         double res = 0;
-        if (getEmployes().containsKey("Ouvrier")) {
-            List<Personne> ouvriers = getEmployes().get("Ouvrier");
+        if (gestionnaireRH.getPersonnesParTypeMap().containsKey("Ouvrier")) {
+            List<Personne> ouvriers = gestionnaireRH.getPersonnesParTypeMap().get("Ouvrier");
             res = ouvriers.size();
         }
         return res;
@@ -462,8 +431,8 @@ public class Jeu implements Runnable {
 
     public double calculerPointIngenieur() {
         double res = 0;
-        if (getEmployes().containsKey("Ingenieur")) {
-            List<Personne> ingenieurs = getEmployes().get("Ingenieur");
+        if (gestionnaireRH.getPersonnesParTypeMap().containsKey("Ingenieur")) {
+            List<Personne> ingenieurs = gestionnaireRH.getPersonnesParTypeMap().get("Ingenieur");
 
             for (Personne p : ingenieurs) {
                 Ingenieur i = (Ingenieur) p;
@@ -473,55 +442,6 @@ public class Jeu implements Runnable {
         return res;
     }
 
-    public void embaucherPersonne(Personne personne) {
-        String type = personne.getClass().getSimpleName();
-
-        if (marcheEmploi.containsKey(type)) {
-            marcheEmploi.get(type).remove(personne);
-
-            employes.putIfAbsent(type, new ArrayList<>());
-            employes.get(type).add(personne);
-        } else {
-            System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
-        }
-    }
-
-    public void licencierPersonne(Personne personne) {
-        String type = personne.getClass().getSimpleName();
-        if (employes.containsKey(type)) {
-            List<Personne> employesDuType = employes.get(type);
-
-            if (employesDuType.remove(personne)) {
-                marcheEmploi.putIfAbsent(type, new ArrayList<>());
-                marcheEmploi.get(type).add(personne);
-            } else {
-                System.out.println("Cette personne n'est pas un employé de type " + type);
-            }
-        } else {
-            System.out.println("Aucun employé de type " + type + " trouvé");
-        }
-    }
-
-    public Personne retrouverEmployeParId(int clePrimaire) {
-        for (List<Personne> personnes : employes.values()) {
-            for (Personne personne : personnes) {
-                if (personne.getClePrimaire() == clePrimaire) {
-                    return personne;
-                }
-            }
-        }
-
-        for (List<Personne> personnes : marcheEmploi.values()) {
-            for (Personne personne : personnes) {
-                if (personne.getClePrimaire() == clePrimaire) {
-                    return personne;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private void actionFinDeMoi() {
         if (date.toLocalDate().getDayOfMonth() == date.toLocalDate().lengthOfMonth()) {
             retirerArgent(coutSalaireTotal());
@@ -529,9 +449,17 @@ public class Jeu implements Runnable {
             setPointIngenieur(calculerPointRecherche());
             setPointConstruction(calculerPointRecherche());
 
-            achatErgolFinDuMoi();
+            batimentManager.entrainerAstronautes();
+            gestionnaireRH.ajouterPersonneMensuel();
 
+            achatErgolFinDuMoi();
             gestionnaireRecherche.rechercheParMoi();
+        }
+    }
+
+    private void actionFinDeAnnee() {
+        if (date.toLocalDate().getDayOfYear() == date.toLocalDate().lengthOfYear()) {
+            gestionnaireRH.ajouterPersonneAnuel();
         }
     }
 
@@ -625,6 +553,7 @@ public class Jeu implements Runnable {
 
             actionFinJour();
             actionFinDeMoi();
+            actionFinDeAnnee();
             GameServer.sendGameStateToClients("all");
 
             try {
@@ -668,12 +597,16 @@ public class Jeu implements Runnable {
 
     public int coutSalaireTotal() {
         int coutTotal = 0;
-        for (List<Personne> listeEmployes : employes.values()) {
+        for (List<Personne> listeEmployes : gestionnaireRH.getEmployeMap().values()) {
             for (Personne employe : listeEmployes) {
                 coutTotal += employe.getSalaire();
             }
         }
         return coutTotal;
+    }
+
+    public GestionnaireRessources_Humaines getGestionnaireRH() {
+        return gestionnaireRH;
     }
 
    
@@ -703,13 +636,6 @@ public class Jeu implements Runnable {
         return missions;
     }
 
-    public Map<String, List<Personne>> getEmployes() {
-        return employes;
-    }
-
-    public Map<String, List<Personne>> getMarcheEmploie() {
-        return marcheEmploi;
-    }
 
     public List<ObjectAchetable> getObjectAchetables() {
         return gestionnaireObject.getObjects();

@@ -11,6 +11,7 @@ public enum SousTypeRecherche {
     PAS_DE_TIR,
     DEVIATEUR_DE_FLAMME,
     USINE_PRODUCTION,
+    CENTRE_ENTRAINEMENT,
 
     //Sous-types pour Exploration
     CAPTEURS,

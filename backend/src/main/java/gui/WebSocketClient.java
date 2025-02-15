@@ -458,10 +458,10 @@ public class WebSocketClient {
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
-            Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
+            Personne personne = GameServer.jeu.getGestionnaireRH().retrouverEmployeParId(clePrimaire);
 
             boolean removed = false;
-            for (List<Personne> liste : GameServer.jeu.getMarcheEmploie().values()) {
+            for (List<Personne> liste : GameServer.jeu.getGestionnaireRH().getPersonnesParTypeMap().values()) {
                 if (liste.remove(personne)) {
                     removed = true;
                     break;
@@ -469,7 +469,7 @@ public class WebSocketClient {
             }
 
             if (removed) {
-                GameServer.jeu.embaucherPersonne(personne);
+                GameServer.jeu.getGestionnaireRH().embaucherPersonne(personne);
                 response.put("action", "personneEmbauchee");
                 response.put("nom", personne.getNom());
                 session.getBasicRemote().sendText(response.toString());
@@ -489,8 +489,8 @@ public class WebSocketClient {
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
-            Personne personne = GameServer.jeu.retrouverEmployeParId(clePrimaire);
-            GameServer.jeu.licencierPersonne(personne);
+            Personne personne = GameServer.jeu.getGestionnaireRH().retrouverEmployeParId(clePrimaire);
+            GameServer.jeu.getGestionnaireRH().licencierPersonne(personne);
             response.put("action", "personneLicencier");
             response.put("nom", personne.getNom());
             response.put("clePrimaire", personne.getClePrimaire());
@@ -706,7 +706,7 @@ public class WebSocketClient {
     }
 
     private void getEmployes(Session session) throws IOException {
-        Map<String, List<Personne>> employes = GameServer.jeu.getEmployes();
+        Map<String, List<Personne>> employes = GameServer.jeu.getGestionnaireRH().getEmployeMap();
 
         JSONArray mainArray = new JSONArray();
 
@@ -780,7 +780,7 @@ public class WebSocketClient {
     }
 
     private void getMarcheEmploie(Session session) throws IOException {
-        Map<String, List<Personne>> marcheEmploi = GameServer.jeu.getMarcheEmploie();
+        Map<String, List<Personne>> marcheEmploi = GameServer.jeu.getGestionnaireRH().getMarcheEmploie();
 
         JSONArray mainArray = new JSONArray();
 

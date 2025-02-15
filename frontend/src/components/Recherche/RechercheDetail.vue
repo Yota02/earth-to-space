@@ -112,6 +112,7 @@ export default {
                 "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg",
                 "HANGAR_ASSEMBLAGE": "src/assets/img/bandeau/megabay.jpg",
                 "USINE_PRODUCTION": "src/assets/img/bandeau/usineproduction.png",
+                "CENTRE_ENTRAINEMENT": "src/assets/img/bandeau/centreEntrainement.jpg",
             },
             effectIcons: {
                 'FIABILITE': 'src/assets/img/icone/fiabilite.png',

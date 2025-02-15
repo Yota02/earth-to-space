@@ -1,51 +1,42 @@
 <template>
-  <div class="employe-container">
-    <h1>Liste des Employés</h1>
+  <div class="main">
+    <div class="employe-container">
+      <h1>Liste des Employés</h1>
 
-    <!-- Indicateur de chargement -->
-    <div v-if="isLoading">
-      <p>Chargement des employés...</p>
-    </div>
+      <!-- Indicateur de chargement -->
+      <div v-if="isLoading">
+        <p>Chargement des employés...</p>
+      </div>
 
-    <!-- Catégories et employés -->
-    <div v-else>
-      <div 
-        v-for="categorie in marcheEmploie" 
-        :key="categorie.type" 
-        class="categorie-section"
-      >
-        <h2>{{ categorie.type }}</h2>
-        <div class="employe-grid">
-          <div 
-            v-for="(personne, index) in categorie.personnes" 
-            :key="personne.cleprimaire" 
-            class="employe-details"
-            :style="{ marginRight: (index + 1) % 5 === 0 ? '0' : '16px' }"
-            @click="proposerEmbauche(personne)"
-            role="button"
-            tabindex="0"
-            :aria-label="'Cliquez pour embaucher ' + personne.prenom + ' ' + personne.nom"
-          >
-            <p><strong>Prénom :</strong> {{ personne.prenom }}</p>
-            <p><strong>Nom :</strong> {{ personne.nom }}</p>
-            <p><strong>Âge :</strong> {{ personne.age }} ans</p>
-            <p><strong>Salaire :</strong> {{ personne.salaire }}€</p>
-            <p><strong>Sexe :</strong> 
-              <span v-if="personne.sexe === 'Homme'">🚹</span>
-              <span v-if="personne.sexe === 'Femme'">🚺</span>
-            </p>
+      <!-- Catégories et employés -->
+      <div v-else>
+        <div v-for="categorie in marcheEmploie" :key="categorie.type" class="categorie-section">
+          <h2>{{ categorie.type }}</h2>
+          <div class="employe-grid">
+            <div v-for="(personne, index) in categorie.personnes" :key="personne.cleprimaire" class="employe-details"
+              :style="{ marginRight: (index + 1) % 5 === 0 ? '0' : '16px' }" @click="proposerEmbauche(personne)"
+              role="button" tabindex="0" :aria-label="'Cliquez pour embaucher ' + personne.prenom + ' ' + personne.nom">
+              <p><strong>Prénom :</strong> {{ personne.prenom }}</p>
+              <p><strong>Nom :</strong> {{ personne.nom }}</p>
+              <p><strong>Âge :</strong> {{ personne.age }} ans</p>
+              <p><strong>Salaire :</strong> {{ personne.salaire }}€</p>
+              <p><strong>Sexe :</strong>
+                <span v-if="personne.sexe === 'Homme'">🚹</span>
+                <span v-if="personne.sexe === 'Femme'">🚺</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Modal de confirmation -->
-    <div v-if="employeSelectionne" class="modal">
-      <p>
-        Voulez-vous embaucher {{ employeSelectionne.prenom }} {{ employeSelectionne.nom }} ?
-      </p>
-      <button @click="confirmerEmbauche">Oui</button>
-      <button @click="annulerEmbauche">Non</button>
+      <!-- Modal de confirmation -->
+      <div v-if="employeSelectionne" class="modal">
+        <p>
+          Voulez-vous embaucher {{ employeSelectionne.prenom }} {{ employeSelectionne.nom }} ?
+        </p>
+        <button @click="confirmerEmbauche">Oui</button>
+        <button @click="annulerEmbauche">Non</button>
+      </div>
     </div>
   </div>
 </template>
@@ -94,7 +85,7 @@ export default {
       websocket.value.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
+
           if (data.action === "marcheEmploisState") {
             marcheEmploie.value = data.marcheEmploie;
             isLoading.value = false;
@@ -144,6 +135,12 @@ export default {
 </script>
 
 <style scoped>
+.main {
+  margin-top: 100%;
+  padding-top: 150px;
+  position: relative;
+}
+
 .employe-container {
   padding: 20px;
   font-family: Arial, sans-serif;

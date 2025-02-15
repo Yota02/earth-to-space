@@ -100,16 +100,17 @@ const closeMenu = () => {
 
 <style>
 .main-content {
+  margin-top: 10px;
   width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   flex-grow: 1;
-  min-height: calc(100vh - 60px); /* Assure que la hauteur minimale est ajustée pour être en dessous de la navbar */
+  min-height: calc(100vh - 60px);
   background-color: #0a0b1e;
   box-sizing: border-box;
-  padding-top: 60px; /* Ajoute de l'espace pour la navbar */
+  padding-top: 60px;
 }
 
 /* Navbar styles */

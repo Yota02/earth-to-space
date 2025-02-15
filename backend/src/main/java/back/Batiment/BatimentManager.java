@@ -47,12 +47,42 @@ public class BatimentManager {
 
         return usines;
     }
-    
 
+    public List<HangarAssemblage> getHangarAssemblage() {
+        List<HangarAssemblage> hangars = new ArrayList<>();
+
+        for(IBatiment b : batimentsPossedes){
+            if(b instanceof HangarAssemblage){
+                hangars.add((HangarAssemblage) b);
+            }
+        }
+
+        return hangars;
+    }
+
+    public void entrainerAstronautes() {
+        for (CentreDentrainement centre : getCentreEntrainement()) {
+            centre.entrainerAstronautes();
+        }
+    }
+
+    public List<CentreDentrainement> getCentreEntrainement() {
+        List<CentreDentrainement> usines = new ArrayList<>();
+
+        for(IBatiment b : batimentsPossedes){
+            if(b instanceof CentreDentrainement){
+                usines.add((CentreDentrainement) b);
+            }
+        }
+
+        return usines;
+    }
+    
     private void initializeBatiments() {
         initializeHangarAssemblage();
         initializeProductionCarburant();
         initializeUsineProduction();
+        initCentreEntrainement();
     }
 
     private void initializeProductionCarburant() {
@@ -108,6 +138,16 @@ public class BatimentManager {
 
         ajouterBatimentPossede(new UsineProductionCarburant("1", 100, 10, 1, Ergol.OXYGEN, 0.9));
      }
+
+    private void initCentreEntrainement() {
+        List<IBatiment> centreEntrainement = new ArrayList<>();
+
+        centreEntrainement.add(new CentreDentrainement("Centre d'entrainement niveau 1", 300, 10, 10));
+        centreEntrainement.add(new CentreDentrainement("Centre d'entrainement niveau 2", 400, 15, 20));
+        centreEntrainement.add(new CentreDentrainement("Centre d'entrainement niveau 3", 500, 20, 30));
+
+        batimentMap.put("centreEntrainement", centreEntrainement);
+    }
 
     private void initializeUsineProduction() {
         List<IBatiment> usineProduction = new ArrayList<>();
