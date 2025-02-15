@@ -3,6 +3,8 @@ package back.recherche;
 public enum SousTypeRecherche {
     // Sous-types pour PROPULSION
     MOTEURS,
+
+
     FUEL,
 
     HANGAR_ASSEMBLAGE,

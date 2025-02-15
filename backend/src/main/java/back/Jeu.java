@@ -16,6 +16,7 @@ import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
+import back.fusee.moteur.GestionaireMoteur;
 import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
@@ -94,6 +95,7 @@ public class Jeu implements Runnable {
     private GestionnaireRecherche gestionnaireRecherche;
     private GestionnaireObject gestionnaireObject;
     private GestionnaireCarburant gestionnaireCarburant;
+    private GestionaireMoteur moteurManager;
 
     private final Lock researchLock;
 
@@ -108,6 +110,8 @@ public class Jeu implements Runnable {
         this.argentParMoi = 1000;
 
         this.stockPieces = new HashMap<>();
+
+        this.moteurManager = new GestionaireMoteur();
 
         this.politiqueManager = new PolitiqueManager();
 
@@ -137,11 +141,13 @@ public class Jeu implements Runnable {
 
         this.researchLock = new ReentrantLock();
 
-        gestionnaireRecherche = new GestionnaireRecherche(batimentManager);
+        gestionnaireRecherche = new GestionnaireRecherche(batimentManager, moteurManager);
         gestionnaireRecherche.initialiserRecherches();
         this.recherchesTotal = gestionnaireRecherche.getRecherches();
 
         gestionnaireObject = new GestionnaireObject();
+
+        moteurManager = new GestionaireMoteur();
 
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
@@ -396,69 +402,6 @@ public class Jeu implements Runnable {
 
         creerUnProgramme("StarShip", "Lune", 1000, 1);
 
-        List<Moteur> moteurs = new ArrayList<>();
-        Moteur moteurFusee = new Moteur.Builder()
-                .nom("Moteur Fusion 3000")
-                .carburant(Ergol.HYDROGENE)
-                .rendement(95.0)
-                .anneeFabrication(2025)
-                .nbFoisUtilise(0)
-                .poids(3500.0)
-                .diametre(2.5)
-                .longueur(10.0)
-                .pressionChambre(250.0)
-                .temperatureMax(3500.0)
-                .tempsFonctionnement(0.0)
-                .statutOperationnel("actif")
-                .fiabilite(99.5)
-                .capaciteRedemarrage(true)
-                .temperatureCritique(3800.0)
-                .arretUrgence(false)
-                .tauxMelange(1.5)
-                .pousseeMax(3500.0)
-                .consommationCarburant(20.0)
-                .build();
-
-        moteurs.add(moteurFusee);
-
-        List<ReservoirFusee> reservoirs = new ArrayList<>();
-        ReservoirFusee reservoirFusee = new ReservoirFusee.Builder()
-                .setNom("Réservoir Principal")
-                .setErgol(Ergol.HYDROGENE)
-                .setQuantite(500.0)
-                .setQuantiteTotal(1000.0)
-                .setPoidsVide(100.0)
-                .setPressionInterne(10.0)
-                .setCapaciteMaxPression(50.0)
-                .setTemperatureInterne(20.0)
-                .setTemperatureMax(100.0)
-                .setEtatReservoir(true)
-                .setIsolationThermique(true)
-                .setDebitSortie(20.0)
-                .setTaille(1.5)
-                .build();
-
-        reservoirs.add(reservoirFusee);
-
-        List<String> historiques = new ArrayList<>();
-        historiques.add("Lancement de la mission Mars");
-
-        Booster booster = new Booster(
-                "Booster Falcon", 20.0, 3.0, 5000.0, 100000.0, 25000.0, moteurs,
-                reservoirs, true, true, false, 1, false, historiques);
-
-        lanceurs.add(booster);
-
-        List<ChargeUtile> chargesUtiles = new ArrayList<>();
-        chargesUtiles.add(new ChargeUtile(100.0, "Satellite", 10.0));
-        chargesUtiles.add(new ChargeUtile(200.0, "Matériel scientifique", 15.0));
-
-        Fusee f1 = new Fusee("StarShip1", 1000, booster, chargesUtiles, false);
-        Fusee f2 = new Fusee("StarShip2", 1000, booster, chargesUtiles, true);
-
-        fusees.add(f1);
-        fusees.add(f2);
-
         for (int i = 0; i < 10; i++) {
             PersonneSimple nouvellePersonne = new PersonneSimple();
             ajouterPersonne(nouvellePersonne, employes);
@@ -474,23 +417,6 @@ public class Jeu implements Runnable {
             PersonneSimple nouvellePersonne = new PersonneSimple();
             ajouterPersonne(nouvellePersonne, marcheEmploi);
         }
-
-        Mission missionVersOrbite = new Mission.Builder()
-                .nomMission("Exploration Orbital")
-                .dateHeureLancement(LocalDateTime.of(2000, 1, 15, 10, 30))
-                .siteLancement(SiteLancement.CAP_CANAVERAL)
-                .fusee(f1)
-                .statutMission("Planifiée")
-                .chargeUtile(new ChargeUtile(100.0, "Satellite", 10.0))
-                .destinationMission(Destination.ORBITE)
-                .typeMission(TypeMission.SATELLITE)
-                .etapeMission(Map.of(
-                        LocalDateTime.of(2000, 1, 10, 10, 0), "Préparation",
-                        LocalDateTime.of(2000, 1, 15, 10, 30), "Lancement",
-                        LocalDateTime.of(2000, 1, 15, 11, 0), "Insertion Orbitale"))
-                .build();
-
-        missions.add(missionVersOrbite);
     }
 
     public void ajouterPersonne(Personne personne, Map<String, List<Personne>> list) {

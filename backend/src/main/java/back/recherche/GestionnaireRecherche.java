@@ -3,6 +3,7 @@ package back.recherche;
 import java.util.*;
 
 import back.Batiment.BatimentManager;
+import back.fusee.moteur.GestionaireMoteur;
 
 public class GestionnaireRecherche {
     private final List<Recherche> rechercheTotal = new ArrayList<>();
@@ -11,10 +12,10 @@ public class GestionnaireRecherche {
     GestionaireRechercheDeblocage rechercheDeblocage;
     GestionaireEffet gestionaireEffet;
 
-    public GestionnaireRecherche(BatimentManager batimentManager) {
+    public GestionnaireRecherche(BatimentManager batimentManager, GestionaireMoteur moteurManager) {
         this.batimentManager = batimentManager;
         this.gestionaireEffet = new GestionaireEffet();
-        this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager);
+        this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager, moteurManager);
     }
 
     public void initRechercheBatiments() {
@@ -27,6 +28,11 @@ public class GestionnaireRecherche {
         for (Recherche recherche : rechercheDeblocage.initUsineProductionRecherche()) {
             ajouterRecherche(recherche);
         }
+
+        for (Recherche recherche : rechercheDeblocage.initMoteurRecherche()) {
+            ajouterRecherche(recherche);
+        }
+
     }
 
     public void initRechercheEnergie() {
@@ -60,8 +66,12 @@ public class GestionnaireRecherche {
     }
 
     public void initRecherchePropulsion() {
-        ajouterRecherche(new Recherche(1000, "Moteur de Niveau 1", 5.0, "", CategorieRecherche.PROPULSION,
+        ajouterRecherche(new Recherche(200, "Amélioration des tuyères", 5.0, "", CategorieRecherche.PROPULSION,
                 SousTypeRecherche.MOTEURS, 1, TypeEffet.RENTABILITE, 0.1));
+
+        ajouterRecherche(new Recherche(250, "Amélioration des boucliers termiques", 5.0, "", CategorieRecherche.PROPULSION,
+                SousTypeRecherche.MOTEURS, 1, TypeEffet.FIABILITE, 0.2));
+
         ajouterRecherche(new Recherche(1500, "Fuel de Niveau 1", 7.0, "", CategorieRecherche.PROPULSION,
                 SousTypeRecherche.FUEL, 1, TypeEffet.RENTABILITE, 0.2));
     }

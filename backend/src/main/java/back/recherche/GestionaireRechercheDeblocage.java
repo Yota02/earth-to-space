@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import back.Batiment.*;
+import back.fusee.moteur.GestionaireMoteur;
 
 public class GestionaireRechercheDeblocage {
 
     BatimentManager batimentManager;
+    GestionaireMoteur moteurManager;
 
-    public GestionaireRechercheDeblocage(BatimentManager batimentManager) {
+    public GestionaireRechercheDeblocage(BatimentManager batimentManager, GestionaireMoteur moteurManager) {
         this.batimentManager = batimentManager;
+        this.moteurManager = moteurManager;
     }
 
     public List<RechercheDeblocage> initUsineProductionRecherche() {
@@ -31,6 +34,77 @@ public class GestionaireRechercheDeblocage {
         res.add(new RechercheDeblocage(200, "Usine niveau 5", 400, "Deblocage de l'Usine niveau 5, permet de produire 200 pieces",
                 CategorieRecherche.BATIMENTS, SousTypeRecherche.USINE_PRODUCTION, 9, TypeEffet.DEBLOCAGE,
                 batimentManager.getBatiment("Usine niveau 5")));
+        return res;
+    }
+
+    public List<RechercheDeblocage> initMoteurRecherche() {
+        List<RechercheDeblocage> res = new ArrayList<>();
+    
+        // Moteurs Chimiques - Technologie de base
+        res.add(new RechercheDeblocage(
+            100,                    // coût de recherche
+            "Moteur Chimiques",     // nom
+            150,                    // temps de recherche
+            "Débloque le moteur Chimiques",
+            CategorieRecherche.PROPULSION,
+            SousTypeRecherche.MOTEURS,
+            1,                      // niveau requis
+            TypeEffet.DEBLOCAGE,
+            moteurManager.getMoteurParNom("Chimiques")
+        ));
+    
+        // Moteurs Électriques - Technologie intermédiaire
+        res.add(new RechercheDeblocage(
+            300,
+            "Moteur Electrique",
+            300,
+            "Débloque le MPD-100, un moteur électrique compact pour missions spatiales",
+            CategorieRecherche.PROPULSION,
+            SousTypeRecherche.MOTEURS,
+            4,
+            TypeEffet.DEBLOCAGE,
+            moteurManager.getMoteurParNom("Electriques")
+        ));
+    
+        // Moteurs Ioniques - Technologie avancée
+        res.add(new RechercheDeblocage(
+            500,
+            "Moteur Ionique",
+            400,
+            "Débloque le moteur Ionique, un propulseur ionique efficace pour missions longue durée",
+            CategorieRecherche.PROPULSION,
+            SousTypeRecherche.MOTEURS,
+            7,
+            TypeEffet.DEBLOCAGE,
+            moteurManager.getMoteurParNom("Ioniques")
+        ));
+    
+        // Moteurs Nucléaires - Technologie très avancée
+        res.add(new RechercheDeblocage(
+            800,
+            "Moteur Nucleaires",
+            500,
+            "Débloque le moteur Nucleaires, un propulseur nucléaire pour missions interplanétaires",
+            CategorieRecherche.PROPULSION,
+            SousTypeRecherche.MOTEURS,
+            9,
+            TypeEffet.DEBLOCAGE,
+            moteurManager.getMoteurParNom("Nucleaires")
+        ));
+    
+        // Moteurs Solides - Technologie alternative
+        res.add(new RechercheDeblocage(
+            300,
+            "Moteur Solides",
+            200,
+            "Débloque le booster Solides.",
+            CategorieRecherche.PROPULSION,
+            SousTypeRecherche.MOTEURS,
+            2,
+            TypeEffet.DEBLOCAGE,
+            moteurManager.getMoteurParNom("Solides")
+        ));
+    
         return res;
     }
 

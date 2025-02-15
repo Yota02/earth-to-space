@@ -1,6 +1,8 @@
 package back.fusee.moteur;
 
-public class Moteur {
+import back.ObjectDeblocable;
+
+public class Moteur extends ObjectDeblocable{
 
     // Attributs Basique
     protected String nom;
@@ -19,36 +21,36 @@ public class Moteur {
     protected Double pressionChambre; // en bars
     protected Double temperatureMax; // en kelvins
 
+    TypeMoteur typeMoteur;
+
     // Etat
     private double poussee;
     protected Double temperatureCritique; // en kelvins
     protected Boolean arretUrgence; // true ou false
-    protected Double tauxMelange; // ratio (carburant/oxydant)
     protected Double consommationCarburant; // en kg/s
-    protected String statutOperationnel; // "actif", "hors service", "en maintenance"
+    protected int statutOperationnel; // "actif", "hors service", "en maintenance"
     protected Double tempsFonctionnement; // en secondes
 
-    protected Moteur(Builder builder) {
-        this.nom = builder.nom;
-        this.carburant = builder.carburant;
-        this.rendement = builder.rendement;
-        this.anneeFabrication = builder.anneeFabrication;
-        this.nbFoisUtilise = builder.nbFoisUtilise;
-        this.poids = builder.poids;
-        this.diametre = builder.diametre;
-        this.longueur = builder.longueur;
-        this.pressionChambre = builder.pressionChambre;
-        this.temperatureMax = builder.temperatureMax;
-        this.tempsFonctionnement = builder.tempsFonctionnement;
-        this.statutOperationnel = builder.statutOperationnel;
-        this.fiabilite = builder.fiabilite;
-        this.capaciteRedemarrage = builder.capaciteRedemarrage;
-        this.temperatureCritique = builder.temperatureCritique;
-        this.arretUrgence = builder.arretUrgence;
-        this.tauxMelange = builder.tauxMelange;
-        this.pousseeMax = builder.pousseeMax;
-        this.consommationCarburant = builder.consommationCarburant;
-        this.poussee = 0;
+    public Moteur(String nom, Double poussee, Ergol carburant, Double rendement, Double poids, Double diametre, Double longueur, Double temperatureMax, Double fiabilite, Boolean capaciteRedemarrage, Double temperatureCritique, Boolean arretUrgence, Double pousseeMax, Double consommationCarburant, TypeMoteur typeMoteur) {
+        this.nom = nom;
+        this.poussee = poussee;
+        this.carburant = carburant;
+        this.rendement = rendement;
+        this.anneeFabrication = 0;
+        this.nbFoisUtilise = 0;
+        this.poids = poids;
+        this.diametre = diametre;
+        this.longueur = longueur;
+        this.pressionChambre = 0.0;
+        this.temperatureMax = temperatureMax;
+        this.fiabilite = fiabilite;
+        this.capaciteRedemarrage = capaciteRedemarrage;
+        this.temperatureCritique = temperatureCritique;
+        this.arretUrgence = arretUrgence;
+        this.pousseeMax = pousseeMax;
+        this.consommationCarburant = consommationCarburant;
+        this.typeMoteur = typeMoteur;
+        this.statutOperationnel = 0;
     }
 
     public Double getPousse() {
@@ -99,7 +101,7 @@ public class Moteur {
         return tempsFonctionnement;
     }
 
-    public String getStatutOperationnel() {
+    public int getStatutOperationnel() {
         return statutOperationnel;
     }
 
@@ -119,16 +121,16 @@ public class Moteur {
         return arretUrgence;
     }
 
-    public Double getTauxMelange() {
-        return tauxMelange;
-    }
-
     public Double getPousseeMax() {
         return pousseeMax;
     }
 
     public Double getConsommationCarburant() {
         return consommationCarburant;
+    }
+
+    public TypeMoteur getType() {
+        return typeMoteur;
     }
 
     @Override
@@ -140,131 +142,7 @@ public class Moteur {
                 " K, dureeVie=" + " h, tempsFonctionnement=" + tempsFonctionnement + " s, statutOperationnel=" + statutOperationnel +
                 ", fiabilite=" + fiabilite + "%, capaciteRedemarrage=" + capaciteRedemarrage +
                 ", temperatureCritique=" + temperatureCritique + " K, arretUrgence=" + arretUrgence +
-                ", tauxMelange=" + tauxMelange + ", pousseeMax=" + pousseeMax + " kN, consommationCarburant=" + consommationCarburant + " kg/s]";
+                ", pousseeMax=" + pousseeMax + " kN, consommationCarburant=" + consommationCarburant + " kg/s]";
     }
 
-    public static class Builder {
-
-        private String nom;
-        private Ergol carburant;
-        private Double rendement;
-        private int anneeFabrication;
-        private int nbFoisUtilise;
-
-        private Double poids;
-        private Double diametre;
-        private Double longueur;
-        private Double pressionChambre;
-        private Double temperatureMax;
-
-        private Double tempsFonctionnement;
-        private String statutOperationnel;
-        private Double fiabilite;
-
-        private Boolean capaciteRedemarrage;
-        private Double temperatureCritique;
-        private Boolean arretUrgence;
-        private Double tauxMelange;
-        private Double pousseeMax;
-        private Double consommationCarburant;
-
-        public Builder nom(String nom) {
-            this.nom = nom;
-            return this;
-        }
-
-        public Builder carburant(Ergol carburant) {
-            this.carburant = carburant;
-            return this;
-        }
-
-        public Builder rendement(Double rendement) {
-            this.rendement = rendement;
-            return this;
-        }
-
-        public Builder anneeFabrication(int anneeFabrication) {
-            this.anneeFabrication = anneeFabrication;
-            return this;
-        }
-
-        public Builder nbFoisUtilise(int nbFoisUtilise) {
-            this.nbFoisUtilise = nbFoisUtilise;
-            return this;
-        }
-
-        public Builder poids(Double poids) {
-            this.poids = poids;
-            return this;
-        }
-
-        public Builder diametre(Double diametre) {
-            this.diametre = diametre;
-            return this;
-        }
-
-        public Builder longueur(Double longueur) {
-            this.longueur = longueur;
-            return this;
-        }
-
-        public Builder pressionChambre(Double pressionChambre) {
-            this.pressionChambre = pressionChambre;
-            return this;
-        }
-
-        public Builder temperatureMax(Double temperatureMax) {
-            this.temperatureMax = temperatureMax;
-            return this;
-        }
-
-        public Builder tempsFonctionnement(Double tempsFonctionnement) {
-            this.tempsFonctionnement = tempsFonctionnement;
-            return this;
-        }
-
-        public Builder statutOperationnel(String statutOperationnel) {
-            this.statutOperationnel = statutOperationnel;
-            return this;
-        }
-
-        public Builder fiabilite(Double fiabilite) {
-            this.fiabilite = fiabilite;
-            return this;
-        }
-
-        public Builder capaciteRedemarrage(Boolean capaciteRedemarrage) {
-            this.capaciteRedemarrage = capaciteRedemarrage;
-            return this;
-        }
-
-        public Builder temperatureCritique(Double temperatureCritique) {
-            this.temperatureCritique = temperatureCritique;
-            return this;
-        }
-
-        public Builder arretUrgence(Boolean arretUrgence) {
-            this.arretUrgence = arretUrgence;
-            return this;
-        }
-
-        public Builder tauxMelange(Double tauxMelange) {
-            this.tauxMelange = tauxMelange;
-            return this;
-        }
-
-        public Builder pousseeMax(Double pousseeMax) {
-            this.pousseeMax = pousseeMax;
-            return this;
-        }
-
-        public Builder consommationCarburant(Double consommationCarburant) {
-            this.consommationCarburant = consommationCarburant;
-            return this;
-        }
-
-        public Moteur build() {
-            return new Moteur(this);
-        }
-    }
 }
