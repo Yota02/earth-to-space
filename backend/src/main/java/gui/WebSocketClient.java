@@ -458,26 +458,20 @@ public class WebSocketClient {
         try {
             JSONObject employeJson = jsonMessage.getJSONObject("employe");
             int clePrimaire = employeJson.getInt("cleprimaire");
+
             Personne personne = GameServer.jeu.getGestionnaireRH().retrouverEmployeParId(clePrimaire);
 
-            boolean removed = false;
-            for (List<Personne> liste : GameServer.jeu.getGestionnaireRH().getPersonnesParTypeMap().values()) {
-                if (liste.remove(personne)) {
-                    removed = true;
-                    break;
-                }
+            if (personne == null) {
+                System.out.println("Aucun employé trouvé avec l'ID " + clePrimaire);
             }
 
-            if (removed) {
-                GameServer.jeu.getGestionnaireRH().embaucherPersonne(personne);
-                response.put("action", "personneEmbauchee");
-                response.put("nom", personne.getNom());
-                session.getBasicRemote().sendText(response.toString());
-                GameServer.sendGameStateToClients("employes");
-            } else {
-                response.put("error", "Personne non trouvée dans le marché de l'emploi.");
-                session.getBasicRemote().sendText(response.toString());
-            }
+            GameServer.jeu.getGestionnaireRH().embaucherPersonne(personne);
+
+            response.put("action", "personneEmbauchee");
+            response.put("nom", personne.getNom());
+            session.getBasicRemote().sendText(response.toString());
+            GameServer.sendGameStateToClients("employes");
+
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'embauche : " + e.getMessage());
             session.getBasicRemote().sendText(response.toString());

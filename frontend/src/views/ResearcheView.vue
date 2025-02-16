@@ -148,9 +148,10 @@ export default {
   height: 100vh;
   background-color: #f0f2f5;
   width: 100%;
-  height: 100%;
-  position: absolute; 
+  height: 120%;
+  position: relative; 
   margin-top: 0;
+  top: -50px;
   left: 0;
 }
 

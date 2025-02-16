@@ -3,31 +3,37 @@
     <div class="header">
       <h1>Gestion des Ressources Humaines</h1>
       
-      <!-- Lien vers le marché de l'emploi -->
       <router-link to="/MarcheEmploie" class="market-link">
         Marché de l'Emploi
       </router-link>
     </div>
 
-    <!-- Status de connexion -->
     <div v-if="!isConnected" class="connection-status error">
       Connexion au serveur perdue. Tentative de reconnexion...
     </div>
 
-    <!-- Coût salarial total -->
     <div v-if="salaireTotal !== null" class="total-salary">
       Coût salarial total: {{ formatSalaire(salaireTotal) }}€
     </div>
 
-    <!-- Indicateur de chargement -->
     <div v-if="isLoading" class="loading">
       <p>Chargement des employés...</p>
     </div>
 
-    <!-- Liste des employés séparée par type et affichée en colonnes -->
     <div v-else-if="employes.length > 0" class="employees-columns">
       <div v-for="categorie in employes" :key="categorie.type" class="category-column">
-        <h2>{{ categorie.type }}</h2>
+        <div class="category-header">
+          <div class="category-title">
+            <h2>{{ categorie.type }}</h2>
+            <div class="category-icon">
+              <img 
+                :src="getCategoryIcon(categorie.type)" 
+                :alt="'Icône ' + categorie.type"
+                class="type-icon"
+              />
+            </div>
+          </div>
+        </div>
         <div class="employees-list">
           <div
             v-for="personne in categorie.personnes"
@@ -56,12 +62,10 @@
       </div>
     </div>
 
-    <!-- Message si aucun employé -->
     <div v-else class="no-data">
       Aucun employé trouvé
     </div>
 
-    <!-- Modal de confirmation de licenciement -->
     <div v-if="employeSelectionne" class="modal-overlay" @click.self="annulerLicenciement">
       <div class="modal-content">
         <h3>Confirmation de licenciement</h3>
@@ -96,7 +100,13 @@ export default {
       isConnected: true,
       isLoading: true,
       employeSelectionne: null,
-      socket: null
+      socket: null,
+      typeIcons: {
+        'astronaute': 'src/assets/img/icone/rh/astronaute.png',
+        'ouvrier': 'src/assets/img/icone/rh/ouvrier.png',
+        'ingenieur': 'src/assets/img/icone/rh/ingenieur.png',
+        'scientifique': 'src/assets/img/icone/rh/scientifique.png',
+      }
     }
   },
 
@@ -106,6 +116,11 @@ export default {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       }).format(montant)
+    },
+
+    getCategoryIcon(type) {
+      const typeLowerCase = type.toLowerCase()
+      return this.typeIcons[typeLowerCase] || '/icons/default.svg'
     },
 
     initWebSocket() {
@@ -128,7 +143,7 @@ export default {
       this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.action === "employesState") {
-          this.employes = data.employes // Assurez-vous que 'data.employes' est une liste d'objets avec un attribut 'type' pour chaque catégorie
+          this.employes = data.employes
           this.salaireTotal = data.salaireTotal
           this.isLoading = false
         }
@@ -180,7 +195,6 @@ export default {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
-  margin-top: 50%;
 }
 
 .header {
@@ -245,11 +259,37 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.category-column h2 {
+.category-header {
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid #eee;
+}
+
+.category-title {
+  position: relative;
+  padding-right: 50px;
+}
+
+.category-title h2 {
+  margin: 0;
   color: #333;
+}
+
+.category-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.type-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .employees-list {

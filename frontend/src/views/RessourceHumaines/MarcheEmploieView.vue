@@ -91,7 +91,6 @@ export default {
             isLoading.value = false;
           } else if (data.action === "embaucheSuccess") {
             alert(`L'employé ${data.prenom} ${data.nom} a été embauché avec succès !`);
-            // Demander une mise à jour de l'état
             websocket.value.send(JSON.stringify({ action: "getEmployesState" }));
           } else if (data.error) {
             alert(`Erreur : ${data.error}`);
@@ -136,8 +135,6 @@ export default {
 
 <style scoped>
 .main {
-  margin-top: 100%;
-  padding-top: 150px;
   position: relative;
 }
 

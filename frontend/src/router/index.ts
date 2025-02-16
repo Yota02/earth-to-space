@@ -18,6 +18,7 @@ import marketBatimentView from "../views/Batiments/BatimentMarketView.vue";
 import politiqueView from "../views/Politique/PolitiqueView.vue";
 import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue";
 import ProductionGeneralView from '../views/Production/ProductionGeneralView.vue';
+import SystemSolaire from '../views/SystemSolaire.vue';
 
 const routes = [
   {
@@ -69,6 +70,11 @@ const routes = [
     path: '/ergol',
     name: 'ergol',
     component: ErgolView
+  },
+  {
+    path: '/systemSolaire',
+    name: 'systemSolaire',
+    component: SystemSolaire
   },
   {
     path: '/formulaireBooster',

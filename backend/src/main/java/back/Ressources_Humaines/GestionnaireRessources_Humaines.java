@@ -28,12 +28,11 @@ public class GestionnaireRessources_Humaines {
 
     public void embaucherPersonne(Personne personne) {
         String type = personne.getClass().getSimpleName();
-
         if (marcheEmploi.containsKey(type) && marcheEmploi.get(type).remove(personne)) {
             employes.putIfAbsent(type, new ArrayList<>());
             employes.get(type).add(personne);
         } else {
-            System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi");
+            System.out.println("Cette personne n'est pas disponible dans le marché de l'emploi" + type);
         }
     }
 
@@ -67,6 +66,8 @@ public class GestionnaireRessources_Humaines {
                 }
             }
         }
+
+        System.out.println("Aucun employé trouvé avec l'id " + clePrimaire);
 
         return null;
     }
