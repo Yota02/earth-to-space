@@ -37,7 +37,7 @@
           </li>
           <li>
             <router-link to="/lancement" @click="closeMenu" class="nav-link">
-              <span class="nav-icon">L</span>
+              <img src="./assets/img/icone/lancement.png" alt="Lancement" class="nav-icon">
               <span class="nav-text">Lancement</span>
             </router-link>
           </li>
