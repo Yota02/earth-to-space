@@ -64,29 +64,34 @@ export default {
     },
 
     updateMarketState() {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       console.log("Envoi de la requête de mise à jour du marché");
       this.socket.send(JSON.stringify({
-        action: "getMarcheFinancierState" 
+        action: "getMarcheFinancierState"
       }));
-    },
+    }
+  },
 
-    handleWebSocketMessage(event) {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.action === "getMarcheFinancierState") {
-          this.marches = data.marches;
-          if (!this.selectedMarket && this.marches.length > 0) {
-            this.selectedMarket = this.marches[0].nom;
-          }
-          this.updateChart();
+  handleWebSocketMessage(event) {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.action === "getMarcheFinancierState") {
+        this.marches = data.marches;
+        if (!this.selectedMarket && this.marches.length > 0) {
+          this.selectedMarket = this.marches[0].nom;
         }
-      } catch (error) {
-        console.error("Erreur lors du traitement des données WebSocket:", error);
+        // Attendre que le DOM soit mis à jour avant d'appeler updateChart
+        this.$nextTick(() => {
+          this.updateChart();
+        });
       }
-    },
+    } catch (error) {
+      console.error("Erreur lors du traitement des données WebSocket:", error);
+    }
+  },
 
     updateChart() {
-      if (!this.currentMarket) return;
+      if (!this.currentMarket || !this.$refs.marketChart) return;
 
       const ctx = this.$refs.marketChart.getContext('2d')
 
@@ -141,13 +146,24 @@ export default {
       })
     }
   },
+  beforeDestroy() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
+    if (this.socket) {
+      this.socket.close();
+    }
+  },
   mounted() {
     console.log("Montage du composant MarketChart");
     this.socket = new WebSocket("ws://localhost:3232");
 
     this.socket.onopen = () => {
       console.log("WebSocket connecté");
+
+      setTimeout(() => {
       this.updateMarketState();
+    }, 100);
       this.updateInterval = setInterval(() => {
         this.updateMarketState();
       }, 30000);
@@ -165,7 +181,10 @@ export default {
     this.socket.onclose = () => {
       console.log("WebSocket fermé");
     };
+
+
   }
+
 }
 </script>
 

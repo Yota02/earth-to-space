@@ -77,7 +77,7 @@ export default {
                     modalSize: 300,
                     color: '#A0522D',
                     satellites: [],
-                    description: 'Mercure est la planète la plus proche du Soleil.'
+                    description: ''
                 },
                 {
                     name: 'Venus',
@@ -86,7 +86,7 @@ export default {
                     modalSize: 300,
                     color: '#DEB887',
                     satellites: [],
-                    description: 'Vénus est souvent appelée la sœur jumelle de la Terre.'
+                    description: ''
                 },
                 {
                     name: 'Terre',
@@ -100,10 +100,10 @@ export default {
                             size: 15,
                             modalSize: 200,
                             color: '#D3D3D3',
-                            description: 'La Lune est le seul satellite naturel de la Terre. Elle est le cinquième plus grand satellite du système solaire.'
+                            description: ''
                         }
                     ],
-                    description: 'Notre planète abrite la vie et possède un unique satellite naturel, la Lune.'
+                    description: ''
                 },
                 {
                     name: 'Mars',

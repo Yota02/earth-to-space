@@ -43,7 +43,7 @@
           </li>
           <li>
             <router-link to="/programme" @click="closeMenu" class="nav-link">
-              <span class="nav-icon">P</span>
+              <img src="./assets/img/icone/programme.png" alt="programme" class="nav-icon">
               <span class="nav-text">Programme</span>
             </router-link>
           </li>
