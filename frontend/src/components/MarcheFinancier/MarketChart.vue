@@ -64,31 +64,31 @@ export default {
     },
 
     updateMarketState() {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      console.log("Envoi de la requête de mise à jour du marché");
-      this.socket.send(JSON.stringify({
-        action: "getMarcheFinancierState"
-      }));
-    }
-  },
-
-  handleWebSocketMessage(event) {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.action === "getMarcheFinancierState") {
-        this.marches = data.marches;
-        if (!this.selectedMarket && this.marches.length > 0) {
-          this.selectedMarket = this.marches[0].nom;
-        }
-        // Attendre que le DOM soit mis à jour avant d'appeler updateChart
-        this.$nextTick(() => {
-          this.updateChart();
-        });
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        console.log("Envoi de la requête de mise à jour du marché");
+        this.socket.send(JSON.stringify({
+          action: "getMarcheFinancierState"
+        }));
       }
-    } catch (error) {
-      console.error("Erreur lors du traitement des données WebSocket:", error);
-    }
-  },
+    },
+
+    handleWebSocketMessage(event) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.action === "getMarcheFinancierState") {
+          this.marches = data.marches;
+          if (!this.selectedMarket && this.marches.length > 0) {
+            this.selectedMarket = this.marches[0].nom;
+          }
+          // Attendre que le DOM soit mis à jour avant d'appeler updateChart
+          this.$nextTick(() => {
+            this.updateChart();
+          });
+        }
+      } catch (error) {
+        console.error("Erreur lors du traitement des données WebSocket:", error);
+      }
+    },
 
     updateChart() {
       if (!this.currentMarket || !this.$refs.marketChart) return;
@@ -162,8 +162,8 @@ export default {
       console.log("WebSocket connecté");
 
       setTimeout(() => {
-      this.updateMarketState();
-    }, 100);
+        this.updateMarketState();
+      }, 100);
       this.updateInterval = setInterval(() => {
         this.updateMarketState();
       }, 30000);
