@@ -13,15 +13,25 @@ import java.util.Collections;
 public class BatimentManager {
     private final Map<String, List<IBatiment>> batimentMap;
     private final List<IBatiment> batimentsPossedes;
+    private GestionaireStockage GestionaireStockage;
 
     public BatimentManager() {
         this.batimentMap = new HashMap<>();
         this.batimentsPossedes = new ArrayList<>();
+        GestionaireStockage = new GestionaireStockage();
         initializeBatiments();
     }
     
     public Map<String, List<IBatiment>> getBatimentMap(){
         return batimentMap;
+    }
+
+    public GestionaireStockage getGestionaireStockage() {
+        return GestionaireStockage;
+    }
+
+    public List<BatimentStockage> getBatimentsStockage() {
+        return GestionaireStockage.getBatimentsStockage();
     }
 
     public List<UsineProduction> getUsineProduction() {
@@ -83,6 +93,19 @@ public class BatimentManager {
         initializeProductionCarburant();
         initializeUsineProduction();
         initCentreEntrainement();
+        initBatiementStockage();
+    }
+
+    public void initBatiementStockage(){
+        BatimentStockage batimentStockage = new BatimentStockage("Stockage nv1", 100, 10, 100);
+        batimentStockage.debloquer();
+        GestionaireStockage.ajouterBatimentStockage(batimentStockage);
+        GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv2", 150, 12, 200));
+        GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv3", 200, 14, 300));
+        GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv4", 250, 16, 400));
+        GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv5", 300, 18, 500));
+
+        batimentMap.put("batimentStockages", new ArrayList<>(getGestionaireStockage().getBatimentsStockage()));
     }
 
     private void initializeProductionCarburant() {

@@ -21,7 +21,32 @@ public class GestionaireRechercheDeblocage {
         res.addAll(initUsineProductionRecherche());
         res.addAll(initMoteurRecherche());
         res.addAll(initeHangarAssemblageRecherche());
+        res.addAll(initRechercheBatiementStockage());
+        res.addAll(initCentreEntrainement());
         return res;
+    }
+
+    public List<RechercheDeblocage> initRechercheBatiementStockage(){
+
+        List<RechercheDeblocage> res = new ArrayList<>();
+        
+        res.add(new RechercheDeblocage(100, "Stockage niveau 2", 150, "Deblocage du Stockage niveau 2, permet de stocker 200 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.STOCKAGE, 2, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Stockage niveau 2")));
+
+        res.add(new RechercheDeblocage(200, "Stockage niveau 3", 200, "Deblocage du Stockage niveau 3, permet de stocker 300 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.STOCKAGE, 3, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Stockage niveau 3")));
+
+        res.add(new RechercheDeblocage(100, "Stockage niveau 4", 300, "Deblocage du Stockage niveau 4, permet de stocker 400 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.STOCKAGE, 4, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Stockage niveau 4")));
+
+        res.add(new RechercheDeblocage(200, "Stockage niveau 5", 400, "Deblocage du Stockage niveau 5, permet de stocker 500 pieces",
+                CategorieRecherche.BATIMENTS, SousTypeRecherche.STOCKAGE, 5, TypeEffet.DEBLOCAGE,
+                batimentManager.getBatiment("Stockage niveau 5")));
+
+        return res; 
     }
 
     public List<RechercheDeblocage> initCentreEntrainement() {

@@ -1,7 +1,7 @@
 <template>
   <button 
     class="card"
-    @click="handlePurchase"
+    @click="handleClick"
     :disabled="!canAfford"
     :class="{'disabled': !canAfford}"
   >
@@ -27,15 +27,16 @@ export default {
       required: true
     }
   },
-  emits: ['purchase'],
+  emits: ['purchase', 'click'],
   methods: {
+    handleClick() {
+      this.$emit('click');
+    },
     handlePurchase() {
       if (!this.canAfford) {
         console.warn(`❌ [BuildingCard] Achat impossible, fonds insuffisants pour: ${this.building.nom}`);
         return;
       }
-
-      console.log(`🛒 [BuildingCard] Achat demandé pour: ${this.building.nom}`);
       this.$emit('purchase', this.building);
     }
   }

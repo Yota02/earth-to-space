@@ -37,6 +37,10 @@ public class GestionnaireRecherche {
             ajouterRecherche(recherche);
         }
 
+        for (Recherche recherche : rechercheDeblocage.initRechercheBatiementStockage()) {
+            ajouterRecherche(recherche);
+        }
+
     }
 
     public void initRechercheEnergie() {

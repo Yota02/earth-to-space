@@ -94,7 +94,8 @@ public abstract class IBatiment extends ObjectDeblocable{
         } else {
             json.put("anneeConstruction", JSONObject.NULL);
         }
-    
+
+        json.put("enConstruction", this.enConstruction);
         json.put("operationnel", this.operationnel);
         json.put("tempsConstruction", this.tempsConstruction);
         json.put("progression", this.progression);
