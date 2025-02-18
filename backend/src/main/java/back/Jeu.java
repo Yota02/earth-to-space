@@ -5,6 +5,7 @@ import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Batiment.UsineProduction;
 import back.Batiment.UsineProductionCarburant;
+import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.GestionnaireMarche;
 import back.Metaux.Materiaux;
 import back.Ressources_Humaines.GestionnaireRessources_Humaines;
@@ -97,7 +98,8 @@ public class Jeu implements Runnable {
     private GestionaireMoteur moteurManager;
     private GestionnaireRessources_Humaines gestionnaireRH;
 
-    private final Lock researchLock;
+    private Entreprise entreprise;
+    private boolean debugMode = true;
 
     private int argentParMoi;
 
@@ -120,7 +122,6 @@ public class Jeu implements Runnable {
         this.missionEnCours = false;
         this.DecolageMoinsUneMinutes = false;
 
-
         this.reservoirs = new ArrayList<>();
         this.log = new ArrayList<>();
         this.scanner = new Scanner(System.in);
@@ -137,8 +138,6 @@ public class Jeu implements Runnable {
 
         this.executorService = Executors.newSingleThreadExecutor();
 
-        this.researchLock = new ReentrantLock();
-
         gestionnaireRH = new GestionnaireRessources_Humaines();
 
         gestionnaireRecherche = new GestionnaireRecherche(batimentManager, moteurManager);
@@ -154,6 +153,16 @@ public class Jeu implements Runnable {
         this.carburantAchetables = gestionnaireCarburant.getObjects();
 
         this.gestionaireMarche = new GestionnaireMarche();
+    }
+
+    public void setDebugMode(boolean mode) {
+        this.debugMode = mode;
+    }
+    
+    public void createEntreprise(String nom, String pays) {
+        if (!debugMode) {
+            this.entreprise = new Entreprise(nom, pays, 0,1, 0, 0);
+        }
     }
 
     public GestionnaireMarche getGestionaireMarche(){
@@ -308,7 +317,6 @@ public class Jeu implements Runnable {
         }
     }
 
-    
 
     public synchronized void ajouterArgent(int montant) {
         this.argent += montant;
@@ -363,7 +371,15 @@ public class Jeu implements Runnable {
         return null;
     }
 
+    public Entreprise getEntreprise() {
+        return entreprise;
+    }
+
     public void init() {
+
+        if (debugMode) {
+            this.entreprise = new Entreprise("Space Y", "USA", 1000000, 100, 0, 0);
+        }
 
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
                 .setNom("Reservoir 1")
@@ -535,9 +551,25 @@ public class Jeu implements Runnable {
         missions.add(mission);
     }
 
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
     @Override
     public void run() {
-        init();
+        if (debugMode) {
+            init();
+        } else if (entreprise == null) {
+            while (entreprise == null) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+            init();
+        }
 
         while (!estFinie()) {
             /*
@@ -564,6 +596,10 @@ public class Jeu implements Runnable {
                 break;
             }
         }
+    }
+
+    public boolean canStart() {
+        return debugMode || entreprise != null;
     }
 
     private void incrementerDate() {
@@ -716,10 +752,6 @@ public class Jeu implements Runnable {
 
     public void setGestionnaireObject(GestionnaireObject gestionnaireObject) {
         this.gestionnaireObject = gestionnaireObject;
-    }
-
-    public Lock getResearchLock() {
-        return researchLock;
     }
 
     public List<Programme> getProgrammes() {

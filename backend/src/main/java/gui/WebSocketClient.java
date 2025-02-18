@@ -61,6 +61,10 @@ public class WebSocketClient {
                     handleMonthlyDemand(session, jsonMessage);
                     break;
 
+                case "getEntrepriseData":
+                    handleGetEntrepriseData(session);
+                    break;
+
                 case "getProgrammeState":
                     handleGetProgrammeState(session);
                     break;
@@ -143,6 +147,14 @@ public class WebSocketClient {
                     handlelicencierEmploye(jsonMessage, session);
                     break;
 
+                case "createEntreprise":
+                    handleCreateEntreprise(jsonMessage);
+                    break;
+                
+                case "checkDebugMode":
+                    handleCheckDebugMode(session);
+                    break;
+
                 case "getRecherches":
                     getRecherches(session);
                     break;
@@ -193,6 +205,28 @@ public class WebSocketClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleGetEntrepriseData(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "entrepriseData");
+        
+        Entreprise entreprise = GameServer.jeu.getEntreprise();
+        if (entreprise != null) {
+            JSONObject entrepriseJson = entreprise.toJson();
+            response.put("entreprise", entrepriseJson);
+        } else {
+            response.put("entreprise", JSONObject.NULL);
+        }
+        
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void handleCheckDebugMode(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "debugModeState");
+        response.put("debugMode", GameServer.jeu.isDebugMode());
+        session.getBasicRemote().sendText(response.toString());
     }
 
     public void getObjectifsState(Session session) throws IOException {
@@ -450,6 +484,16 @@ public class WebSocketClient {
             }
         }
         return null;
+    }
+
+    public static void handleCreateEntreprise(JSONObject data) {
+        String nom = data.getString("nom");
+        String pays = data.getString("pays");
+        
+        if (GameServer.jeu != null) {
+            GameServer.jeu.createEntreprise(nom, pays);
+            GameServer.sendGameStateToClients("all");
+        }
     }
 
     private void handleEmbaucherEmploye(JSONObject jsonMessage, Session session) throws IOException {

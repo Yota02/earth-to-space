@@ -94,10 +94,33 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRouter } from 'vue-router';
 import AffichageArgent from "./components/affichageUIDroit.vue";
 
 const menuOpen = ref(false);
+
+const router = useRouter();
+
+onMounted(async () => {
+  // Créer une WebSocket pour vérifier l'état de l'entreprise
+  const socket = new WebSocket("ws://localhost:3232");
+  
+  socket.onopen = () => {
+    socket.send(JSON.stringify({
+      action: 'checkDebugMode'
+    }));
+  };
+
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.action === 'debugModeState') {
+      if (!data.debugMode && router.currentRoute.value.path !== '/entrepriseForm') {
+        router.push('/entrepriseForm');
+      }
+    }
+  };
+});
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;

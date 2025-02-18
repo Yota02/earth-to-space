@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue';
-import AboutView from '../views/AboutView.vue';
 import ResearcheView from '../views/ResearcheView.vue';
 import ShopView from '../views/ShopView.vue';
 import ProgrammeView from '../views/ProgrammeView.vue';
@@ -19,6 +18,7 @@ import politiqueView from "../views/Politique/PolitiqueView.vue";
 import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue";
 import ProductionGeneralView from '../views/Production/ProductionGeneralView.vue';
 import SystemSolaire from '../views/SystemSolaire.vue';
+import EntrepriseForm from '../views/MarcheFinancier/EntrepriseForm.vue';
 
 const routes = [
   {
@@ -27,14 +27,14 @@ const routes = [
     component: HomeView 
   },
   {
+    path: '/entrepriseForm',
+    name: 'entrepriseForm',
+    component: EntrepriseForm 
+  },
+  {
     path: '/production',
     name: 'production',
     component: ProductionGeneralView 
-  },
-  {
-    path: '/about',
-    name: 'about',
-    component: AboutView
   },
   {
     path: '/politique',

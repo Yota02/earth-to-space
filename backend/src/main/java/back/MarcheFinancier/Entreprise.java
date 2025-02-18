@@ -21,8 +21,6 @@ public class Entreprise {
         this.variationCours = variationCours;
     }
 
-    
-
     public String getNom() {
         return nom;
     }
