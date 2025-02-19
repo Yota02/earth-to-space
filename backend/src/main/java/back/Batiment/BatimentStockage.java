@@ -1,5 +1,6 @@
 package back.Batiment;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,33 +57,66 @@ public class BatimentStockage extends IBatiment {
 
     @Override
     double calculerCoutEntretien() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'calculerCoutEntretien'");
+        return 10;
     }
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'toString'");
+        StringBuilder sb = new StringBuilder();
+        sb.append("BatimentStockage{")
+                .append("nom='").append(nom).append('\'')
+                .append(", superficie=").append(superficie)
+                .append(", capaciteStockage=").append(capaciteStockage)
+                .append(", stockageActuel=").append(stockageActuel)
+                .append(", pieces={");
+
+        for (Map.Entry<PieceFusee, Integer> entry : stockage.entrySet()) {
+            sb.append(entry.getKey().getNom()).append(": ").append(entry.getValue()).append(", ");
+        }
+
+        if (!stockage.isEmpty()) {
+            sb.setLength(sb.length() - 2); // Enlève la dernière virgule et espace
+        }
+
+        sb.append("}}");
+        return sb.toString();
     }
-    /*
-    @Override
-    public JSONObject toJSON() {
+
+    public JSONObject toJSON2() {
         JSONObject json = new JSONObject();
-        json.put("nom", nom);
-        json.put("superficie", superficie);
+
+        // Informations de base du bâtiment
+        json.put("nom", this.nom != null ? this.nom : "");
+        json.put("superficie", this.superficie);
+
+        // Gestion de la date de construction
+        if (this.anneeConstruction != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            json.put("anneeConstruction", this.anneeConstruction.format(formatter));
+        } else {
+            json.put("anneeConstruction", JSONObject.NULL);
+        }
+
+        // État du bâtiment
+        json.put("enConstruction", this.enConstruction);
+        json.put("operationnel", this.operationnel);
+        json.put("tempsConstruction", this.tempsConstruction);
+        json.put("progression", this.progression);
+        json.put("etat", this.etat);
         json.put("cout", getCout());
-        json.put("tempsConstruction", tempsConstruction);
-        json.put("capaciteStockage", capaciteStockage);
-        json.put("stockageActuel", stockageActuel);
-        
+
+        // Informations spécifiques au stockage
+        json.put("capaciteStockage", this.capaciteStockage);
+        json.put("stockageActuel", this.stockageActuel);
+
+        // Gestion du stockage des pièces
         JSONObject stockageJson = new JSONObject();
         for (Map.Entry<PieceFusee, Integer> entry : stockage.entrySet()) {
-            stockageJson.put(entry.getKey().getNom(), entry.getValue());
+            stockageJson.put(entry.getKey().name(), entry.getValue());
         }
         json.put("stockage", stockageJson);
-        
+
         return json;
-    }*/
-    
+    }
+
 }

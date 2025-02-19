@@ -31,7 +31,15 @@ public class BatimentManager {
     }
 
     public List<BatimentStockage> getBatimentsStockage() {
-        return GestionaireStockage.getBatimentsStockage();
+        List<BatimentStockage> stockage = new ArrayList<>();
+
+        for(IBatiment b : batimentsPossedes){
+            if(b instanceof BatimentStockage){
+                stockage.add((BatimentStockage) b);
+            }
+        }
+
+        return stockage;
     }
 
     public List<UsineProduction> getUsineProduction() {
@@ -100,6 +108,7 @@ public class BatimentManager {
         BatimentStockage batimentStockage = new BatimentStockage("Stockage nv1", 100, 10, 100);
         batimentStockage.debloquer();
         GestionaireStockage.ajouterBatimentStockage(batimentStockage);
+
         GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv2", 150, 12, 200));
         GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv3", 200, 14, 300));
         GestionaireStockage.ajouterBatimentStockage(new BatimentStockage("Stockage nv4", 250, 16, 400));

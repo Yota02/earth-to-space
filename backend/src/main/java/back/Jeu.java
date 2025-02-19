@@ -1,6 +1,7 @@
 package back;
 
 import back.Batiment.BatimentManager;
+import back.Batiment.BatimentStockage;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Batiment.UsineProduction;
@@ -158,14 +159,14 @@ public class Jeu implements Runnable {
     public void setDebugMode(boolean mode) {
         this.debugMode = mode;
     }
-    
+
     public void createEntreprise(String nom, String pays) {
         if (!debugMode) {
-            this.entreprise = new Entreprise(nom, pays, 0,1, 0, 0);
+            this.entreprise = new Entreprise(nom, pays, 0, 1, 0, 0);
         }
     }
 
-    public GestionnaireMarche getGestionaireMarche(){
+    public GestionnaireMarche getGestionaireMarche() {
         return gestionaireMarche;
     }
 
@@ -232,7 +233,7 @@ public class Jeu implements Runnable {
                     try {
 
                         carburant.effectuerAchat(this, true);
-                        
+
                         retirerArgent(totalCost);
                     } catch (IllegalStateException e) {
                         System.err.println(carburant.getNom() + ": " + e.getMessage());
@@ -317,7 +318,6 @@ public class Jeu implements Runnable {
         }
     }
 
-
     public synchronized void ajouterArgent(int montant) {
         this.argent += montant;
     }
@@ -377,8 +377,34 @@ public class Jeu implements Runnable {
 
     public void init() {
 
+        // Dans la méthode init() de Jeu.java
         if (debugMode) {
             this.entreprise = new Entreprise("Space Y", "USA", 1000000, 100, 0, 0);
+
+            // Initialisation d'un bâtiment de stockage avec des pièces
+            BatimentStockage stockageInitial = new BatimentStockage("Entrepôt initial", 200, 0, 1000);
+                                                                                                       
+            stockageInitial.debloquer();
+            stockageInitial.setOperationnel(true);
+
+            // Ajout de différentes pièces dans le stockage
+            try {
+                stockageInitial.ajouterPiece(PieceFusee.MOTEUR, 50);
+                stockageInitial.ajouterPiece(PieceFusee.RESERVOIR, 30);
+                stockageInitial.ajouterPiece(PieceFusee.COQUE, 20);
+                stockageInitial.ajouterPiece(PieceFusee.PANNEAUX_SOLAIRES, 10);
+                stockageInitial.ajouterPiece(PieceFusee.REACTEUR, 5);
+                stockageInitial.ajouterPiece(PieceFusee.CAPTEUR, 5);
+                stockageInitial.ajouterPiece(PieceFusee.HABITAT, 5);
+                stockageInitial.ajouterPiece(PieceFusee.MODULES_VAISSEAU, 5);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Erreur lors de l'initialisation du stockage: " + e.getMessage());
+            }
+
+            // Ajout du bâtiment au gestionnaire de stockage
+            batimentManager.getGestionaireStockage().ajouterBatimentStockage(stockageInitial);
+            batimentManager.ajouterBatimentPossede(stockageInitial);
+
         }
 
         ReservoirPose reservoir1 = new ReservoirPose.Builder()
@@ -497,20 +523,21 @@ public class Jeu implements Runnable {
         }
     }
 
-    private void ajouterPieceParJour(){
+    private void ajouterPieceParJour() {
         for (PieceFusee p : PieceFusee.values()) {
-            ajouterQuantiteAStockPiece(p, batimentManager.getProductionParJour(p)); 
+            ajouterQuantiteAStockPiece(p, batimentManager.getProductionParJour(p));
         }
     }
 
     private void actionFinJour() {
         if (!missionEnCours) {
+
             ajouterArgent(argentParMoi);
             incrementerDate();
             assemblerFusee();
             productionCarburant();
             ajouterPieceParJour();
-            
+
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);
             }
@@ -518,7 +545,7 @@ public class Jeu implements Runnable {
     }
 
     public void ajouterQuantiteAStockPiece(PieceFusee piece, double quantite) {
-            stockPieces.put(piece, (int) (stockPieces.getOrDefault(piece, 0) + quantite));
+        stockPieces.put(piece, (int) (stockPieces.getOrDefault(piece, 0) + quantite));
     }
 
     public List<IBatiment> getBatimentsEnConstruction() {
@@ -559,6 +586,7 @@ public class Jeu implements Runnable {
     public void run() {
         if (debugMode) {
             init();
+
         } else if (entreprise == null) {
             while (entreprise == null) {
                 try {
@@ -645,7 +673,6 @@ public class Jeu implements Runnable {
         return gestionnaireRH;
     }
 
-   
     public double getQuantiteCarburant(Ergol name) {
         double quantite = 0.0;
         for (ReservoirPose r : getReservoirs()) {
@@ -672,7 +699,6 @@ public class Jeu implements Runnable {
         return missions;
     }
 
-
     public List<ObjectAchetable> getObjectAchetables() {
         return gestionnaireObject.getObjects();
     }
@@ -680,7 +706,6 @@ public class Jeu implements Runnable {
     public List<Fusee> getFusees() {
         return fusees;
     }
-
 
     public List<ObjectAchetable> getObjectAcheter() {
         return gestionnaireObject.getObjectAcheter();

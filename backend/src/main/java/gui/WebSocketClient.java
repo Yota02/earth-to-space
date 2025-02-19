@@ -1,5 +1,6 @@
 package gui;
 
+import back.Batiment.BatimentStockage;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
 import back.Batiment.UsineProduction;
@@ -8,6 +9,7 @@ import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.MarcheFinancier;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
+import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
@@ -171,6 +173,10 @@ public class WebSocketClient {
 
                 case "getProduction":
                     getProduction(session);
+                    break;
+
+                case "getProductionParPiece":
+                    getProductionParPiece(session);
                     break;
 
                 case "getCarburantQuantite":
@@ -540,6 +546,22 @@ public class WebSocketClient {
         }
     }
 
+    private void getProductionParPiece(Session session) throws IOException {
+        JSONObject response = new JSONObject();
+        response.put("action", "productionParPieceState");
+        
+        List<BatimentStockage> batiments = GameServer.jeu.getBatimentManager().getBatimentsStockage();
+        
+        JSONArray piecesArray = new JSONArray();
+        for (BatimentStockage batiment : batiments) {
+            JSONObject stockageJson = batiment.toJSON2();
+            piecesArray.put(stockageJson);
+        }
+        
+        response.put("pieces", piecesArray);
+        session.getBasicRemote().sendText(response.toString());
+    }
+
     private void getProduction(Session session) throws IOException {
         JSONObject response = new JSONObject();
         response.put("action", "productionState");
@@ -642,44 +664,44 @@ public class WebSocketClient {
     }
 
     private void getBatiment(Session session) throws IOException {
-    Map<String, List<IBatiment>> batiments = GameServer.jeu.getBatimentManager().getBatimentMap();
+        Map<String, List<IBatiment>> batiments = GameServer.jeu.getBatimentManager().getBatimentMap();
 
-    // Listes pour séparer les bâtiments disponibles et en construction
-    List<JSONObject> batimentsDisponibles = new ArrayList<>();
-    List<JSONObject> batimentsEnConstruction = new ArrayList<>();
+        // Listes pour séparer les bâtiments disponibles et en construction
+        List<JSONObject> batimentsDisponibles = new ArrayList<>();
+        List<JSONObject> batimentsEnConstruction = new ArrayList<>();
 
-    // Parcourir tous les bâtiments
-    for (List<IBatiment> batimentsList : batiments.values()) {
-        for (IBatiment batiment : batimentsList) {
-            if(batiment.estDebloquer()){
-                JSONObject batimentJson = batiment.toJson();
-                // Ajouter le type basé sur le nom de la classe
-                batimentJson.put("type", batiment.getClass().getSimpleName());
-                batimentsDisponibles.add(batimentJson);
+        // Parcourir tous les bâtiments
+        for (List<IBatiment> batimentsList : batiments.values()) {
+            for (IBatiment batiment : batimentsList) {
+                if (batiment.estDebloquer()) {
+                    JSONObject batimentJson = batiment.toJson();
+                    // Ajouter le type basé sur le nom de la classe
+                    batimentJson.put("type", batiment.getClass().getSimpleName());
+                    batimentsDisponibles.add(batimentJson);
+                }
             }
         }
-    }
 
-    // Parcourir les bâtiments possédés
-    for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsPossedes()) {
-        if (batiment.getEnConstruction()) {
-            JSONObject batimentJson = batiment.toJson();
-            batimentJson.put("type", batiment.getClass().getSimpleName());
-            batimentJson.put("progression", batiment.getProgression());
-            batimentJson.put("tempsRestant", batiment.getTempsRestant());
-            batimentsEnConstruction.add(batimentJson);
+        // Parcourir les bâtiments possédés
+        for (IBatiment batiment : GameServer.jeu.getBatimentManager().getBatimentsPossedes()) {
+            if (batiment.getEnConstruction()) {
+                JSONObject batimentJson = batiment.toJson();
+                batimentJson.put("type", batiment.getClass().getSimpleName());
+                batimentJson.put("progression", batiment.getProgression());
+                batimentJson.put("tempsRestant", batiment.getTempsRestant());
+                batimentsEnConstruction.add(batimentJson);
+            }
         }
-    }
-    
-    // Créer la réponse
-    JSONObject response = new JSONObject();
-    response.put("action", "batimentsState");
-    response.put("batimentsDisponibles", new JSONArray(batimentsDisponibles));
-    response.put("batimentsEnConstruction", new JSONArray(batimentsEnConstruction));
 
-    // Envoyer la réponse
-    session.getBasicRemote().sendText(response.toString());
-}
+        // Créer la réponse
+        JSONObject response = new JSONObject();
+        response.put("action", "batimentsState");
+        response.put("batimentsDisponibles", new JSONArray(batimentsDisponibles));
+        response.put("batimentsEnConstruction", new JSONArray(batimentsEnConstruction));
+
+        // Envoyer la réponse
+        session.getBasicRemote().sendText(response.toString());
+    }
 
     private void getBoosters(Session session) throws IOException {
         List<Booster> boosters = GameServer.jeu.getLanceurs();
