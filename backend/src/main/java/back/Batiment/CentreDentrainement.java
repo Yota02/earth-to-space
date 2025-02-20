@@ -45,6 +45,10 @@ public class CentreDentrainement extends IBatiment{
         }
     }
 
+    public int getCapaciteMax() {
+        return capaciteMax;
+    }
+
     @Override
     double calculerCoutEntretien() {
         // TODO Auto-generated method stub
