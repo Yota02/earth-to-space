@@ -109,7 +109,7 @@ export default {
                 "HABITATS": "src/assets/img/bandeau/habitats.jpg",
                 "AGRICULTURE_SPATIALE": "src/assets/img/bandeau/agriculture.jpg",
                 "CONSTRUCTION": "src/assets/img/bandeau/construction.webp",
-                "STOCKAGE": "src/assets/img/bandeau/hangar_fusee.jpg",
+                "STOCKAGE": "src/assets/img/bandeau/stockage.jpg",
                 "HANGAR_ASSEMBLAGE": "src/assets/img/bandeau/megabay.jpg",
                 "USINE_PRODUCTION": "src/assets/img/bandeau/usineproduction.png",
                 "CENTRE_ENTRAINEMENT": "src/assets/img/bandeau/centreEntrainement.jpg",

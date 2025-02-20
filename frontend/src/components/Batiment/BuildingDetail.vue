@@ -54,7 +54,7 @@ export default {
   methods: {
     getBuildingImage(type) {
       const images = {
-        'USINE': 'src/assets/img/batiments/usine.jpg',
+        'BatimentStockage': 'src/assets/img/bandeau/stockage.jpg',
         'HANGAR': 'src/assets/img/batiments/hangar.jpg',
         'LABORATOIRE': 'src/assets/img/batiments/laboratoire.jpg',
         // Ajoutez d'autres types de bâtiments ici

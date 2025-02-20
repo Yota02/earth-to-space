@@ -9,7 +9,6 @@ import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.MarcheFinancier;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
-import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
