@@ -21,6 +21,9 @@ public enum SousTypeRecherche {
     REACTEURS,
     BATTERIES,
 
+    METAUX,
+    COMPOSITES,
+
     // Sous-types pour ROBOTIQUE
     AUTOMATISATION,        
     SYSTÈMES_AUTONOMES,

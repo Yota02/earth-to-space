@@ -22,7 +22,11 @@ public class UsineProduction extends IBatiment{
         this.pieceProduite = pieceProduite;
     }
 
-    public UsineProduction(String nom, int superficie, int capacite, int tempsConstruction, Materiaux materiauxEnEntree, PieceFusee pieceProduite, int quantiteProduite) {
+    public Materiaux getMateriauxEnEntree() {
+        return materiauxEnEntree;
+    }
+
+    public UsineProduction(String nom, int superficie, int tempsConstruction, Materiaux materiauxEnEntree, PieceFusee pieceProduite, int quantiteProduite) {
         this.nom = nom;
         this.superficie = superficie;
         this.tempsConstruction = tempsConstruction;
@@ -42,6 +46,7 @@ public class UsineProduction extends IBatiment{
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         json.put("nom", nom);
+        json.put("cout", getCout());
         json.put("superficie", superficie);
         json.put("tempsConstruction", tempsConstruction);
         json.put("materiauxEnEntree", materiauxEnEntree.getNom());

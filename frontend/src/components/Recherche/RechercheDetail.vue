@@ -95,6 +95,8 @@ export default {
                 "FINANCIER": "src/assets/img/bandeau/financier.jpg",
 
                 // Sous-catégories spécifiques
+                "METAUX" : "src/assets/img/bandeau/metaux.jpg",
+                "COMPOSITES" : "src/assets/img/bandeau/composite.webp",
                 "MOTEURS": "src/assets/img/bandeau/moteur.png",
                 "FUEL": "src/assets/img/bandeau/fuel.png",
                 "CAPTEURS": "src/assets/img/bandeau/capteur.jpg",

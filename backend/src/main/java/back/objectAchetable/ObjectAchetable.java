@@ -2,11 +2,10 @@ package back.objectAchetable;
 
 import org.json.JSONObject;
 
-import com.google.gson.JsonObject;
-
 import back.Jeu;
+import back.ObjectDeblocable;
 
-public abstract class ObjectAchetable {
+public abstract class ObjectAchetable extends ObjectDeblocable {
     private final int prix;
     private final String nom;
     private final Boolean estAchetable;

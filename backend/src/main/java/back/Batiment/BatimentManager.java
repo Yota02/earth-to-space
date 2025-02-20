@@ -105,7 +105,7 @@ public class BatimentManager {
     }
 
     public void initBatiementStockage(){
-        BatimentStockage batimentStockage = new BatimentStockage("Stockage nv1", 100, 10, 100);
+        BatimentStockage batimentStockage = new BatimentStockage("Stockage nv1", 100, 100, 100);
         batimentStockage.debloquer();
         GestionaireStockage.ajouterBatimentStockage(batimentStockage);
 
@@ -184,11 +184,11 @@ public class BatimentManager {
     private void initializeUsineProduction() {
         List<IBatiment> usineProduction = new ArrayList<>();
 
-        usineProduction.add(new UsineProduction("Usine niveau 1", 100, 12, 30, Materiaux.FER, PieceFusee.MOTEUR, 50));
-        usineProduction.add(new UsineProduction("Usine niveau 2", 150, 15, 40, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 70));
-        usineProduction.add(new UsineProduction("Usine niveau 3", 200, 20, 50, Materiaux.TITANE, PieceFusee.COQUE, 100));
-        usineProduction.add(new UsineProduction("Usine niveau 4", 300, 15, 40, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 150));
-        usineProduction.add(new UsineProduction("Usine niveau 5", 400, 20, 50, Materiaux.TITANE, PieceFusee.COQUE, 200));
+        usineProduction.add(new UsineProduction("Usine niveau 1", 100, 12, Materiaux.FER, PieceFusee.MOTEUR, 50));
+        usineProduction.add(new UsineProduction("Usine niveau 2", 150, 15, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 70));
+        usineProduction.add(new UsineProduction("Usine niveau 3", 200, 20, Materiaux.TITANE, PieceFusee.COQUE, 100));
+        usineProduction.add(new UsineProduction("Usine niveau 4", 300, 15, Materiaux.ALUMINIUM, PieceFusee.RESERVOIR, 150));
+        usineProduction.add(new UsineProduction("Usine niveau 5", 400, 20, Materiaux.TITANE, PieceFusee.COQUE, 200));
 
         batimentMap.put("usineProduction", usineProduction);
     }

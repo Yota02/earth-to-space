@@ -83,13 +83,15 @@ export default {
       }
 
       pieces.forEach(batiment => {
-        total.capaciteTotal += batiment.capaciteStockage
-        total.stockageTotal += batiment.stockageActuel
-
-        if (batiment.stockage) {
-          Object.entries(batiment.stockage).forEach(([piece, quantite]) => {
-            total.pieces[piece] = (total.pieces[piece] || 0) + quantite
-          })
+        if (batiment.operationnel) {
+          total.capaciteTotal += batiment.capaciteStockage
+          total.stockageTotal += batiment.stockageActuel
+          
+          if (batiment.stockage) {
+            Object.entries(batiment.stockage).forEach(([piece, quantite]) => {
+              total.pieces[piece] = (total.pieces[piece] || 0) + quantite
+            })
+          }
         }
       })
 

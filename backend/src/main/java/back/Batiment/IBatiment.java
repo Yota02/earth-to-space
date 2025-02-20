@@ -25,7 +25,7 @@ public abstract class IBatiment extends ObjectDeblocable{
     }
 
     public int getCout(){
-        return (int) superficie * tempsConstruction * 10;
+        return 1000;
     }
 
     public int getEtat() {
@@ -65,7 +65,7 @@ public abstract class IBatiment extends ObjectDeblocable{
     }
     
     public int getTempsRestant(){
-        return 100;
+        return 1;
     }
 
     public int getTempsConstruction(){

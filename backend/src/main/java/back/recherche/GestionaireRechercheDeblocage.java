@@ -5,15 +5,18 @@ import java.util.List;
 
 import back.Batiment.*;
 import back.fusee.moteur.GestionaireMoteur;
+import back.objectAchetable.GestionnaireObject;
 
 public class GestionaireRechercheDeblocage {
 
     BatimentManager batimentManager;
     GestionaireMoteur moteurManager;
+    GestionnaireObject gestionnaireObject;
 
-    public GestionaireRechercheDeblocage(BatimentManager batimentManager, GestionaireMoteur moteurManager) {
+    public GestionaireRechercheDeblocage(BatimentManager batimentManager, GestionaireMoteur moteurManager, GestionnaireObject gestionnaireObject) {
         this.batimentManager = batimentManager;
         this.moteurManager = moteurManager;
+        this.gestionnaireObject = gestionnaireObject;
     }
 
     public List<RechercheDeblocage> initRecherche() {
@@ -23,6 +26,7 @@ public class GestionaireRechercheDeblocage {
         res.addAll(initeHangarAssemblageRecherche());
         res.addAll(initRechercheBatiementStockage());
         res.addAll(initCentreEntrainement());
+        res.addAll(initRechercheMateriaux());
         return res;
     }
 
@@ -47,6 +51,142 @@ public class GestionaireRechercheDeblocage {
                 batimentManager.getBatiment("Stockage niveau 5")));
 
         return res; 
+    }
+
+    public List<RechercheDeblocage> initRechercheMateriaux() {
+        List<RechercheDeblocage> res = new ArrayList<>();
+        
+        // Aluminium - Matériau de base avancé
+        res.add(new RechercheDeblocage(
+            200, 
+            "Aluminium",
+            100,
+            "Débloque l'utilisation de l'aluminium, un métal léger idéal pour les structures aérospatiales",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            2,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Aluminium")
+        ));
+    
+        // Titane - Matériau avancé
+        res.add(new RechercheDeblocage(
+            500,
+            "Titane",
+            200,
+            "Débloque l'utilisation du titane, un métal résistant et léger pour les composants critiques",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            4,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Titane")
+        ));
+    
+        // Acier - Matériau intermédiaire
+        res.add(new RechercheDeblocage(
+            300,
+            "Acier",
+            150,
+            "Débloque l'utilisation de l'acier, un alliage robuste pour les structures principales",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            3,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Acier")
+        ));
+    
+        // Carbone - Matériau haute performance
+        res.add(new RechercheDeblocage(
+            400,
+            "Carbone composite",
+            250,
+            "Débloque l'utilisation du carbone composite, un matériau ultraléger et résistant",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.COMPOSITES,
+            5,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Carbone composite")
+        ));
+    
+        // Inox - Matériau spécialisé
+        res.add(new RechercheDeblocage(
+            350,
+            "Inox",
+            180,
+            "Débloque l'utilisation de l'inox, un acier résistant à la corrosion",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            3,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Inox")
+        ));
+    
+        // Inconel - Matériau haute température
+        res.add(new RechercheDeblocage(
+            600,
+            "Inconel",
+            300,
+            "Débloque l'utilisation de l'Inconel, un superalliage pour les environnements extrêmes",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            6,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Inconel")
+        ));
+    
+        // Cuivre - Matériau conducteur
+        res.add(new RechercheDeblocage(
+            250,
+            "Cuivre",
+            120,
+            "Débloque l'utilisation du cuivre, excellent pour les systèmes électriques et thermiques",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            2,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Cuivre")
+        ));
+    
+        // Nickel - Matériau résistant
+        res.add(new RechercheDeblocage(
+            450,
+            "Nickel",
+            200,
+            "Débloque l'utilisation du nickel, un métal résistant pour les composants spécialisés",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            4,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Nickel")
+        ));
+    
+        // Béryllium - Matériau exotique
+        res.add(new RechercheDeblocage(
+            800,
+            "Béryllium",
+            400,
+            "Débloque l'utilisation du béryllium, un métal ultraléger aux propriétés uniques",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            7,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Béryllium")
+        ));
+    
+        // Tantale - Matériau très avancé
+        res.add(new RechercheDeblocage(
+            1000,
+            "Tantale",
+            500,
+            "Débloque l'utilisation du tantale, un métal rare aux propriétés exceptionnelles",
+            CategorieRecherche.MATERIAUX,
+            SousTypeRecherche.METAUX,
+            8,
+            TypeEffet.DEBLOCAGE,
+            gestionnaireObject.getMateriau("Tantale")
+        ));
+    
+        return res;
     }
 
     public List<RechercheDeblocage> initCentreEntrainement() {

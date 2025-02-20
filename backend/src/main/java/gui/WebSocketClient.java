@@ -371,7 +371,9 @@ public class WebSocketClient {
 
             JSONArray objectsArray = new JSONArray();
             for (ObjectAchetable obj : objects) {
-                objectsArray.put(obj.toJson());
+                if (obj.estDebloquer()) {
+                    objectsArray.put(obj.toJson());
+                }
             }
 
             response.put("objectsAchetables", objectsArray);
@@ -454,25 +456,55 @@ public class WebSocketClient {
             // Retirer l'argent
             GameServer.jeu.retirerArgent(coutBatiment);
 
-            // Créer une nouvelle instance de bâtiment basée sur le prototype
-            HangarAssemblage nouveauBatiment = new HangarAssemblage(
-                    nomBatiment + " (" + superficie + "m²)",
-                    superficie,
-                    ((HangarAssemblage) prototypeBatiment).getCapacite() * (superficie / 100),
-                    prototypeBatiment.getTempsConstruction(),
-                    ((HangarAssemblage) prototypeBatiment).getHauteur());
+            // Créer une nouvelle instance de bâtiment selon son type
+            IBatiment nouveauBatiment = null;
+            if (prototypeBatiment instanceof HangarAssemblage) {
+                nouveauBatiment = new HangarAssemblage(
+                        nomBatiment + " (" + superficie + "m²)",
+                        superficie,
+                        ((HangarAssemblage) prototypeBatiment).getCapacite() * (superficie / 100),
+                        prototypeBatiment.getTempsConstruction(),
+                        ((HangarAssemblage) prototypeBatiment).getHauteur());
+            } else if (prototypeBatiment instanceof BatimentStockage) {
+                nouveauBatiment = new BatimentStockage(
+                        nomBatiment + " (" + superficie + "m²)",
+                        superficie,
+                        ((BatimentStockage) prototypeBatiment).getTempsConstruction(),
+                        prototypeBatiment.getTempsConstruction());
+            } else if (prototypeBatiment instanceof UsineProduction) {
+                nouveauBatiment = new UsineProduction(
+                        nomBatiment + " (" + superficie + "m²)",
+                        superficie,
+                        ((UsineProduction) prototypeBatiment).getTempsConstruction(),
+                        ((UsineProduction) prototypeBatiment).getMateriauxEnEntree(),
+                        ((UsineProduction) prototypeBatiment).getPieceProduite(),
+                        ((UsineProduction) prototypeBatiment).getQuantiteProduite());
+            } else if (prototypeBatiment instanceof UsineProductionCarburant) {
+                nouveauBatiment = new UsineProductionCarburant(
+                        nomBatiment + " (" + superficie + "m²)",
+                        superficie,
+                        prototypeBatiment.getTempsConstruction(),
+                        ((UsineProductionCarburant) prototypeBatiment).getQuantiteProduiteParJour(),
+                        ((UsineProductionCarburant) prototypeBatiment).getErgol(),
+                        ((UsineProductionCarburant) prototypeBatiment).getEfficaciteProduction());
+            }
 
-            // Marquer comme en construction et ajouter
-            nouveauBatiment.setEnConstruction(true);
-            nouveauBatiment.setAnneeConstruction(GameServer.jeu.getDate());
-            GameServer.jeu.getBatimentManager().ajouterBatimentPossede(nouveauBatiment);
+            if (nouveauBatiment != null) {
+                // Marquer comme en construction et ajouter
+                nouveauBatiment.setEnConstruction(true);
+                nouveauBatiment.setAnneeConstruction(GameServer.jeu.getDate());
+                GameServer.jeu.getBatimentManager().ajouterBatimentPossede(nouveauBatiment);
 
-            response.put("success", true);
-            response.put("batiment", nouveauBatiment.toJson());
-            session.getBasicRemote().sendText(response.toString());
+                response.put("success", true);
+                response.put("batiment", nouveauBatiment.toJson());
+                session.getBasicRemote().sendText(response.toString());
 
-            // Notifier tous les clients de la mise à jour des bâtiments
-            GameServer.sendGameStateToClients("batiments");
+                // Notifier tous les clients de la mise à jour des bâtiments
+                GameServer.sendGameStateToClients("batiments");
+            } else {
+                response.put("error", "Type de bâtiment non géré");
+                session.getBasicRemote().sendText(response.toString());
+            }
 
         } catch (Exception e) {
             response.put("error", "Erreur lors de l'achat du bâtiment : " + e.getMessage());
@@ -548,15 +580,15 @@ public class WebSocketClient {
     private void getProductionParPiece(Session session) throws IOException {
         JSONObject response = new JSONObject();
         response.put("action", "productionParPieceState");
-        
+
         List<BatimentStockage> batiments = GameServer.jeu.getBatimentManager().getBatimentsStockage();
-        
+
         JSONArray piecesArray = new JSONArray();
         for (BatimentStockage batiment : batiments) {
             JSONObject stockageJson = batiment.toJSON2();
             piecesArray.put(stockageJson);
         }
-        
+
         response.put("pieces", piecesArray);
         session.getBasicRemote().sendText(response.toString());
     }

@@ -2,21 +2,38 @@ package back.objectAchetable;
 
 import java.util.*;
 
-import back.Metaux.Materiaux;
-
 public class GestionnaireObject {
-    private List<ObjectAchetable> objectTotals = new ArrayList<>();;
-    private List<ObjectAchetable> objectAcheter = new ArrayList<>();;
+    private List<ObjectAchetable> objectTotals = new ArrayList<>();
+
+    private List<ObjectAchetable> objectAcheter = new ArrayList<>();
+    private GestionaireMateriaux gestionaireMateriaux = new GestionaireMateriaux();
 
     private final Map<String, List<ObjectAchetable>> objectAchetablesMap = new HashMap<>();
     private final List<ObjectAchetable> objectAchetables = new ArrayList<>();
 
-    public GestionnaireObject(){
+    public GestionnaireObject() {
         initialiserObject();
     }
 
-    public void initialiserObject() {
+    private final Map<String, Integer> stockMateriaux = new HashMap<>();
 
+    public Map<String, Integer> getStockMateriaux() {
+        return stockMateriaux;
+    }
+
+    public void ajouterMateriau(String nom, int quantite) {
+        stockMateriaux.merge(nom, quantite, Integer::sum);
+    }
+
+    public int getQuantiteMateriau(String nom) {
+        return stockMateriaux.getOrDefault(nom, 0);
+    }
+
+    public MateriauxAchetable getMateriau(String nom) {
+        return gestionaireMateriaux.getMateriaux(nom);
+    }
+
+    public void initialiserObject() {
 
         // Métaux
         initialisationMetaux();
@@ -40,22 +57,7 @@ public class GestionnaireObject {
     }
 
     private void initialisationMetaux() {
-        MateriauxAchetable fer = new MateriauxAchetable.Builder()
-                .setNom(Materiaux.FER.getNom())
-                .setPrix(10000000)
-                .setMateriau(Materiaux.FER)
-                .setEstAchetable(true)
-                .build();
-
-        MateriauxAchetable acier = new MateriauxAchetable.Builder()
-                .setNom(Materiaux.ACIER.getNom())
-                .setPrix(1000)
-                .setMateriau(Materiaux.ACIER)
-                .setEstAchetable(true)
-                .build();
-
-        ajouterObjectAchetable(acier);
-        ajouterObjectAchetable(fer);
+        gestionaireMateriaux.getMateriaux().forEach(this::ajouterObjectAchetable);
     }
 
     private void ajouterObjectAchetable(ObjectAchetable object) {

@@ -141,10 +141,6 @@ public class Jeu implements Runnable {
 
         gestionnaireRH = new GestionnaireRessources_Humaines();
 
-        gestionnaireRecherche = new GestionnaireRecherche(batimentManager, moteurManager);
-        gestionnaireRecherche.initialiserRecherches();
-        this.recherchesTotal = gestionnaireRecherche.getRecherches();
-
         gestionnaireObject = new GestionnaireObject();
 
         moteurManager = new GestionaireMoteur();
@@ -154,6 +150,11 @@ public class Jeu implements Runnable {
         this.carburantAchetables = gestionnaireCarburant.getObjects();
 
         this.gestionaireMarche = new GestionnaireMarche();
+
+        gestionnaireRecherche = new GestionnaireRecherche(batimentManager, moteurManager, gestionnaireObject);
+        gestionnaireRecherche.initialiserRecherches();
+        this.recherchesTotal = gestionnaireRecherche.getRecherches();
+
     }
 
     public void setDebugMode(boolean mode) {
@@ -184,6 +185,8 @@ public class Jeu implements Runnable {
             }
         }
     }
+
+    // refaire le acheter et faire comme les pieces avec une map
 
     public void vendre(ObjectAchetable objectAchetable) {
         synchronized (gestionnaireObject.getObjectAcheter()) {

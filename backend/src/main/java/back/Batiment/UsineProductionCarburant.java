@@ -17,8 +17,14 @@ public class UsineProductionCarburant extends IBatiment{
         this.efficaciteProduction = efficaciteProduction;
     }
 
+
+
     public Ergol getErgol(){
         return ergol;
+    }
+
+    public double getEfficaciteProduction(){
+        return efficaciteProduction;
     }
 
     public double getQuantiteProduiteParJour(){

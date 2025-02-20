@@ -89,14 +89,6 @@ public class BatimentStockage extends IBatiment {
         json.put("nom", this.nom != null ? this.nom : "");
         json.put("superficie", this.superficie);
 
-        // Gestion de la date de construction
-        if (this.anneeConstruction != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            json.put("anneeConstruction", this.anneeConstruction.format(formatter));
-        } else {
-            json.put("anneeConstruction", JSONObject.NULL);
-        }
-
         // État du bâtiment
         json.put("enConstruction", this.enConstruction);
         json.put("operationnel", this.operationnel);
@@ -106,9 +98,18 @@ public class BatimentStockage extends IBatiment {
         json.put("cout", getCout());
 
         // Informations spécifiques au stockage
-        json.put("capaciteStockage", this.capaciteStockage);
+        json.put("capaciteStockage", this.getCapaciteStockage());
         json.put("stockageActuel", this.stockageActuel);
 
+        // Gestion de la date de construction
+        if (this.anneeConstruction != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+            json.put("anneeConstruction", this.anneeConstruction.format(formatter));
+        } else {
+            json.put("anneeConstruction", JSONObject.NULL);
+        }
+        
+    
         // Gestion du stockage des pièces
         JSONObject stockageJson = new JSONObject();
         for (Map.Entry<PieceFusee, Integer> entry : stockage.entrySet()) {

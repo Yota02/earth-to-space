@@ -4,6 +4,7 @@ import java.util.*;
 
 import back.Batiment.BatimentManager;
 import back.fusee.moteur.GestionaireMoteur;
+import back.objectAchetable.GestionnaireObject;
 
 public class GestionnaireRecherche {
     private final List<Recherche> rechercheTotal = new ArrayList<>();
@@ -11,11 +12,12 @@ public class GestionnaireRecherche {
     BatimentManager batimentManager;
     GestionaireRechercheDeblocage rechercheDeblocage;
     GestionaireEffet gestionaireEffet;
+    GestionnaireObject gestionnaireObject;
 
-    public GestionnaireRecherche(BatimentManager batimentManager, GestionaireMoteur moteurManager) {
+    public GestionnaireRecherche(BatimentManager batimentManager, GestionaireMoteur moteurManager, GestionnaireObject gestionnaireObject) {
         this.batimentManager = batimentManager;
         this.gestionaireEffet = new GestionaireEffet();
-        this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager, moteurManager);
+        this.rechercheDeblocage = new GestionaireRechercheDeblocage(batimentManager, moteurManager, gestionnaireObject);
     }
 
     public void initRechercheBatiments() {
@@ -38,6 +40,10 @@ public class GestionnaireRecherche {
         }
 
         for (Recherche recherche : rechercheDeblocage.initRechercheBatiementStockage()) {
+            ajouterRecherche(recherche);
+        }
+
+        for (Recherche recherche : rechercheDeblocage.initRechercheMateriaux()) {
             ajouterRecherche(recherche);
         }
 
@@ -405,7 +411,7 @@ public class GestionnaireRecherche {
                             break;
 
                         case DEBLOCAGE:
-                            ((RechercheDeblocage) r).getObjectAchetable().debloquer();
+                            ((RechercheDeblocage) r).getobjectDeblocable().debloquer();
                             break;
 
                         default:

@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import back.fusee.Piece.PieceFusee;
+import back.objectAchetable.ObjectAchetable;
 
 public class GestionaireStockage {
 
+    private List<ObjectAchetable> objectTotals;
     private List<BatimentStockage> batimentsStockage;
 
     public GestionaireStockage() {
         this.batimentsStockage = new ArrayList<>();
+        this.objectTotals = new ArrayList<>();
     }
 
     public List<BatimentStockage> getBatimentsStockage() {
