@@ -67,12 +67,6 @@ public class BatimentManager {
         int restantAAjouter = quantite;
         List<BatimentStockage> stockages = getBatimentsStockage();
         
-        System.out.println("Bâtiments de stockage actuels : " + GestionaireStockage.getBatimentsStockage());
-    
-        for (BatimentStockage stockage : stockages) {
-            System.out.println("Stockage : " + stockage.getNom() + " - Capacité : " + stockage.getCapaciteStockage());
-        }
-        
         for (BatimentStockage stockage : stockages) {
             if (restantAAjouter <= 0) break;
             if (!stockage.estOperationnel()) continue;
