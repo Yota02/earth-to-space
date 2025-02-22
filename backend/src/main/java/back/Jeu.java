@@ -526,11 +526,6 @@ public class Jeu implements Runnable {
         }
     }
 
-    private void ajouterPieceParJour() {
-        for (PieceFusee p : PieceFusee.values()) {
-            ajouterQuantiteAStockPiece(p, batimentManager.getProductionParJour(p));
-        }
-    }
 
     private void actionFinJour() {
         if (!missionEnCours) {
@@ -539,7 +534,7 @@ public class Jeu implements Runnable {
             incrementerDate();
             assemblerFusee();
             productionCarburant();
-            ajouterPieceParJour();
+            batimentManager.ajouterPieceParJour();
 
             for (IBatiment b : getBatimentsEnConstruction()) {
                 b.construireParJour(this.pointsConstruction);

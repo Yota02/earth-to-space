@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import back.Metaux.Materiaux;
 import back.fusee.Piece.PieceFusee;
@@ -40,6 +41,63 @@ public class BatimentManager {
         }
 
         return stockage;
+    }
+
+    public void ajouterPieceParJour() {
+        // Récupérer toutes les usines opérationnelles
+        List<UsineProduction> usinesOperationnelles = getUsineProduction().stream()
+            .filter(IBatiment::estOperationnel)
+            .collect(Collectors.toList());
+
+        // Pour chaque usine, calculer et ajouter la production
+        for (UsineProduction usine : usinesOperationnelles) {
+            if (usine.estOperationnel()) {
+                PieceFusee piece = usine.getPieceProduite();
+                double productionJournaliere = usine.getProductionParJour();
+                int quantiteAajouter = (int) Math.floor(productionJournaliere);
+
+                if (quantiteAajouter > 0) {
+                    distribuerPieceAuxStockages(piece, quantiteAajouter);
+                }
+            }
+        }
+    }
+
+    private void distribuerPieceAuxStockages(PieceFusee piece, int quantite) {
+        int restantAAjouter = quantite;
+        List<BatimentStockage> stockages = getBatimentsStockage();
+        
+        System.out.println("Bâtiments de stockage actuels : " + GestionaireStockage.getBatimentsStockage());
+    
+        for (BatimentStockage stockage : stockages) {
+            System.out.println("Stockage : " + stockage.getNom() + " - Capacité : " + stockage.getCapaciteStockage());
+        }
+        
+        for (BatimentStockage stockage : stockages) {
+            if (restantAAjouter <= 0) break;
+            if (!stockage.estOperationnel()) continue;
+    
+            int espaceDisponible = stockage.getCapaciteStockage() - stockage.getStockageActuel();
+            if (espaceDisponible > 0) {
+                int quantiteStockage = Math.min(restantAAjouter, espaceDisponible);
+                stockage.ajouterPiece(piece, quantiteStockage);
+                restantAAjouter -= quantiteStockage;
+            }
+        }
+    
+        if (restantAAjouter > 0) {
+            System.out.println("⚠️ Impossible de stocker " + restantAAjouter + " unités de " + piece.name() + " !");
+        }
+    }
+    
+
+    // Modifier la méthode getProductionParJour pour ne compter que les usines opérationnelles
+    public double getProductionParJour(PieceFusee piece) {
+        return getUsineProduction().stream()
+            .filter(IBatiment::estOperationnel)
+            .filter(usine -> usine.getPieceProduite() == piece)
+            .mapToDouble(UsineProduction::getProductionParJour)
+            .sum();
     }
 
     public List<UsineProduction> getUsineProduction() {
@@ -207,7 +265,7 @@ public class BatimentManager {
         batimentMap.put("assemblage", batimentsAssemblage);
     }
 
-    public double getProductionParJour(PieceFusee piece) {
+   /*  public double getProductionParJour(PieceFusee piece) {
         double production = 0;
         for (IBatiment batiment : batimentsPossedes) {
             if (batiment instanceof UsineProduction) {
@@ -217,7 +275,7 @@ public class BatimentManager {
             }
         }
         return production;
-    }
+    } */
     
     public List<IBatiment> getBatimentsParType(String type) {
         return Collections.unmodifiableList(

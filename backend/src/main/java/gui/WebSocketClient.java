@@ -9,6 +9,7 @@ import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.MarcheFinancier;
 import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
+import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.moteur.Ergol;
 import back.fusee.reservoir.ReservoirPose;
@@ -61,6 +62,10 @@ public class WebSocketClient {
 
                 case "updateMonthlyDemand":
                     handleMonthlyDemand(session, jsonMessage);
+                    break;
+
+                case "updatePieceProduction":
+                    handleUpdatePieceProduction(session, jsonMessage);
                     break;
 
                 case "getEntrepriseData":
@@ -182,6 +187,10 @@ public class WebSocketClient {
                     handleGetCarburantQuantite(jsonMessage, session);
                     break;
 
+                case "getPieceFuseeList":
+                    sendPieceFuseeList(session);
+                    break;
+
                 case "startResearch":
                     String name2 = jsonMessage.getString("name");
                     Recherche recherche = GameServer.jeu.getGestionnaireRecherche().getRecherche(name2);
@@ -211,6 +220,47 @@ public class WebSocketClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleUpdatePieceProduction(Session session, JSONObject jsonMessage) throws IOException {
+        String usineName = jsonMessage.getString("usineName");
+        String nouvellePiece = jsonMessage.getString("nouvellePiece");
+    
+        List<UsineProduction> usines = GameServer.jeu.getBatimentManager().getUsineProduction();
+    
+        for (UsineProduction usine : usines) {
+            if (usine.getNom().equals(usineName)) {
+                try {
+                    // ✅ Utilisation du mapping pour trouver la bonne pièce
+                    usine.setPieceProduite(PieceFusee.fromNom(nouvellePiece));
+    
+                    // Envoyer la mise à jour à tous les clients
+                    JSONObject response = new JSONObject();
+                    response.put("action", "productionUpdated");
+                    response.put("usine", usine.toJson());
+    
+                    for (Session client : session.getOpenSessions()) {
+                        client.getBasicRemote().sendText(response.toString());
+                    }
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Erreur : " + e.getMessage());
+                }
+                break;
+            }
+        }
+    }
+    
+    private void sendPieceFuseeList(Session session) throws IOException {
+        JSONArray piecesArray = new JSONArray();
+        for (PieceFusee piece : PieceFusee.values()) {
+            piecesArray.put(piece.getNom());
+        }
+    
+        JSONObject response = new JSONObject();
+        response.put("action", "pieceFuseeList");
+        response.put("pieces", piecesArray);
+    
+        session.getBasicRemote().sendText(response.toString());
     }
 
     private void handleGetEntrepriseData(Session session) throws IOException {

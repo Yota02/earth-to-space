@@ -55,6 +55,10 @@ public class UsineProduction extends IBatiment{
         return json;
     }
 
+    public void setPieceProduite(PieceFusee nouvellePiece) {
+        this.pieceProduite = nouvellePiece;
+    }
+
     public double getProductionParJour() {
         return quantiteProduite / 30;
     }

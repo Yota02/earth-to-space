@@ -21,4 +21,12 @@ public enum PieceFusee {
         return this.nom;
     }
 
+    public static PieceFusee fromNom(String nom) {
+        for (PieceFusee piece : values()) {
+            if (piece.nom.equalsIgnoreCase(nom)) {
+                return piece;
+            }
+        }
+        throw new IllegalArgumentException("Aucune pièce correspondante pour : " + nom);
+    }
 }

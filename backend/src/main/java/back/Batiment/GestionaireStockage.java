@@ -2,6 +2,7 @@ package back.Batiment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import back.fusee.Piece.PieceFusee;
 import back.objectAchetable.ObjectAchetable;
@@ -36,6 +37,40 @@ public class GestionaireStockage {
             }
         }
         return total;
+    }
+
+    public void ajouterPieceParJour(Map<PieceFusee, Double> productionJournaliere) {
+        for (Map.Entry<PieceFusee, Double> entry : productionJournaliere.entrySet()) {
+            PieceFusee piece = entry.getKey();
+            int quantite = (int) Math.floor(entry.getValue());
+            
+            if (quantite > 0) {
+                distribuerPieceAuxBatiments(piece, quantite);
+            }
+        }
+    }
+
+    private void distribuerPieceAuxBatiments(PieceFusee piece, int quantite) {
+        int remainingQuantity = quantite;
+        
+        for (BatimentStockage batiment : batimentsStockage) {
+            if (remainingQuantity <= 0) break;
+            
+            int espaceDisponible = batiment.getCapaciteStockage() - batiment.getStockageActuel();
+            if (espaceDisponible > 0) {
+                int quantiteAajouter = Math.min(remainingQuantity, espaceDisponible);
+                try {
+                    batiment.ajouterPiece(piece, quantiteAajouter);
+                    remainingQuantity -= quantiteAajouter;
+                } catch (IllegalArgumentException e) {
+                    continue;
+                }
+            }
+        }
+        
+        if (remainingQuantity > 0) {
+            System.out.println("Warning: Insufficient storage space for " + remainingQuantity + " " + piece.name());
+        }
     }
 
     public void ajouterBatimentStockage(BatimentStockage batiment) {

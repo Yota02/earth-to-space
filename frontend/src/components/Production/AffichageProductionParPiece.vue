@@ -11,11 +11,10 @@
           <img :src="getPieceImage(piece)" :alt="formatPieceType(piece)" class="piece-image">
           <div class="piece-type">{{ formatPieceType(piece) }}</div>
           <div class="piece-quantity">{{ quantite }} unités</div>
+        
+          
         </div>
       </div>
-    </div>
-    <div v-else class="no-data">
-      Aucune donnée de stockage disponible
     </div>
   </div>
 </template>
@@ -27,7 +26,10 @@ export default {
     return {
       pieces: [],
       socket: null,
-      totalStock: null
+      totalStock: null,
+      updateInterval: null,
+      usines: [],
+      pieceTypes: ['MOTEUR', 'RESERVOIR', 'COQUE', 'PANNEAUX_SOLAIRES', 'REACTEUR', 'CAPTEUR', 'HABITAT', 'MODULES_VAISSEAU']
     }
   },
   methods: {
@@ -35,7 +37,11 @@ export default {
       const typeMap = {
         'MOTEUR': 'Moteurs',
         'RESERVOIR': 'Réservoirs',
-        'COQUE': 'Coques'
+        'COQUE': 'Coques',
+        'REACTEUR': 'Réacteur',
+        'PANNEAUX_SOLAIRES' : 'Panneaux solaires',
+        'HABITAT' : 'habitat',
+        'MODULES_VAISSEAU': 'Modules vaisseau'
       }
       return typeMap[type] || type
     },
@@ -55,7 +61,21 @@ export default {
     connectWebSocket() {
       this.socket = new WebSocket('ws://localhost:3232')
       this.socket.onmessage = (event) => this.handleWebSocketMessage(event)
-      this.socket.onopen = () => this.updateProductionState()
+      this.socket.onopen = () => {
+        this.updateProductionState()
+        // Démarrer la mise à jour périodique une fois que la connexion est établie
+        this.startPeriodicUpdate()
+      }
+    },
+    startPeriodicUpdate() {
+      // Nettoyer l'intervalle existant si nécessaire
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval)
+      }
+      // Créer un nouvel intervalle
+      this.updateInterval = setInterval(() => {
+        this.updateProductionState()
+      }, 1000) // 1000ms = 1 seconde
     },
     updateProductionState() {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -102,6 +122,11 @@ export default {
     this.connectWebSocket()
   },
   beforeUnmount() {
+    // Nettoyer l'intervalle lors du démontage du composant
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval)
+    }
+    // Fermer la connexion WebSocket
     if (this.socket) {
       this.socket.close()
     }
@@ -154,22 +179,16 @@ export default {
 
 .pieces-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
   gap: 10px;
-  margin-top: 15px;
+  justify-content: center;
 }
+
 
 @media (max-width: 1024px) {
   .pieces-list {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100px, 2fr));
   }
-}
-
-.piece-item {
-  background-color: #333333;
-  border-radius: 6px;
-  padding: 15px;
-  text-align: center;
 }
 
 .piece-type {
