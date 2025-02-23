@@ -1,70 +1,107 @@
 <template>
   <div class="main">
-  <div class="formulaire-creation">
-    <h2>Créer un nouveau lanceur</h2>
-    <form @submit.prevent="submitForm">
-      <div class="form-group">
-        <label for="nom">Nom du lanceur:</label>
-        <input type="text" id="nom" v-model="lanceur.nom">
-      </div>
-
-      <div class="form-group">
-        <label for="poids">Poids à vide (tonnes):</label>
-        <input type="number" id="poids" v-model.number="lanceur.poids" @input="recalculer">
-      </div>
-
-      <h3>Configuration des moteurs</h3>
-      <div class="moteur-config">
+    <div class="formulaire-creation">
+      <h2>Créer un nouveau lanceur</h2>
+      <form @submit.prevent="submitForm">
         <div class="form-group">
-          <label for="typeMoteur">Type de moteur:</label>
-          <select id="typeMoteur" v-model.number="lanceur.moteurType" @change="recalculer">
-            <option value="">Sélectionnez un moteur</option>
-            <option v-for="moteur in typesMoteursDisponibles" :key="moteur.id" :value="moteur.id">
-              {{ moteur.nom }} - ISP: {{ moteur.isp }}s - Poussée: {{ moteur.poussee }}kN
+          <label for="nom">Nom du lanceur:</label>
+          <input type="text" id="nom" v-model="lanceur.nom">
+        </div>
+
+        <div class="form-group">
+          <label for="poids">Poids à vide (tonnes):</label>
+          <input type="number" id="poids" v-model.number="lanceur.poidsAVide" @input="recalculer">
+        </div>
+
+        <h3>Configuration des moteurs</h3>
+        <div class="moteur-config">
+          <div class="form-group">
+            <label for="typeMoteur">Type de moteur:</label>
+            <select id="typeMoteur" v-model="lanceur.moteurNom" @change="recalculer">
+              <option value="">Sélectionnez un moteur</option>
+              <option value="Chimiques">Moteur Chimique - Poussée: 2279kN - Propergol: Méthane</option>
+              <option value="Electriques">Moteur Électrique - Poussée: 0.5kN - Propulsion électrique</option>
+              <option value="Nucleaires">Moteur Nucléaire - Poussée: 333.6kN - Propergol: Nucléaire</option>
+              <option value="Ioniques">Moteur Ionique - Poussée: 0.236kN - Propergol: Ionique</option>
+              <option value="Solides">Moteur Solide - Poussée: 1688.4kN - Propergol: Oxygène</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="nombreMoteurs">Nombre de moteurs:</label>
+            <input type="number" id="nombreMoteurs" v-model.number="lanceur.nombreMoteurs" min="1" @input="recalculer">
+          </div>
+        </div>
+
+        <h3>Configuration des réservoirs</h3>
+        <div class="form-group">
+          <label for="ergol">Type d'ergol:</label>
+          <select id="ergol" v-model="lanceur.ergolType" @change="recalculer">
+            <option value="">Sélectionnez un ergol</option>
+            <option v-for="ergol in ergolsDisponibles" :key="ergol.nom" :value="ergol.nom">
+              {{ ergol.nom }} - Densité: {{ ergol.densite }}kg/m³
             </option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="nombreMoteurs">Nombre de moteurs:</label>
-          <input type="number" id="nombreMoteurs" v-model.number="lanceur.nombreMoteurs" min="1" @input="recalculer">
+          <label for="capaciteReservoir">Capacité des réservoirs (m³):</label>
+          <input type="number" id="capaciteReservoir" v-model.number="lanceur.capaciteReservoir" @input="recalculer">
         </div>
-      </div>
 
-      <h3>Configuration des réservoirs</h3>
-      <div class="form-group">
-        <label for="ergol">Type d'ergol:</label>
-        <select id="ergol" v-model.number="lanceur.ergolType" @change="recalculer">
-          <option value="">Sélectionnez un ergol</option>
-          <option v-for="ergol in ergolsDisponibles" :key="ergol.id" :value="ergol.id">
-            {{ ergol.nom }} - Densité: {{ ergol.densite }}kg/m³
-          </option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label for="taille">Taille (m):</label>
+          <input type="number" id="taille" v-model.number="lanceur.taille">
+        </div>
 
-      <div class="form-group">
-        <label for="capaciteReservoir">Capacité des réservoirs (m³):</label>
-        <input type="number" id="capaciteReservoir" v-model.number="lanceur.capaciteReservoir" @input="recalculer">
-      </div>
+        <div class="form-group">
+          <label for="diametre">Diamètre (m):</label>
+          <input type="number" id="diametre" v-model.number="lanceur.diametre">
+        </div>
 
-      <div class="debug-info">
-        <pre>{{ debugInfo }}</pre>
-      </div>
+        <div class="specifications">
+          <label>
+            <input type="checkbox" v-model="lanceur.estPrototype">
+            Prototype
+          </label>
+          <label>
+            <input type="checkbox" v-model="lanceur.estReetulisable">
+            Réutilisable
+          </label>
+          <label>
+            <input type="checkbox" v-model="lanceur.aSystèmeAutoDestruction">
+            Système d'auto-destruction
+          </label>
+        </div>
 
-      <div class="performances-panel">
-        <h3>Performances calculées</h3>
-        <div class="performance-item"><label>Poussée totale:</label> <span>{{ formatNumber(performances.pousseeTotale) }} kN</span></div>
-        <div class="performance-item"><label>Delta-V:</label> <span>{{ formatNumber(performances.deltaV) }} m/s</span></div>
-        <div class="performance-item"><label>Masse totale de carburant:</label> <span>{{ formatNumber(performances.masseCarburant) }} kg</span></div>
-        <div class="performance-item"><label>Charge utile en LEO:</label> <span>{{ formatNumber(performances.chargeLEO) }} tonnes</span></div>
-        <div class="performance-item"><label>Charge utile en GEO:</label> <span>{{ formatNumber(performances.chargeGEO) }} tonnes</span></div>
-        <div class="performance-item"><label>Charge utile en LUNE:</label> <span>{{ formatNumber(performances.chargeLUNE) }} tonnes</span></div>
-      </div>
+        <div class="performances-panel">
+          <h3>Performances calculées</h3>
+          <div class="performance-item">
+            <label>Poussée totale:</label>
+            <span>{{ formatNumber(performances.pousseeTotale) }} kN</span>
+          </div>
+          <div class="performance-item">
+            <label>Delta-V:</label>
+            <span>{{ formatNumber(performances.deltaV) }} m/s</span>
+          </div>
+          <div class="performance-item">
+            <label>Masse de carburant:</label>
+            <span>{{ formatNumber(performances.masseCarburant) }} kg</span>
+          </div>
+          <div class="performance-item">
+            <label>Vitesse max:</label>
+            <span>{{ formatNumber(performances.vitesseMax) }} m/s</span>
+          </div>
+          <div class="performance-item">
+            <label>Altitude max:</label>
+            <span>{{ formatNumber(performances.altitudeMax) }} km</span>
+          </div>
+        </div>
 
-      <button type="submit">Créer le lanceur</button>
-    </form>
+        <button type="submit" :disabled="!isFormValid">Créer le lanceur</button>
+      </form>
+    </div>
   </div>
-</div>
 </template>
 
 <script>
@@ -76,55 +113,81 @@ export default {
       connectionStatus: 'connecting',
       lanceur: {
         nom: '',
-        poids: 0, // en tonnes
-        moteurType: null,
+        taille: 0,
+        diametre: 0,
+        poidsAVide: 0,
+        moteurNom: '',
         nombreMoteurs: 1,
-        ergolType: null,
-        capaciteReservoir: 0, // en m³
-        chargeUtile: 0 // en tonnes
+        ergolType: '',
+        capaciteReservoir: 0,
+        estPrototype: false,
+        estReetulisable: false,
+        aSystèmeAutoDestruction: false,
+        etat: 1,
+        necessiteMaintenance: false
       },
-      typesMoteursDisponibles: [
-        { id: 1, nom: 'Merlin 1D', isp: 311, poussee: 845 },
-        { id: 2, nom: 'Raptor', isp: 350, poussee: 2200 },
-        { id: 3, nom: 'BE-4', isp: 340, poussee: 2400 },
-        { id: 4, nom: 'RD-180', isp: 338, poussee: 3830 }
+      moteurSpecs: {
+        'Chimiques': { pousse: 2279.0, isp: 380, consommation: 473.0 },
+        'Electriques': { pousse: 0.5, isp: 2000, consommation: 0.1 },
+        'Nucleaires': { pousse: 333.6, isp: 800, consommation: 8.5 },
+        'Ioniques': { pousse: 0.236, isp: 3000, consommation: 0.005 },
+        'Solides': { pousse: 1688.4, isp: 270, consommation: 2721.0 }
+      },
+      ergolsDisponibles: [
+        { nom: "OXYGEN", densite: 1141 },
+        { nom: "KEROSENE", densite: 820 },
+        { nom: "HYDROGENE", densite: 71 },
+        { nom: "METHANES", densite: 422 },
+        { nom: "HELIUM", densite: 125 },
+        { nom: "AZOTE", densite: 807 },
+        { nom: "ALCOOL", densite: 789 },
+        { nom: "BIODIESEL", densite: 880 },
+        { nom: "IONIQUE", densite: 1000 },
+        { nom: "NUCLEAIRE", densite: 1000 },
+        { nom: "PROPULSION_ELECTRIQUE", densite: 1000 },
+        { nom: "GAZ_NATUREL", densite: 422 }
       ],
-      ergolsDisponibles: [], // Sera rempli dynamiquement via WebSocket
       performances: {
         pousseeTotale: 0,
         deltaV: 0,
         masseCarburant: 0,
-        chargeLEO: 0,
-        chargeGEO: 0,
-        chargeLUNE: 0
-      },
-      debugInfo: 'Aucun calcul effectué'
-    };
+        vitesseMax: 0,
+        altitudeMax: 0
+      }
+    }
   },
+
+  computed: {
+    isFormValid() {
+      return this.lanceur.nom &&
+             this.lanceur.taille > 0 &&
+             this.lanceur.diametre > 0 &&
+             this.lanceur.poidsAVide > 0 &&
+             this.lanceur.moteurNom &&
+             this.lanceur.nombreMoteurs > 0 &&
+             this.lanceur.ergolType &&
+             this.lanceur.capaciteReservoir > 0;
+    }
+  },
+
   methods: {
     initWebSocket() {
       this.ws = new WebSocket('ws://localhost:3232');
 
       this.ws.onopen = () => {
         this.connectionStatus = 'connected';
-        this.requestCarburants();
       };
 
       this.ws.onclose = () => {
-        this.connectionStatus = 'error';
+        this.connectionStatus = 'disconnected';
       };
 
       this.ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
-          if (data.action === "carburantsState" && Array.isArray(data.carburants)) {
-            // Transformer les carburants reçus en format compatible
-            this.ergolsDisponibles = data.carburants.map((carburant, index) => ({
-              id: index + 1,
-              nom: carburant.nom,
-              densite: this.getDensiteForCarburant(carburant.nom)
-            }));
+          if (data.action === "boosterCreated") {
+            console.log("Booster créé avec succès:", data.booster);
+            this.resetForm();
           }
         } catch (error) {
           console.error('Erreur lors du parsing du message:', error);
@@ -132,84 +195,112 @@ export default {
       };
     },
 
-    requestCarburants() {
-      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-        this.ws.send(JSON.stringify({
-          action: 'getCarburants'
-        }));
-      }
-    },
-
-    // Fonction utilitaire pour obtenir la densité en fonction du type de carburant
-    getDensiteForCarburant(nom) {
-      const densites = {
-        "OXYGEN": 1141, // LOX
-        "KEROSENE": 820, // RP-1
-        "HYDROGENE": 71, // LH2
-        "METHANES": 422, // LCH4
-        "HELIUM": 125,
-        "AZOTE": 807,
-        "ALCOOL": 789, // Ethanol
-        "BIODIESEL": 880,
-        // Valeurs par défaut pour les autres types
-        "IONIQUE": 1000,
-        "NUCLEAIRE": 1000,
-        "PROPULSION_ELECTRIQUE": 1000,
-        "GAZ_NATUREL": 422
-      };
-      return densites[nom] || 1000; // Valeur par défaut si non trouvé
-    },
-
     recalculer() {
-      console.log('Recalcul déclenché');
-      const moteur = this.typesMoteursDisponibles.find(m => m.id === this.lanceur.moteurType);
-      const ergol = this.ergolsDisponibles.find(e => e.id === this.lanceur.ergolType);
-
-      if (!moteur || !ergol || !this.lanceur.poids || !this.lanceur.capaciteReservoir) {
-        this.debugInfo = 'Données manquantes';
+      if (!this.lanceur.moteurNom || !this.lanceur.ergolType) {
         return;
       }
 
-      // Calculs des performances inchangés
-      this.performances.pousseeTotale = moteur.poussee * this.lanceur.nombreMoteurs;
+      const moteur = this.moteurSpecs[this.lanceur.moteurNom];
+      const ergol = this.ergolsDisponibles.find(e => e.nom === this.lanceur.ergolType);
+
+      // Calcul de la poussée totale
+      this.performances.pousseeTotale = moteur.pousse * this.lanceur.nombreMoteurs;
+
+      // Calcul de la masse de carburant
       this.performances.masseCarburant = this.lanceur.capaciteReservoir * ergol.densite;
 
-      const poidsKg = this.lanceur.poids * 1000;
-      const masseTotaleInitiale = poidsKg + this.performances.masseCarburant + (this.lanceur.chargeUtile * 1000);
-      const masseTotaleFinale = poidsKg + (this.lanceur.chargeUtile * 1000);
+      // Calcul du ratio de masse
+      const masseTotaleInitiale = (this.lanceur.poidsAVide * 1000) + this.performances.masseCarburant;
+      const masseTotaleFinale = this.lanceur.poidsAVide * 1000;
       const massRatio = masseTotaleInitiale / masseTotaleFinale;
 
+      // Calcul du Delta-V (équation de Tsiolkovsky)
       const g0 = 9.81;
-      const pertes = 1800;
+      const pertes = 1500; // Pertes diverses (traînée, gravité, etc.)
       this.performances.deltaV = (moteur.isp * g0 * Math.log(massRatio)) - pertes;
 
-      this.performances.chargeLEO = this.chargeMax(9300);
-      this.performances.chargeGEO = this.chargeMax(12000);
-      this.performances.chargeLUNE = this.chargeMax(15000);
-
-      this.debugInfo = `Poussée totale: ${this.performances.pousseeTotale} kN\n`
-                       + `Delta-V: ${this.performances.deltaV.toFixed(2)} m/s\n`
-                       + `Masse de carburant: ${this.performances.masseCarburant} kg\n`
-                       + `Charge utile LEO: ${this.performances.chargeLEO.toFixed(2)} tonnes\n`
-                       + `Charge utile GEO: ${this.performances.chargeGEO.toFixed(2)} tonnes\n`
-                       + `Charge utile LUNE: ${this.performances.chargeLUNE.toFixed(2)} tonnes\n`;
-
-      console.log(this.debugInfo);
+      // Estimation de la vitesse max et altitude max
+      this.performances.vitesseMax = this.performances.deltaV * 0.7;
+      this.performances.altitudeMax = (this.performances.deltaV * this.performances.deltaV) / (2 * g0) / 1000;
     },
 
-    chargeMax(deltaV_requis) {
-      if (this.performances.deltaV < deltaV_requis) return 0;
-      const coeff = Math.exp((this.performances.deltaV - deltaV_requis) / (this.typesMoteursDisponibles[0].isp * 9.81));
-      const chargeMaxEnKg = (this.lanceur.poids * 1000 + this.performances.masseCarburant) * coeff;
-      return chargeMaxEnKg / 1000;
+    createBooster() {
+      const moteur = {
+        nom: this.lanceur.moteurNom,
+        poids: this.moteurSpecs[this.lanceur.moteurNom].pousse / 100,
+        pousse: this.moteurSpecs[this.lanceur.moteurNom].pousse,
+        consommationCarburant: this.moteurSpecs[this.lanceur.moteurNom].consommation
+      };
+
+      const reservoir = {
+        nom: `Reservoir ${this.lanceur.ergolType}`,
+        poidsAvide: this.lanceur.capaciteReservoir * 0.1,
+        poids: this.lanceur.capaciteReservoir * this.ergolsDisponibles.find(e => e.nom === this.lanceur.ergolType).densite,
+        capacite: this.lanceur.capaciteReservoir,
+        type: this.lanceur.ergolType
+      };
+
+      return {
+        nom: this.lanceur.nom,
+        taille: this.lanceur.taille,
+        diametre: this.lanceur.diametre,
+        poidsAVide: this.lanceur.poidsAVide,
+        altitudeMax: this.performances.altitudeMax * 1000,
+        VitesseMax: this.performances.vitesseMax,
+        moteur: [moteur], // On envoie un tableau avec un seul moteur
+        nombreMoteurs: this.lanceur.nombreMoteurs,
+        reservoirs: [reservoir],
+        estPrototype: this.lanceur.estPrototype,
+        estReetulisable: this.lanceur.estReetulisable,
+        aSystèmeAutoDestruction: this.lanceur.aSystèmeAutoDestruction,
+        etat: this.lanceur.etat,
+        necessiteMaintenance: this.lanceur.necessiteMaintenance,
+        historiquesLancement: []
+      };
+    },
+
+    async submitForm() {
+      try {
+        const boosterData = this.createBooster();
+        
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(JSON.stringify({
+            action: 'createBooster',
+            booster: boosterData
+          }));
+        }
+      } catch (error) {
+        console.error('Erreur lors de la création du booster:', error);
+      }
+    },
+
+    resetForm() {
+      this.lanceur = {
+        nom: '',
+        taille: 0,
+        diametre: 0,
+        poidsAVide: 0,
+        moteurNom: '',
+        nombreMoteurs: 1,
+        ergolType: '',
+        capaciteReservoir: 0,
+        estPrototype: false,
+        estReetulisable: false,
+        aSystèmeAutoDestruction: false,
+        etat: 1,
+        necessiteMaintenance: false
+      };
+      this.performances = {
+        pousseeTotale: 0,
+        deltaV: 0,
+        masseCarburant: 0,
+        vitesseMax: 0,
+        altitudeMax: 0
+      };
     },
 
     formatNumber(number) {
       return Number(number).toLocaleString('fr-FR', { maximumFractionDigits: 2 });
-    },
-
-    submitForm() {
-      console.log('Données du lanceur:', this.lanceur);
     }
   },
 
@@ -226,13 +317,18 @@ export default {
 </script>
 
 <style scoped>
-h1, h2, h3, h4 {
-  color: white;
+h1,
+h2,
+h3,
+h4,
+label {
+  color: black;
 }
 
-.main{
+.main {
   margin-top: 20px;
   height: 100%;
+  background-color: white;
 }
 
 .formulaire-creation {
@@ -251,7 +347,8 @@ label {
   font-weight: bold;
 }
 
-input, select {
+input,
+select {
   width: 100%;
   padding: 8px;
   border: 1px solid #ddd;

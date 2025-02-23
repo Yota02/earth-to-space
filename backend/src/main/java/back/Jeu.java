@@ -4,30 +4,22 @@ import back.Batiment.BatimentManager;
 import back.Batiment.BatimentStockage;
 import back.Batiment.HangarAssemblage;
 import back.Batiment.IBatiment;
-import back.Batiment.UsineProduction;
 import back.Batiment.UsineProductionCarburant;
 import back.MarcheFinancier.Entreprise;
 import back.MarcheFinancier.GestionnaireMarche;
-import back.Metaux.Materiaux;
 import back.Ressources_Humaines.GestionnaireRessources_Humaines;
 import back.Ressources_Humaines.Ingenieur;
 import back.Ressources_Humaines.Personne;
-import back.Ressources_Humaines.PersonneSimple;
 import back.Ressources_Humaines.Scientifique;
 import back.fusee.Fusee;
+import back.fusee.GestionaireFusee;
 import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
-import back.fusee.chargeUtile.ChargeUtile;
 import back.fusee.moteur.Ergol;
 import back.fusee.moteur.GestionaireMoteur;
-import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
-import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
-import back.mission.Destination;
 import back.mission.Mission;
-import back.mission.SiteLancement;
-import back.mission.TypeMission;
 import back.objectAchetable.CarburantAchetable;
 import back.objectAchetable.GestionnaireCarburant;
 import back.objectAchetable.GestionnaireObject;
@@ -42,9 +34,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import static java.lang.Thread.sleep;
 
 public class Jeu implements Runnable {
@@ -98,6 +87,7 @@ public class Jeu implements Runnable {
     private GestionnaireCarburant gestionnaireCarburant;
     private GestionaireMoteur moteurManager;
     private GestionnaireRessources_Humaines gestionnaireRH;
+    private GestionaireFusee gestionaireFusee;
 
     private Entreprise entreprise;
     private boolean debugMode = true;
@@ -143,8 +133,6 @@ public class Jeu implements Runnable {
 
         gestionnaireObject = new GestionnaireObject();
 
-        moteurManager = new GestionaireMoteur();
-
         gestionnaireCarburant = new GestionnaireCarburant();
         gestionnaireCarburant.initialisationCarburant();
         this.carburantAchetables = gestionnaireCarburant.getObjects();
@@ -155,6 +143,12 @@ public class Jeu implements Runnable {
         gestionnaireRecherche.initialiserRecherches();
         this.recherchesTotal = gestionnaireRecherche.getRecherches();
 
+        gestionaireFusee = new GestionaireFusee();
+
+    }
+
+    public GestionaireFusee getGestionaireFusee() {
+        return gestionaireFusee;
     }
 
     public void setDebugMode(boolean mode) {
@@ -376,6 +370,10 @@ public class Jeu implements Runnable {
 
     public Entreprise getEntreprise() {
         return entreprise;
+    }
+
+    public GestionaireMoteur getGestionaireMoteur(){
+        return moteurManager;
     }
 
     public void init() {

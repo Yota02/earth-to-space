@@ -13,17 +13,20 @@ import back.fusee.reservoir.ReservoirFusee;
 
 public class Booster extends Ifusee {
 
+    private String nomDeClassBooster;
+    private boolean isModele;
+
     // Spécification basique
     public String nom;
     public Double taille;
     public Double diametre;
     public Double poidsAVide;
-
     public Double altitudeMax;
     public Double VitesseMax;
 
     // Element compose
-    public List<Moteur> moteur;
+    public Moteur moteur;
+    public int nbMoteur;
     public List<ReservoirFusee> reservoirs;
 
     // Spécification spécial
@@ -42,20 +45,28 @@ public class Booster extends Ifusee {
     List<String> historiquesLancement;
 
     // Constructeur
-    public Booster(String nom, Double taille, Double diametre, Double poidsAVide, 
-                   Double altitudeMax, Double VitesseMax, List<Moteur> moteur, 
-                   List<ReservoirFusee> reservoirs, Boolean estPrototype, 
-                   Boolean estReetulisable, Boolean aSystèmeAutoDestruction, 
-                   int etat, Boolean nécessiteMaintenance, 
-                   List<String> historiquesLancement) {
-                    
-        this.nom = nom;
+    public Booster(String nomDeClassBooster, String nom, Double taille, Double diametre, Double poidsAVide,
+            Double altitudeMax, Double VitesseMax, Moteur moteur, int nbMoteur,
+            List<ReservoirFusee> reservoirs, Boolean estPrototype,
+            Boolean estReetulisable, Boolean aSystèmeAutoDestruction,
+            int etat, Boolean nécessiteMaintenance,
+            List<String> historiquesLancement, boolean isModele) {
+
+        this.nomDeClassBooster = nomDeClassBooster;
+        this.nom = isModele ? null : nom; // Un modèle n'a pas de nom
+        this.isModele = isModele;
+
+        if (!isModele && (nom == null || nom.isEmpty())) {
+            throw new IllegalArgumentException("Un booster instance doit avoir un nom !");
+        }
+
         this.taille = taille;
         this.diametre = diametre;
         this.poidsAVide = poidsAVide;
         this.altitudeMax = altitudeMax;
         this.VitesseMax = VitesseMax;
         this.moteur = moteur;
+        this.nbMoteur = nbMoteur;
         this.reservoirs = reservoirs;
         this.estPrototype = estPrototype;
         this.estReetulisable = estReetulisable;
@@ -68,12 +79,22 @@ public class Booster extends Ifusee {
         this.altitude = 0;
     }
 
+    public Booster creerInstance(String nomInstance) {
+        if (!isModele) {
+            throw new IllegalStateException("Seuls les modèles peuvent créer des instances !");
+        }
+
+        return new Booster(this.nomDeClassBooster, nomInstance, this.taille, this.diametre, this.poidsAVide,
+                this.altitudeMax, this.VitesseMax, this.moteur, this.nbMoteur, this.reservoirs,
+                this.estPrototype, this.estReetulisable, this.aSystèmeAutoDestruction,
+                0, false, new ArrayList<>(), false);
+    }
+
     // Méthode de calcul du poids total
     private Double calculerPoids() {
         Double totalPoids = poidsAVide;
-        for (Moteur m : moteur) {
-            totalPoids += m.getPoids();
-        }
+        totalPoids += moteur.getPoids() * nbMoteur;
+
         for (Reservoir r : reservoirs) {
             totalPoids += r.getPoidsAvide();
         }
@@ -82,47 +103,73 @@ public class Booster extends Ifusee {
 
     public void calculerAltitude() {
         // 1. Calcul de la poussée nette (poussée des moteurs - force gravitationnelle)
-        Double pousséeTotale = 0.0;
-        for (Moteur m : moteur) {
-            pousséeTotale += m.getPousse();  // Récupérer la poussée du moteur
-        }
+        Double pousséeTotale = moteur.getPousse() * nbMoteur;
 
-        if(this.vitesse == 0){
+        if (this.vitesse == 0) {
             this.altitude = 0;
         }
 
-        Double forceGravitationnelle = poids * 9.81;  // Poids du booster * accélération gravitationnelle (g = 9.81 m/s²)
+        Double forceGravitationnelle = poids * 9.81; // Poids du booster * accélération gravitationnelle (g = 9.81 m/s²)
         Double pousséeNette = pousséeTotale - forceGravitationnelle;
-    
+
         // 2. Calcul de l'accélération (a = F / m)
         Double accélération = pousséeNette / poids;
-    
+
         // 3. Mise à jour de la vitesse (vitesse = vitesse initiale + accélération)
         Double nouvelleVitesse = vitesse + accélération;
-    
+
         // 4. Limiter la vitesse à la vitesse maximale (si nécessaire)
         if (nouvelleVitesse > VitesseMax) {
             vitesse = VitesseMax;
         } else {
             vitesse = nouvelleVitesse;
         }
-    
+
         // 5. Mise à jour de l'altitude (altitude = altitude initiale + vitesse)
         Double nouvelleAltitude = altitude + vitesse;
-    
+
         // 6. Limiter l'altitude à l'altitude maximale
         if (nouvelleAltitude > altitudeMax) {
             altitude = altitudeMax;
         } else {
             altitude = nouvelleAltitude;
         }
-    
+
         // Mise à jour de l'altitude
         this.altitude = altitude;
     }
-    
-    public double getAltitude(){
-        return altitude;
+
+    public void calculerVitesse() {
+        // 1. Calcul de la poussée totale
+        Double pousséeTotale = moteur.getPousse() * nbMoteur;
+
+        // 2. Vérification si la poussée est suffisante pour décoller la fusée
+        if (pousséeTotale < poids) {
+            vitesse = 0.0; // Réinitialisation de la vitesse à 0 si la poussée est insuffisante
+            return;
+        }
+
+        // 3. Calcul de l'accélération (a = F / m)
+        Double accélération = pousséeTotale / poids;
+
+        // 4. Mise à jour de la vitesse en fonction de l'accélération
+        Double nouvelleVitesse = vitesse + accélération;
+
+        // 5. Limiter la vitesse à la vitesse maximale
+        if (nouvelleVitesse > VitesseMax) {
+            vitesse = VitesseMax;
+        } else {
+            vitesse = nouvelleVitesse;
+        }
+
+        // 6. Calcul de la consommation totale de carburant
+        Double consommationTotale = moteur.getConsommationCarburant() * nbMoteur;
+
+        // 7. Mise à jour du poids du booster (poids à vide ne doit pas être dépassé)
+        poids -= consommationTotale;
+        if (poids < poidsAVide) {
+            poids = poidsAVide;
+        }
     }
 
     // Getters
@@ -154,8 +201,12 @@ public class Booster extends Ifusee {
         return VitesseMax;
     }
 
-    public List<Moteur> getMoteur() {
+    public Moteur getMoteur() {
         return moteur;
+    }
+
+    public int getNbMoteur() {
+        return nbMoteur;
     }
 
     public List<ReservoirFusee> getReservoirs() {
@@ -182,6 +233,10 @@ public class Booster extends Ifusee {
         return vitesse;
     }
 
+    public double getAltitude() {
+        return altitude;
+    }
+
     public Boolean getNécessiteMaintenance() {
         return nécessiteMaintenance;
     }
@@ -196,7 +251,7 @@ public class Booster extends Ifusee {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        
+
         // Spécifications basiques
         json.put("nom", this.nom);
         json.put("taille", this.taille);
@@ -216,20 +271,15 @@ public class Booster extends Ifusee {
         json.put("estReetulisable", this.estReetulisable);
         json.put("aSystemeAutoDestruction", this.aSystèmeAutoDestruction);
 
-        // Conversion des moteurs
-        JSONArray moteursArray = new JSONArray();
+        // Moteur
         if (this.moteur != null) {
-            for (Moteur moteur : this.moteur) {
-                if (moteur != null) {
-                    JSONObject moteurJson = new JSONObject();
-                    moteurJson.put("nom", moteur.getNom());
-                    moteurJson.put("poids", moteur.getPoids());
-                    moteursArray.put(moteurJson);
-                }
-            }
+            JSONObject moteurJson = new JSONObject();
+            moteurJson.put("nom", moteur.getNom());
+            moteurJson.put("poids", moteur.getPoids());
+            json.put("moteur", moteurJson);
         }
-        json.put("moteurs", moteursArray);
-        json.put("nombreMoteurs", getNbMoteur());
+        json.put("nombreMoteurs", this.nbMoteur);
+
         // Conversion des réservoirs
         JSONArray reservoirsArray = new JSONArray();
         if (this.reservoirs != null) {
@@ -255,62 +305,10 @@ public class Booster extends Ifusee {
             }
         }
         json.put("historiquesLancement", historiqueArray);
-        
+
         return json;
     }
 
-
-    private int getNbMoteur(){
-        return moteur.size();
-    }
-
-    public void calculerVitesse() {
-        // 1. Calcul de la poussée totale (somme des poussées de tous les moteurs)
-        Double pousséeTotale = 0.0;
-        for (Moteur m : moteur) {
-            pousséeTotale += m.getPousse();
-        }
-    
-        // 2. Vérification si la poussée est suffisante pour décoller la fusée
-        if (pousséeTotale < poids) {
-            vitesse = 0.0; // Réinitialisation de la vitesse à 0 si la poussée est insuffisante
-            return; // Arrêter l'exécution de la méthode si la poussée est insuffisante
-        }
-    
-        // 3. Calcul de l'accélération (a = F / m)
-        Double accélération = pousséeTotale / poids;
-    
-        // 4. Mise à jour de la vitesse en fonction de l'accélération
-        Double nouvelleVitesse = vitesse + accélération;
-    
-        // 5. Limiter la vitesse à la vitesse maximale
-        if (nouvelleVitesse > VitesseMax) {
-            vitesse = VitesseMax;
-        } else {
-            vitesse = nouvelleVitesse;
-        }
-    
-        // 6. Mise à jour du poids en fonction de la consommation de carburant (perte de masse)
-        Double consommationTotale = 0.0;
-        for (Moteur m : moteur) {
-            consommationTotale += m.getConsommationCarburant();
-        }
-    
-        // 7. Calcul de la masse perdue
-        Double massePerdue = consommationTotale;
-    
-        // 8. Mise à jour du poids du booster (poids à vide ne doit pas être dépassé)
-        poids -= massePerdue;
-        if (poids < poidsAVide) {
-            poids = poidsAVide;
-        }
-    }    
-    
-    /**
-     * Convertit une liste de boosters en JSONArray
-     * @param boosters Liste des boosters à convertir
-     * @return JSONArray contenant tous les boosters
-     */
     public static JSONArray toJsonArray(List<Booster> boosters) {
         JSONArray jsonArray = new JSONArray();
         if (boosters != null) {
@@ -321,6 +319,51 @@ public class Booster extends Ifusee {
             }
         }
         return jsonArray;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Booster {")
+                .append("\n  Nom: ").append(nom)
+                .append("\n  Taille: ").append(taille).append("m")
+                .append("\n  Diametre: ").append(diametre).append("m")
+                .append("\n  Poids à vide: ").append(poidsAVide).append(" kg")
+                .append("\n  Poids actuel: ").append(poids).append(" kg")
+                .append("\n  Altitude max: ").append(altitudeMax).append(" m")
+                .append("\n  Vitesse max: ").append(VitesseMax).append(" m/s")
+                .append("\n  Etat: ").append(etat)
+                .append("\n  Vitesse actuelle: ").append(vitesse).append(" m/s")
+                .append("\n  Altitude actuelle: ").append(altitude).append(" m")
+                .append("\n  Nécessite maintenance: ").append(nécessiteMaintenance)
+                .append("\n  Est prototype: ").append(estPrototype)
+                .append("\n  Est réutilisable: ").append(estReetulisable)
+                .append("\n  Système auto-destruction: ").append(aSystèmeAutoDestruction)
+                .append("\n  Nombre de moteurs: ").append(nbMoteur);
+
+        if (moteur != null) {
+            sb.append("\n  Moteur: {")
+                    .append("\n    Nom: ").append(moteur.getNom())
+                    .append("\n    Poids: ").append(moteur.getPoids()).append(" kg")
+                    .append("\n    Poussée: ").append(moteur.getPousse()).append(" N")
+                    .append("\n  }");
+        }
+
+        if (reservoirs != null && !reservoirs.isEmpty()) {
+            sb.append("\n  Réservoirs:");
+            for (ReservoirFusee reservoir : reservoirs) {
+                sb.append("\n    { Nom: ").append(reservoir.getNom())
+                        .append(", Poids à vide: ").append(reservoir.getPoidsAvide()).append(" kg")
+                        .append(", Poids actuel: ").append(reservoir.getPoids()).append(" kg }");
+            }
+        }
+
+        if (historiquesLancement != null && !historiquesLancement.isEmpty()) {
+            sb.append("\n  Historique des lancements: ").append(historiquesLancement);
+        }
+
+        sb.append("\n}");
+        return sb.toString();
     }
 
 }

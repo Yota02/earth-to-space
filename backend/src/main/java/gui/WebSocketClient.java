@@ -12,6 +12,7 @@ import back.fusee.Fusee;
 import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
 import back.fusee.moteur.Ergol;
+import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
@@ -191,6 +192,10 @@ public class WebSocketClient {
                     sendPieceFuseeList(session);
                     break;
 
+                case "createBooster":
+                    handleCreateBoosterModel(jsonMessage, session);
+                    break;
+
                 case "startResearch":
                     String name2 = jsonMessage.getString("name");
                     Recherche recherche = GameServer.jeu.getGestionnaireRecherche().getRecherche(name2);
@@ -225,20 +230,20 @@ public class WebSocketClient {
     private void handleUpdatePieceProduction(Session session, JSONObject jsonMessage) throws IOException {
         String usineName = jsonMessage.getString("usineName");
         String nouvellePiece = jsonMessage.getString("nouvellePiece");
-    
+
         List<UsineProduction> usines = GameServer.jeu.getBatimentManager().getUsineProduction();
-    
+
         for (UsineProduction usine : usines) {
             if (usine.getNom().equals(usineName)) {
                 try {
                     // ✅ Utilisation du mapping pour trouver la bonne pièce
                     usine.setPieceProduite(PieceFusee.fromNom(nouvellePiece));
-    
+
                     // Envoyer la mise à jour à tous les clients
                     JSONObject response = new JSONObject();
                     response.put("action", "productionUpdated");
                     response.put("usine", usine.toJson());
-    
+
                     for (Session client : session.getOpenSessions()) {
                         client.getBasicRemote().sendText(response.toString());
                     }
@@ -249,17 +254,17 @@ public class WebSocketClient {
             }
         }
     }
-    
+
     private void sendPieceFuseeList(Session session) throws IOException {
         JSONArray piecesArray = new JSONArray();
         for (PieceFusee piece : PieceFusee.values()) {
             piecesArray.put(piece.getNom());
         }
-    
+
         JSONObject response = new JSONObject();
         response.put("action", "pieceFuseeList");
         response.put("pieces", piecesArray);
-    
+
         session.getBasicRemote().sendText(response.toString());
     }
 
@@ -409,6 +414,54 @@ public class WebSocketClient {
         } catch (JSONException e) {
             onError(session, e);
         }
+    }
+
+    private void handleCreateBoosterModel(JSONObject message, Session session) throws IOException {
+        JSONObject boosterData = message.getJSONObject("booster");
+        
+        // Extraire le moteur depuis les données JSON
+        JSONArray moteursArray = boosterData.getJSONArray("moteur");
+        JSONObject moteurJson = moteursArray.getJSONObject(0); // Prendre le premier moteur
+        
+        // Récupérer le moteur complet depuis le gestionnaire
+        Moteur moteur = GameServer.jeu.getGestionaireMoteur().getMoteurParNom(moteurJson.getString("nom"));
+        if (moteur == null) {
+            throw new IllegalArgumentException("Moteur non trouvé: " + moteurJson.getString("nom"));
+        }
+        
+        int nbMoteur = boosterData.getInt("nombreMoteurs"); // Récupérer le nombre de moteurs
+        
+        Booster newBooster = new Booster(
+                "ClassBooster", // nomDeClassBooster
+                boosterData.getString("nom"), // nom
+                boosterData.getDouble("taille"),
+                boosterData.getDouble("diametre"),
+                boosterData.getDouble("poidsAVide"),
+                boosterData.getDouble("altitudeMax"),
+                boosterData.getDouble("VitesseMax"),
+                moteur, // Moteur complet récupéré du gestionnaire
+                nbMoteur, // Nombre de moteurs
+                new ArrayList<>(),
+                //convertJsonArrayToReservoirList(boosterData.getJSONArray("reservoirs")),
+                boosterData.getBoolean("estPrototype"),
+                boosterData.getBoolean("estReetulisable"),
+                boosterData.getBoolean("aSystèmeAutoDestruction"),
+                boosterData.getInt("etat"),
+                boosterData.getBoolean("necessiteMaintenance"),
+                new ArrayList<>(),
+                false // isModele
+        );
+    
+        // Ajouter le booster à votre système
+        GameServer.jeu.getGestionaireFusee().ajouterBooster(newBooster);
+        
+        
+
+        // Envoyer une confirmation
+        JSONObject response = new JSONObject();
+        response.put("action", "boosterCreated");
+        response.put("booster", newBooster.toJson());
+        session.getBasicRemote().sendText(response.toString());
     }
 
     private void getObjectsAchetables(Session session) {

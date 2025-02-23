@@ -1,24 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import HomeView from '../views/HomeView.vue';
-import ResearcheView from '../views/ResearcheView.vue';
-import ShopView from '../views/ShopView.vue';
-import ProgrammeView from '../views/ProgrammeView.vue';
-import ProgrammeDetails from "../views/Detail/ProgrammeDetail.vue";
-import LanceurView from '../views/LanceurView.vue';
-import ErgolView from '../views/ErgolView.vue';
-import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue';
-import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue';
-import RessourceHumaines from '../views/RessourceHumaines/RessourcesHumaineView.vue';
+import ResearcheView from '../views/ResearcheView.vue'
+import ShopView from '../views/ShopView.vue'
+import ProgrammeView from '../views/ProgrammeView.vue'
+import ProgrammeDetails from "../views/Detail/ProgrammeDetail.vue"
+import LanceurView from '../views/LanceurView.vue'
+import ErgolView from '../views/ErgolView.vue'
+import FuseeDetails from '../views/Detail/Fusee/FuseeDetail.vue'
+import BoosterDetails from '../views/Detail/Fusee/LanceurDetail.vue'
+import RessourceHumaines from '../views/RessourceHumaines/RessourcesHumaineView.vue'
 import MarcheEmploie from '../views/RessourceHumaines/MarcheEmploieView.vue';
-import Lancement from '../views/LancementView.vue';
-import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue";
+import Lancement from '../views/LancementView.vue'
+import formulaireBoosterView from "../views/Formulaire/FormulaireBoosterView.vue"
 import marketBatimentView from "../views/Batiments/BatimentMarketView.vue";
-import politiqueView from "../views/Politique/PolitiqueView.vue";
-import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue";
-import ProductionGeneralView from '../views/Production/ProductionGeneralView.vue';
-import SystemSolaire from '../views/SystemSolaire.vue';
-import EntrepriseForm from '../views/MarcheFinancier/EntrepriseForm.vue';
+import politiqueView from "../views/Politique/PolitiqueView.vue"
+import marcheFinancierView from "../views/MarcheFinancier/MarcheFinancierView.vue"
+import ProductionGeneralView from '../views/Production/ProductionGeneralView.vue'
+import SystemSolaire from '../views/SystemSolaire.vue'
+import EntrepriseForm from '../views/MarcheFinancier/EntrepriseForm.vue'
+import BoostersView from '../views/Fusee/BoostersView.vue'
 
 const routes = [
   {
@@ -55,6 +56,11 @@ const routes = [
     path: '/researche',
     name: 'researche',
     component: ResearcheView
+  },
+  {
+    path: '/boosters',
+    name: 'boosters',
+    component: BoostersView
   },
   {
     path: '/shop',
