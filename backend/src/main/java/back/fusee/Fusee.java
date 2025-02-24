@@ -67,11 +67,9 @@ public class Fusee extends Ifusee {
         }
         
         double totalPoussee = 0;
-        for (Moteur m : boosterPrincipal.getMoteur()) {
-            if (m != null) {
-                totalPoussee += m.getPousseeMax();
-            }
-        }
+        
+        totalPoussee += boosterPrincipal.getMoteur().getPousseeMax();
+
         return this.poidsTotal - totalPoussee;
     }
 

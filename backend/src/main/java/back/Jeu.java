@@ -780,7 +780,7 @@ public class Jeu implements Runnable {
     }
 
     public List<Booster> getLanceurs() {
-        return lanceurs;
+        return gestionaireFusee.getTousLesBoosters();
     }
 
     public void setProgrammes(List<Programme> programmes) {

@@ -36,9 +36,9 @@
             </router-link>
           </li>
           <li>
-            <router-link to="/lancement" @click="closeMenu" class="nav-link">
+            <router-link to="/boosters" @click="closeMenu" class="nav-link">
               <img src="./assets/img/icone/lancement.png" alt="Lancement" class="nav-icon">
-              <span class="nav-text">Lancement</span>
+              <span class="nav-text">Boosters</span>
             </router-link>
           </li>
           <li>
