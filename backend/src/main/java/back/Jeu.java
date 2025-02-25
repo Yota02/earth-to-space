@@ -15,9 +15,12 @@ import back.fusee.Fusee;
 import back.fusee.GestionaireFusee;
 import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
+import back.fusee.booster.BoosterModel;
 import back.fusee.moteur.Ergol;
 import back.fusee.moteur.GestionaireMoteur;
+import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
+import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
@@ -372,7 +375,7 @@ public class Jeu implements Runnable {
         return entreprise;
     }
 
-    public GestionaireMoteur getGestionaireMoteur(){
+    public GestionaireMoteur getGestionaireMoteur() {
         return moteurManager;
     }
 
@@ -380,11 +383,49 @@ public class Jeu implements Runnable {
 
         // Dans la méthode init() de Jeu.java
         if (debugMode) {
+            Moteur moteur = new Moteur(
+                    "Moteur X1", // Nom du moteur
+                    500.0, // Poussée (N)
+                    null, // Carburant (à définir selon Ergol)
+                    0.9, // Rendement
+                    2000.0, // Poids (kg)
+                    1.5, // Diamètre (m)
+                    3.0, // Longueur (m)
+                    3500.0, // Température max (K)
+                    99.0, // Fiabilité (%)
+                    true, // Capacité de redémarrage
+                    4000.0, // Température critique (K)
+                    false, // Arrêt d'urgence
+                    600.0, // Poussée max (kN)
+                    250.0, // Consommation carburant (kg/s)
+                    null // TypeMoteur (à définir)
+            );
+
+            // Création de réservoirs
+            List<ReservoirFusee> reservoirs = new ArrayList<>();
+
+            BoosterModel booster = new BoosterModel(
+                    "Booster Alpha", // Nom
+                    30.0, // Taille (m)
+                    3.5, // Diamètre (m)
+                    5000.0, // Poids à vide (kg)
+                    100000.0, // Altitude max (m)
+                    5000.0, // Vitesse max (m/s)
+                    moteur, // Moteur
+                    2, // Nombre de moteurs
+                    reservoirs, // Liste des réservoirs
+                    false, // Est prototype
+                    true, // Est réutilisable
+                    true // A un système d'auto-destruction
+            );
+
+            gestionaireFusee.ajouterBoosterModel(booster);
+
             this.entreprise = new Entreprise("Space Y", "USA", 1000000, 100, 0, 0);
 
             // Initialisation d'un bâtiment de stockage avec des pièces
             BatimentStockage stockageInitial = new BatimentStockage("Entrepôt initial", 200, 0, 1000);
-                                                                                                       
+
             stockageInitial.debloquer();
             stockageInitial.setOperationnel(true);
 
@@ -523,7 +564,6 @@ public class Jeu implements Runnable {
             }
         }
     }
-
 
     private void actionFinJour() {
         if (!missionEnCours) {

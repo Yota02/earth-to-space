@@ -123,8 +123,6 @@ export default {
         estPrototype: false,
         estReetulisable: false,
         aSystèmeAutoDestruction: false,
-        etat: 1,
-        necessiteMaintenance: false
       },
       moteurSpecs: {
         'Chimiques': { pousse: 2279.0, isp: 380, consommation: 473.0 },
@@ -160,13 +158,13 @@ export default {
   computed: {
     isFormValid() {
       return this.lanceur.nom &&
-             this.lanceur.taille > 0 &&
-             this.lanceur.diametre > 0 &&
-             this.lanceur.poidsAVide > 0 &&
-             this.lanceur.moteurNom &&
-             this.lanceur.nombreMoteurs > 0 &&
-             this.lanceur.ergolType &&
-             this.lanceur.capaciteReservoir > 0;
+        this.lanceur.taille > 0 &&
+        this.lanceur.diametre > 0 &&
+        this.lanceur.poidsAVide > 0 &&
+        this.lanceur.moteurNom &&
+        this.lanceur.nombreMoteurs > 0 &&
+        this.lanceur.ergolType &&
+        this.lanceur.capaciteReservoir > 0;
     }
   },
 
@@ -247,25 +245,22 @@ export default {
         poidsAVide: this.lanceur.poidsAVide,
         altitudeMax: this.performances.altitudeMax * 1000,
         VitesseMax: this.performances.vitesseMax,
-        moteur: [moteur], // On envoie un tableau avec un seul moteur
+        moteur: moteur,
         nombreMoteurs: this.lanceur.nombreMoteurs,
         reservoirs: [reservoir],
         estPrototype: this.lanceur.estPrototype,
         estReetulisable: this.lanceur.estReetulisable,
-        aSystèmeAutoDestruction: this.lanceur.aSystèmeAutoDestruction,
-        etat: this.lanceur.etat,
-        necessiteMaintenance: this.lanceur.necessiteMaintenance,
-        historiquesLancement: []
+        aSystèmeAutoDestruction: this.lanceur.aSystèmeAutoDestruction
       };
     },
 
     async submitForm() {
       try {
         const boosterData = this.createBooster();
-        
+
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
           this.ws.send(JSON.stringify({
-            action: 'createBooster',
+            action: 'createBoosterModel',
             booster: boosterData
           }));
         }
@@ -287,8 +282,6 @@ export default {
         estPrototype: false,
         estReetulisable: false,
         aSystèmeAutoDestruction: false,
-        etat: 1,
-        necessiteMaintenance: false
       };
       this.performances = {
         pousseeTotale: 0,

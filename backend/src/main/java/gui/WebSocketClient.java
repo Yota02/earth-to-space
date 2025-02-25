@@ -11,8 +11,10 @@ import back.Ressources_Humaines.Personne;
 import back.fusee.Fusee;
 import back.fusee.Piece.PieceFusee;
 import back.fusee.booster.Booster;
+import back.fusee.booster.BoosterModel;
 import back.fusee.moteur.Ergol;
 import back.fusee.moteur.Moteur;
+import back.fusee.reservoir.ReservoirFusee;
 import back.fusee.reservoir.ReservoirPose;
 import back.mission.Mission;
 import back.objectAchetable.CarburantAchetable;
@@ -83,6 +85,10 @@ public class WebSocketClient {
 
                 case "getBoostersState":
                     getBoosters(session);
+                    break;
+
+                case "getBoosterModelsState":
+                    getBoostersModel(session);
                     break;
 
                 case "getMarcheEmploisState":
@@ -192,7 +198,7 @@ public class WebSocketClient {
                     sendPieceFuseeList(session);
                     break;
 
-                case "createBooster":
+                case "createBoosterModel":
                     handleCreateBoosterModel(jsonMessage, session);
                     break;
 
@@ -418,49 +424,56 @@ public class WebSocketClient {
 
     private void handleCreateBoosterModel(JSONObject message, Session session) throws IOException {
         JSONObject boosterData = message.getJSONObject("booster");
-        
-        // Extraire le moteur depuis les données JSON
-        JSONArray moteursArray = boosterData.getJSONArray("moteur");
-        JSONObject moteurJson = moteursArray.getJSONObject(0); // Prendre le premier moteur
-        
-        // Récupérer le moteur complet depuis le gestionnaire
-        Moteur moteur = GameServer.jeu.getGestionaireMoteur().getMoteurParNom(moteurJson.getString("nom"));
-        if (moteur == null) {
-            throw new IllegalArgumentException("Moteur non trouvé: " + moteurJson.getString("nom"));
-        }
-        
-        int nbMoteur = boosterData.getInt("nombreMoteurs"); // Récupérer le nombre de moteurs
-        
-        Booster newBooster = new Booster(
-                "ClassBooster", // nomDeClassBooster
-                boosterData.getString("nom"), // nom
+
+        JSONObject moteurJson = boosterData.getJSONObject("moteur");// Prendre le premier moteur du tableau
+
+        String moteurNom = moteurJson.getString("nom");
+        Moteur moteur = GameServer.jeu.getGestionaireMoteur().getMoteurParNom(moteurNom);
+
+        int nbMoteur = boosterData.getInt("nombreMoteurs");
+
+        // Extraire les réservoirs
+        List<ReservoirFusee> reservoirs = new ArrayList<>();
+        /*
+         * JSONArray reservoirsArray = boosterData.getJSONArray("reservoirs");
+         * for (int i = 0; i < reservoirsArray.length(); i++) {
+         * JSONObject reservoirJson = reservoirsArray.getJSONObject(i);
+         * String typeReservoir = reservoirJson.getString("type");
+         * // Ici vous pourriez créer un nouveau réservoir ou le récupérer du
+         * gestionnaire
+         * // selon votre logique métier
+         * ReservoirFusee reservoir = new ReservoirFusee(
+         * reservoirJson.getString("nom"),
+         * reservoirJson.getDouble("poidsAvide"),
+         * reservoirJson.getDouble("capacite"),
+         * typeReservoir
+         * );
+         * reservoirs.add(reservoir);
+         * }
+         */
+
+        BoosterModel newBoosterModel = new BoosterModel(
+                boosterData.getString("nom"),
                 boosterData.getDouble("taille"),
                 boosterData.getDouble("diametre"),
                 boosterData.getDouble("poidsAVide"),
                 boosterData.getDouble("altitudeMax"),
-                boosterData.getDouble("VitesseMax"),
-                moteur, // Moteur complet récupéré du gestionnaire
-                nbMoteur, // Nombre de moteurs
-                new ArrayList<>(),
-                //convertJsonArrayToReservoirList(boosterData.getJSONArray("reservoirs")),
+                boosterData.getDouble("VitesseMax"), // Notez que c'est VitesseMax avec V majuscule
+                moteur,
+                nbMoteur,
+                reservoirs,
                 boosterData.getBoolean("estPrototype"),
                 boosterData.getBoolean("estReetulisable"),
-                boosterData.getBoolean("aSystèmeAutoDestruction"),
-                boosterData.getInt("etat"),
-                boosterData.getBoolean("necessiteMaintenance"),
-                new ArrayList<>(),
-                false // isModele
+                boosterData.getBoolean("aSystèmeAutoDestruction") // Utiliser le nom exact du frontend
         );
-    
-        // Ajouter le booster à votre système
-        GameServer.jeu.getGestionaireFusee().ajouterBooster(newBooster);
-        
-        
+
+        // Ajouter le modèle de booster
+        GameServer.jeu.getGestionaireFusee().ajouterBoosterModel(newBoosterModel);
 
         // Envoyer une confirmation
         JSONObject response = new JSONObject();
         response.put("action", "boosterCreated");
-        response.put("booster", newBooster.toJson());
+        response.put("booster", newBoosterModel.toJson());
         session.getBasicRemote().sendText(response.toString());
     }
 
@@ -834,6 +847,23 @@ public class WebSocketClient {
         response.put("batimentsEnConstruction", new JSONArray(batimentsEnConstruction));
 
         // Envoyer la réponse
+        session.getBasicRemote().sendText(response.toString());
+    }
+
+    private void getBoostersModel(Session session) throws IOException {
+        List<BoosterModel> boosterModels = GameServer.jeu.getGestionaireFusee().getBoosterModels();
+
+        JSONArray jsonArray = new JSONArray();
+
+        for (BoosterModel model : boosterModels) {
+            JSONObject modelJson = model.toJson();
+            jsonArray.put(modelJson);
+        }
+
+        JSONObject response = new JSONObject();
+        response.put("action", "boosterModelsState");
+        response.put("boosters", jsonArray);
+
         session.getBasicRemote().sendText(response.toString());
     }
 

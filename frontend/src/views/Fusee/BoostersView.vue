@@ -39,7 +39,7 @@ export default {
     return {
       websocket: null,
       isConnected: false,
-      boosters: [],
+      boosterModels: [],
       selectedBooster: null,
       pollingInterval: null
     };
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     selectBooster(booster) {
-      this.selectedBooster = booster;
+      this.selectedBooster = boosterModels;
     },
     connectWebSocket() {
       try {
@@ -63,12 +63,12 @@ export default {
           this.isConnected = true;
 
           // Demander les données des boosters
-          this.websocket.send(JSON.stringify({ action: 'getBoostersState' }));
+          this.websocket.send(JSON.stringify({ action: 'getBoosterModelsState' }));
 
           // Demander périodiquement les mises à jour
           this.pollingInterval = setInterval(() => {
             if (this.isConnected) {
-              this.websocket.send(JSON.stringify({ action: 'getBoostersState' }));
+              this.websocket.send(JSON.stringify({ action: 'getBoosterModelsState' }));
             }
           }, 5000);
         };

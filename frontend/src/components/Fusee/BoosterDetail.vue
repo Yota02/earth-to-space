@@ -41,10 +41,7 @@
                         <span class="spec-label">Vitesse max:</span>
                         <span class="spec-value">{{ formatVitesse(booster.vitesseMax) }}</span>
                     </div>
-                    <div class="spec-item">
-                        <span class="spec-label">Vitesse actuelle:</span>
-                        <span class="spec-value">{{ formatVitesse(booster.vitesse) }}</span>
-                    </div>
+
                 </div>
             </div>
 
@@ -100,7 +97,7 @@
                         <span class="feature-icon">💥</span>
                         <span class="feature-label">Auto-destruction</span>
                     </div>
-                    
+
                 </div>
             </div>
 
@@ -183,11 +180,15 @@ export default {
             return `${altitude.toFixed(2)} m`;
         },
         formatVitesse(vitesse) {
+            if (!vitesse || isNaN(vitesse)) {
+                return 'Donnée indisponible'; // Éviter l'erreur et afficher un message
+            }
             if (vitesse >= 1000) {
                 return `${(vitesse / 1000).toFixed(2)} km/s`;
             }
             return `${vitesse.toFixed(2)} m/s`;
         }
+
     }
 };
 </script>
