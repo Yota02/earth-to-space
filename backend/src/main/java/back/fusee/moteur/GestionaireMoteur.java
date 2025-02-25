@@ -36,7 +36,8 @@ public class GestionaireMoteur {
             false,                  // arrêt urgence
             2279.0,                 // poussée max (kN)
             473.0,                  // consommation carburant (kg/s)
-            TypeMoteur.CHIMIQUE
+            TypeMoteur.CHIMIQUE,
+            1
         ));
     
         // Moteurs Électriques
@@ -56,7 +57,8 @@ public class GestionaireMoteur {
             false,                  // arrêt urgence
             0.5,                    // poussée max (kN)
             0.1,                    // consommation carburant (kg/s)
-            TypeMoteur.ELECTRIQUE
+            TypeMoteur.ELECTRIQUE,
+            1
         ));
     
         // Moteurs Nucléaires
@@ -76,7 +78,8 @@ public class GestionaireMoteur {
             false,                  // arrêt urgence
             333.6,                  // poussée max (kN)
             8.5,                    // consommation carburant (kg/s)
-            TypeMoteur.NUCLEAIRE
+            TypeMoteur.NUCLEAIRE, 
+            4
         ));
     
         // Moteurs Ioniques
@@ -96,7 +99,8 @@ public class GestionaireMoteur {
             false,                  // arrêt urgence
             0.236,                  // poussée max (kN)
             0.005,                  // consommation carburant (kg/s)
-            TypeMoteur.IONIQUE
+            TypeMoteur.IONIQUE,
+            10
         ));
     
         // Moteurs à Propergol Solide (utilisant des carburants liquides comme boosters)
@@ -116,7 +120,8 @@ public class GestionaireMoteur {
             false,                  // arrêt urgence
             1688.4,                 // poussée max (kN)
             2721.0,                 // consommation carburant (kg/s)
-            TypeMoteur.SOLIDE
+            TypeMoteur.SOLIDE,
+            2
         ));
     
         // Ajout des listes au Map

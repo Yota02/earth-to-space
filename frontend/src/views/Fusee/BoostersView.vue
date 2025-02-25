@@ -176,6 +176,7 @@ export default {
   font-family: Arial, sans-serif;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: 10%;
   padding: 20px;
 }
 

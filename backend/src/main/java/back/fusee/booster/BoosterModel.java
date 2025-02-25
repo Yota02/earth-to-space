@@ -1,16 +1,22 @@
 package back.fusee.booster;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import back.fusee.Ifusee;
+import back.fusee.Piece.PieceFusee;
 import back.fusee.moteur.Moteur;
 import back.fusee.reservoir.Reservoir;
 import back.fusee.reservoir.ReservoirFusee;
 
 public class BoosterModel extends Ifusee {
+
+    private Map<PieceFusee, Integer> cout;
 
     // Spécification basique
     public String nom;
@@ -40,7 +46,7 @@ public class BoosterModel extends Ifusee {
             Boolean estReetulisable, Boolean aSystèmeAutoDestruction) {
 
         
-        this.nom = nom; 
+        this.nom = nom;
         this.taille = taille;
         this.diametre = diametre;
         this.poidsAVide = poidsAVide;
@@ -53,6 +59,7 @@ public class BoosterModel extends Ifusee {
         this.estReetulisable = estReetulisable;
         this.aSystèmeAutoDestruction = aSystèmeAutoDestruction;
         this.poids = calculerPoids();
+        this.cout = calculerCout();
     }
 
     // Méthode de calcul du poids total
@@ -66,6 +73,13 @@ public class BoosterModel extends Ifusee {
         return totalPoids;
     }
 
+    public Map<PieceFusee, Integer> calculerCout() {
+        Map<PieceFusee, Integer> res = new HashMap<>();
+        res.put(PieceFusee.MOTEUR, moteur.getCout() * this.nbMoteur);
+        res.put(PieceFusee.RESERVOIR, 0);
+        res.put(PieceFusee.COQUE, (int) Math.round(this.taille * this.diametre));
+        return res;
+    }
 
     // Getters
     public String getNom() {
@@ -134,7 +148,6 @@ public class BoosterModel extends Ifusee {
         // État
         json.put("poids", this.poids);
 
-
         // Spécifications spéciales
         json.put("estPrototype", this.estPrototype);
         json.put("estReetulisable", this.estReetulisable);
@@ -163,6 +176,12 @@ public class BoosterModel extends Ifusee {
             }
         }
         json.put("reservoirs", reservoirsArray);
+
+        JSONObject coutJson = new JSONObject();
+        for (Map.Entry<PieceFusee, Integer> entry : this.cout.entrySet()) {
+            coutJson.put(entry.getKey().toString(), entry.getValue());
+        }
+        json.put("cout", coutJson);
 
         return json;
     }

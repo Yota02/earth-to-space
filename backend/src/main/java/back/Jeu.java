@@ -398,14 +398,15 @@ public class Jeu implements Runnable {
                     false, // Arrêt d'urgence
                     600.0, // Poussée max (kN)
                     250.0, // Consommation carburant (kg/s)
-                    null // TypeMoteur (à définir)
+                    null, // TypeMoteur (à définir)
+                    1
             );
-
+    
             // Création de réservoirs
             List<ReservoirFusee> reservoirs = new ArrayList<>();
 
             BoosterModel booster = new BoosterModel(
-                    "Booster Alpha", // Nom
+                    "Booster test", // Nom
                     30.0, // Taille (m)
                     3.5, // Diamètre (m)
                     5000.0, // Poids à vide (kg)

@@ -23,6 +23,9 @@ public class Moteur extends ObjectDeblocable{
 
     TypeMoteur typeMoteur;
 
+    private int cout;
+
+
     // Etat
     private double poussee;
     protected Double temperatureCritique; // en kelvins
@@ -31,13 +34,14 @@ public class Moteur extends ObjectDeblocable{
     protected int statutOperationnel; // "actif", "hors service", "en maintenance"
     protected Double tempsFonctionnement; // en secondes
 
-    public Moteur(String nom, Double poussee, Ergol carburant, Double rendement, Double poids, Double diametre, Double longueur, Double temperatureMax, Double fiabilite, Boolean capaciteRedemarrage, Double temperatureCritique, Boolean arretUrgence, Double pousseeMax, Double consommationCarburant, TypeMoteur typeMoteur) {
+    public Moteur(String nom, Double poussee, Ergol carburant, Double rendement, Double poids, Double diametre, Double longueur, Double temperatureMax, Double fiabilite, Boolean capaciteRedemarrage, Double temperatureCritique, Boolean arretUrgence, Double pousseeMax, Double consommationCarburant, TypeMoteur typeMoteur, int cout) {
         this.nom = nom;
         this.poussee = poussee;
         this.carburant = carburant;
         this.rendement = rendement;
         this.anneeFabrication = 0;
         this.nbFoisUtilise = 0;
+        this.cout = cout;
         this.poids = poids;
         this.diametre = diametre;
         this.longueur = longueur;
@@ -51,6 +55,10 @@ public class Moteur extends ObjectDeblocable{
         this.consommationCarburant = consommationCarburant;
         this.typeMoteur = typeMoteur;
         this.statutOperationnel = 0;
+    }
+
+    public int getCout(){
+        return cout;
     }
 
     public Double getPousse() {

@@ -41,7 +41,6 @@
                         <span class="spec-label">Vitesse max:</span>
                         <span class="spec-value">{{ formatVitesse(booster.vitesseMax) }}</span>
                     </div>
-
                 </div>
             </div>
 
@@ -83,6 +82,16 @@
             </div>
 
             <div class="specs-section">
+                <h3>Coût</h3>
+                <ul v-if="booster.cout && Object.keys(booster.cout).length > 0" class="cost-list">
+                    <li v-for="(quantite, piece) in booster.cout" :key="piece">
+                        <strong>{{ piece }}:</strong> {{ quantite }}
+                    </li>
+                </ul>
+                <p v-else>Aucune donnée de coût disponible.</p>
+            </div>
+
+            <div class="specs-section">
                 <h3>Caractéristiques</h3>
                 <div class="features-list">
                     <div class="feature-item" :class="{ active: booster.estPrototype }">
@@ -97,7 +106,6 @@
                         <span class="feature-icon">💥</span>
                         <span class="feature-label">Auto-destruction</span>
                     </div>
-
                 </div>
             </div>
 
@@ -124,12 +132,10 @@ export default {
     },
     computed: {
         statusClass() {
-            // Gestion des états numériques ou textuels
             const etat = typeof this.booster.etat === 'number'
                 ? this.booster.etat
                 : this.booster.etat?.toLowerCase() || '';
 
-            // Si etat est un nombre
             if (typeof etat === 'number') {
                 switch (etat) {
                     case 1: return 'status-operational';
@@ -140,23 +146,16 @@ export default {
                 }
             }
 
-            // Si etat est une chaîne
             if (typeof etat === 'string') {
-                if (etat.includes('opérationnel') || etat.includes('operationnel')) {
-                    return 'status-operational';
-                } else if (etat.includes('maintenance')) {
-                    return 'status-maintenance';
-                } else if (etat.includes('construction')) {
-                    return 'status-construction';
-                } else if (etat.includes('détruit') || etat.includes('detruit')) {
-                    return 'status-destroyed';
-                }
+                if (etat.includes('opérationnel')) return 'status-operational';
+                if (etat.includes('maintenance')) return 'status-maintenance';
+                if (etat.includes('construction')) return 'status-construction';
+                if (etat.includes('détruit')) return 'status-destroyed';
             }
 
             return 'status-unknown';
         },
         statutFormate() {
-            // Convertir les codes d'état numériques en texte
             const etat = this.booster.etat;
             if (typeof etat === 'number') {
                 switch (etat) {
@@ -172,28 +171,34 @@ export default {
     },
     methods: {
         formatAltitude(altitude) {
-            if (altitude >= 1000000) {
-                return `${(altitude / 1000000).toFixed(2)} million m`;
-            } else if (altitude >= 1000) {
-                return `${(altitude / 1000).toFixed(2)} km`;
-            }
+            if (altitude >= 1000000) return `${(altitude / 1000000).toFixed(2)} million m`;
+            if (altitude >= 1000) return `${(altitude / 1000).toFixed(2)} km`;
             return `${altitude.toFixed(2)} m`;
         },
         formatVitesse(vitesse) {
-            if (!vitesse || isNaN(vitesse)) {
-                return 'Donnée indisponible'; // Éviter l'erreur et afficher un message
-            }
-            if (vitesse >= 1000) {
-                return `${(vitesse / 1000).toFixed(2)} km/s`;
-            }
+            if (!vitesse || isNaN(vitesse)) return 'Donnée indisponible';
+            if (vitesse >= 1000) return `${(vitesse / 1000).toFixed(2)} km/s`;
             return `${vitesse.toFixed(2)} m/s`;
         }
-
     }
 };
 </script>
 
 <style scoped>
+.cost-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.cost-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cost-list li:last-child {
+    border-bottom: none;
+}
+
 .booster-detail {
     background-color: #f5f5f5;
     border-radius: 8px;
