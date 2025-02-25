@@ -81,6 +81,59 @@ public class BoosterModel extends Ifusee {
         return res;
     }
 
+    /**
+     * Crée un nouveau Booster basé sur ce modèle
+     * @param nomInstance Nom spécifique de l'instance (ex: "Apollo 11")
+     * @return Une nouvelle instance de Booster basée sur ce modèle
+     */
+    public Booster creerInstance(String nomInstance) {
+        int etatInitial = 0;
+        
+        // Aucun historique de lancement pour une nouvelle instance
+        List<String> historiqueLancement = new ArrayList<>();
+        
+        // Pas besoin de maintenance pour un nouveau booster
+        Boolean necessiteMaintenance = false;
+        
+        // Création d'une nouvelle instance de Booster avec les propriétés du modèle
+        return new Booster(
+            nomInstance,
+            this.taille,
+            this.diametre,
+            this.poidsAVide,
+            this.altitudeMax,
+            this.VitesseMax,
+            this.moteur,
+            this.nbMoteur,
+            new ArrayList<>(this.reservoirs), // Copie de la liste pour éviter les références partagées
+            this.estPrototype,
+            this.estReetulisable,
+            this.aSystèmeAutoDestruction,
+            etatInitial,
+            necessiteMaintenance,
+            historiqueLancement
+        );
+    }
+
+    /**
+     * Crée plusieurs instances du même modèle avec numérotation automatique
+     * @param nomBase Nom de base (ex: "Apollo")
+     * @param nombreInstances Nombre d'instances à créer
+     * @param numeroDepart Numéro de départ pour la numérotation (souvent 1)
+     * @return Liste des boosters créés
+     */
+    public List<Booster> creerSerie(String nomBase, int nombreInstances, int numeroDepart) {
+        List<Booster> serie = new ArrayList<>();
+        
+        for (int i = 0; i < nombreInstances; i++) {
+            int numero = numeroDepart + i;
+            String nomInstance = nomBase + " " + numero;
+            serie.add(creerInstance(nomInstance));
+        }
+        
+        return serie;
+    }
+    
     // Getters
     public String getNom() {
         return nom;

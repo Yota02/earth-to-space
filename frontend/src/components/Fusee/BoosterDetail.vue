@@ -117,6 +117,13 @@
                     </li>
                 </ul>
             </div>
+
+            <div class="specs-section">
+                <button @click="produireBooster" class="produce-button">
+                    Produire
+                </button>
+            </div>
+
         </div>
     </div>
 </template>
@@ -179,12 +186,46 @@ export default {
             if (!vitesse || isNaN(vitesse)) return 'Donnée indisponible';
             if (vitesse >= 1000) return `${(vitesse / 1000).toFixed(2)} km/s`;
             return `${vitesse.toFixed(2)} m/s`;
+        },
+        produireBooster() {
+            const boosterId = this.booster.id || this.booster.nom;
+            this.$emit('produire-booster', boosterId);
         }
     }
 };
 </script>
 
 <style scoped>
+.produce-button {
+    display: flex;
+    margin: auto;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #ff5733, #ff914d);
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.produce-button:hover {
+    background: linear-gradient(45deg, #ff914d, #ff5733);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.produce-button:active {
+    transform: scale(0.95);
+}
+
+.produce-button.clicked {
+    animation: pulse 0.3s ease-in-out;
+}
+
 .cost-list {
     list-style-type: none;
     padding: 0;

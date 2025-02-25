@@ -13,9 +13,6 @@ import back.fusee.reservoir.ReservoirFusee;
 
 public class Booster extends Ifusee {
 
-    private String nomDeClassBooster;
-    private boolean isModele;
-
     // Spécification basique
     public String nom;
     public Double taille;
@@ -45,21 +42,15 @@ public class Booster extends Ifusee {
     List<String> historiquesLancement;
 
     // Constructeur
-    public Booster(String nomDeClassBooster, String nom, Double taille, Double diametre, Double poidsAVide,
+    public Booster(String nom, Double taille, Double diametre, Double poidsAVide,
             Double altitudeMax, Double VitesseMax, Moteur moteur, int nbMoteur,
             List<ReservoirFusee> reservoirs, Boolean estPrototype,
             Boolean estReetulisable, Boolean aSystèmeAutoDestruction,
             int etat, Boolean nécessiteMaintenance,
-            List<String> historiquesLancement, boolean isModele) {
+            List<String> historiquesLancement) {
 
-        this.nomDeClassBooster = nomDeClassBooster;
-        this.nom = isModele ? null : nom; // Un modèle n'a pas de nom
-        this.isModele = isModele;
 
-        if (!isModele && (nom == null || nom.isEmpty())) {
-            throw new IllegalArgumentException("Un booster instance doit avoir un nom !");
-        }
-
+        this.nom = nom; 
         this.taille = taille;
         this.diametre = diametre;
         this.poidsAVide = poidsAVide;
@@ -77,17 +68,6 @@ public class Booster extends Ifusee {
         this.nécessiteMaintenance = nécessiteMaintenance;
         this.historiquesLancement = historiquesLancement != null ? historiquesLancement : new ArrayList<>();
         this.altitude = 0;
-    }
-
-    public Booster creerInstance(String nomInstance) {
-        if (!isModele) {
-            throw new IllegalStateException("Seuls les modèles peuvent créer des instances !");
-        }
-
-        return new Booster(this.nomDeClassBooster, nomInstance, this.taille, this.diametre, this.poidsAVide,
-                this.altitudeMax, this.VitesseMax, this.moteur, this.nbMoteur, this.reservoirs,
-                this.estPrototype, this.estReetulisable, this.aSystèmeAutoDestruction,
-                0, false, new ArrayList<>(), false);
     }
 
     // Méthode de calcul du poids total

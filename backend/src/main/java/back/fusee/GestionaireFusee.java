@@ -13,9 +13,12 @@ public class GestionaireFusee {
     private Map<BoosterModel, List<Booster>> boosterMap;
     private List<BoosterModel> boosterModels;
 
+    private List<Booster> boosterListAttente;
+
     public GestionaireFusee() {
         boosterMap = new HashMap<>();
         boosterModels = new ArrayList<>();
+        boosterListAttente = new ArrayList<>();
     }
 
     public Map<BoosterModel, List<Booster>> getBoosterMap() {
@@ -39,8 +42,12 @@ public class GestionaireFusee {
         if (booster == null || booster.getNom() == null) {
             throw new IllegalArgumentException("Le booster et son nom ne peuvent pas être null");
         }
+        
+        // Extraire la partie avant le '-'
+        String nomBooster = booster.getNom().split("-")[0].trim();
+    
         // Trouver le modèle correspondant
-        BoosterModel model = getBoosterModelParNom(booster.getNom());
+        BoosterModel model = getBoosterModelParNom(nomBooster);
         if (model != null) {
             boosterMap.computeIfAbsent(model, k -> new ArrayList<>()).add(booster);
         } else {
@@ -48,6 +55,21 @@ public class GestionaireFusee {
         }
     }
     
+
+    public List<Booster> getBoosterListAttente(){
+        return boosterListAttente;
+    }
+    
+    public void ajouterBoosterAttente(Booster booster){
+
+        ajouterBooster(booster);
+        boosterListAttente.add(booster);
+
+        /* if(booster.estOperationel()){
+            booster.
+        } */
+    }
+
     public BoosterModel getBoosterModelParNom(String nom) {
         for (BoosterModel model : boosterModels) {
             if (model.getNom().equals(nom)) {

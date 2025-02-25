@@ -71,6 +71,10 @@ public class WebSocketClient {
                     handleUpdatePieceProduction(session, jsonMessage);
                     break;
 
+                case "produireBooster":
+                    produireBooster(session, jsonMessage);
+                    break;
+                
                 case "getEntrepriseData":
                     handleGetEntrepriseData(session);
                     break;
@@ -231,6 +235,22 @@ public class WebSocketClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void produireBooster(Session session, JSONObject message) throws IOException{
+        String boosterId = message.getString("boosterId");
+
+        BoosterModel boosterModel = GameServer.jeu.getGestionaireFusee().getBoosterModelParNom(boosterId);
+
+        int numero = GameServer.jeu.getGestionaireFusee().getBoosterMap().get(boosterModel).size();
+        Booster booster = boosterModel.creerInstance(boosterId + "-" + numero);
+
+        GameServer.jeu.getGestionaireFusee().ajouterBoosterAttente(booster);
+        JSONObject response = new JSONObject();
+        response.put("action", "produireBooster");
+        response.put("status", "success");
+        response.put("message", "Production lancée avec succès !");
+        session.getBasicRemote().sendText(response.toString());
     }
 
     private void handleUpdatePieceProduction(Session session, JSONObject jsonMessage) throws IOException {
@@ -868,7 +888,7 @@ public class WebSocketClient {
     }
 
     private void getBoosters(Session session) throws IOException {
-        List<Booster> boosters = GameServer.jeu.getLanceurs();
+        List<Booster> boosters = GameServer.jeu.getGestionaireFusee().getBoosterListAttente();
 
         JSONArray jsonArray = new JSONArray();
 
