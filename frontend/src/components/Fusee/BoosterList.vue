@@ -127,6 +127,47 @@
   </script>
   
   <style scoped>
+.boosters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+/* Amélioration du comportement responsive */
+@media (max-width: 1024px) {
+  .boosters-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .boosters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booster-card {
+    width: 100%;
+  }
+}
+
+/* Ajustements supplémentaires pour mobile */
+@media (max-width: 480px) {
+  .booster-card-header h3 {
+    font-size: 1rem;
+  }
+
+  .spec-item {
+    font-size: 0.8rem;
+  }
+
+  .view-details-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}
+
+
+
   .boosters-list {
     padding: 20px;
   }
@@ -146,12 +187,7 @@
     color: #666;
   }
   
-  .boosters-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
-  
+
   .booster-card {
     border: 1px solid #ddd;
     border-radius: 8px;

@@ -1,36 +1,3 @@
-<template>
-  <div class="boosters-app">
-    <div class="app-container">
-      <div class="boosters-list-container">
-
-        <BoostersList :boosters="boosterModels"
-          :selectedBoosterId="selectedBooster ? (selectedBooster.id || selectedBooster.nom) : null"
-          @select-booster="selectBooster" />
-      </div>
-
-      <div class="booster-detail-container" v-if="selectedBooster">
-        <BoosterDetail :booster="selectedBooster" @produire-booster="handleProduireBooster" />
-      </div>
-
-      <div class="no-booster-selected" v-else>
-        <p>Sélectionnez un booster pour voir ses détails</p>
-      </div>
-    </div>
-
-    <!-- Ajout du nouveau composant FuseeDisplay avec les boosters actifs -->
-    <div class="fusee-display-wrapper">
-      <FuseeDisplay :boosters="activeBoosters" />
-    </div>
-
-    <div class="nav-button-container">
-      <router-link to="/formulaireBooster" class="nav-button">
-        <img src="../../assets/img/icone/plus.png" alt="formulaireBooster" class="nav-icon">
-        <span class="nav-text">Nouveau booster</span>
-      </router-link>
-    </div>
-  </div>
-</template>
-
 <script>
 import BoostersList from '../../components/Fusee/BoosterList.vue';
 import BoosterDetail from '../../components/Fusee/BoosterDetail.vue';
@@ -172,34 +139,71 @@ export default {
 };
 </script>
 
+<template>
+  <div class="boosters-app">
+    <div class="app-container">
+      <div class="boosters-list-container">
+        <div class="add-booster-button">
+          <router-link to="/formulaireBooster" class="nav-button">
+            <img src="../../assets/img/icone/plus.png" alt="formulaireBooster" class="nav-icon">
+            <span class="nav-text">Nouveau booster</span>
+          </router-link>
+        </div>
+        <BoostersList :boosters="boosterModels"
+          :selectedBoosterId="selectedBooster ? (selectedBooster.id || selectedBooster.nom) : null"
+          @select-booster="selectBooster" />
+      </div>
+
+      <div class="booster-detail-container" v-if="selectedBooster">
+        <BoosterDetail :booster="selectedBooster" @produire-booster="handleProduireBooster" />
+      </div>
+
+      <div class="no-booster-selected" v-else>
+        <p>Sélectionnez un booster pour voir ses détails</p>
+      </div>
+
+      <div class="fusee-display-wrapper">
+        <FuseeDisplay :boosters="activeBoosters" />
+      </div>
+    </div>
+  </div>
+</template>
+
 <style>
 .boosters-app {
   font-family: Arial, sans-serif;
-  max-width: 1200px;
-  margin: auto;
-  margin-top: 10%;
-  padding: 20px;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .app-container {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 1.5fr 1fr;
   gap: 20px;
-  margin-top: 40px;
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
 }
 
-.boosters-list-container {
+.boosters-list-container,
+.booster-detail-container,
+.fusee-display-wrapper {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  padding: 15px;
+  overflow: auto;
+  min-height: 300px;
 }
 
 .booster-detail-container {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  max-height: 80vh;
 }
 
 .no-booster-selected {
@@ -214,16 +218,23 @@ export default {
   padding: 40px;
 }
 
-/* Style pour le wrapper FuseeDisplay */
-.fusee-display-wrapper {
-  position: flex;
-  z-index: 10;
-}
-
 .nav-button-container {
   position: fixed;
   right: 20px;
-  bottom: 20px;
+  top: 20px;
+  /* Déplace le bouton vers le haut */
+  bottom: unset;
+  /* Retire la position du bas */
+}
+
+.boosters-list-container {
+  position: relative; /* Assurez-vous que le conteneur est positionné de manière relative */
+}
+
+.add-booster-button {
+  position: absolute; /* Position absolue par rapport à .boosters-list-container */
+  top: 20px; /* Ajustez selon vos préférences */
+  right: 20px; /* Ajustez selon vos préférences */
 }
 
 .nav-button {
@@ -235,6 +246,7 @@ export default {
   border-radius: 5px;
   text-decoration: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
 }
 
 .nav-button:hover {
@@ -247,15 +259,33 @@ export default {
   margin-right: 10px;
 }
 
+.nav-button:hover {
+  background-color: #0056b3;
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .booster-detail-container {
+    grid-column: span 1;
+  }
+}
+
 @media (max-width: 768px) {
   .app-container {
     grid-template-columns: 1fr;
   }
 
-  .fusee-display-wrapper {
-    position: static;
-    width: 100%;
-    margin-top: 20px;
+  .booster-detail-container {
+    max-height: 60vh;
+    grid-column: span 1;
+  }
+
+  .nav-button-container {
+    right: 10px;
+    bottom: 10px;
   }
 }
 </style>

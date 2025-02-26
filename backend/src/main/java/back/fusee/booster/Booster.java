@@ -49,7 +49,6 @@ public class Booster extends Ifusee {
             int etat, Boolean nécessiteMaintenance,
             List<String> historiquesLancement) {
 
-
         this.nom = nom; 
         this.taille = taille;
         this.diametre = diametre;
