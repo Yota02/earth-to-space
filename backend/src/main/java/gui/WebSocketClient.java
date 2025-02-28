@@ -152,7 +152,6 @@ public class WebSocketClient {
                     Subvention subvention = GameServer.jeu.getPolitiqueManager().findSubventionParId(subventionId);
                     if (subvention != null) {
                         activateSubvention(subvention);
-                        // Send updated state to all clients
                         getSubventions(session);
                     } else {
                         response.put("type", "error");
@@ -262,10 +261,8 @@ public class WebSocketClient {
         for (UsineProduction usine : usines) {
             if (usine.getNom().equals(usineName)) {
                 try {
-                    // ✅ Utilisation du mapping pour trouver la bonne pièce
                     usine.setPieceProduite(PieceFusee.fromNom(nouvellePiece));
 
-                    // Envoyer la mise à jour à tous les clients
                     JSONObject response = new JSONObject();
                     response.put("action", "productionUpdated");
                     response.put("usine", usine.toJson());
