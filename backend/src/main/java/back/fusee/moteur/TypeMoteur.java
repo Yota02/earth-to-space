@@ -13,5 +13,9 @@ public enum TypeMoteur {
     TypeMoteur(String type) {
         this.type = type;
     }
+
+    public String getType(){
+        return type;
+    }
     
 }

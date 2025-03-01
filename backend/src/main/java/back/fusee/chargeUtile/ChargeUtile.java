@@ -1,9 +1,6 @@
 package back.fusee.chargeUtile;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import back.fusee.chargeUtile.Destination.Orbite;
@@ -161,23 +158,6 @@ public class ChargeUtile {
         json.put("planete", this.planete != null ? this.planete.getNom() : null); 
         json.put("orbits", this.orbite != null ? this.orbite.getNom() : null); 
         return json;
-    }
-
-    /**
-     * Convertit une liste de charges utiles en JSONArray
-     * @param chargesUtiles Liste des charges utiles à convertir
-     * @return JSONArray contenant toutes les charges utiles
-     */
-    public static JSONArray toJsonArray(List<ChargeUtile> chargesUtiles) {
-        JSONArray jsonArray = new JSONArray();
-        if (chargesUtiles != null) {
-            for (ChargeUtile charge : chargesUtiles) {
-                if (charge != null) {
-                    jsonArray.put(charge.toJson());
-                }
-            }
-        }
-        return jsonArray;
     }
 
     // Nouvelle méthode pour obtenir une description complète de la charge utile

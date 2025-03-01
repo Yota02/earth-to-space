@@ -1,4 +1,3 @@
-
 <template>
     <div class="booster-display">
       <div class="booster-header">

@@ -9,12 +9,21 @@ import back.fusee.chargeUtile.Destination.Planete;
 
 public abstract class Satelite extends ChargeUtile {
     
-    public Satelite(double poids, String nom, double volume, int cout, int dureeMission, int statut, LocalDateTime dateDeLancement, Planete planete, Orbite orbite, Proprietaire proprietaire) {
+    private int dureeVieEstimee;
+
+    public Satelite(double poids, String nom, double volume, int cout, int dureeMission, int statut, LocalDateTime dateDeLancement, Planete planete, Orbite orbite, Proprietaire proprietaire, int dureeVieEstimee) {
         super(poids, nom, volume, cout, dureeMission, statut, dateDeLancement, planete, orbite, proprietaire);
+        this.dureeVieEstimee = dureeVieEstimee;
     }
 
+    abstract
+    public void effectuerAction();
 
-    public void effectuerAction(){
+    public int getDureeVieEstimee(){
+        return dureeVieEstimee;
+    }
+
+    public void exploser(){
         
     }
 

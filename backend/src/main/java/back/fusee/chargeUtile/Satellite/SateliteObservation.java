@@ -10,9 +10,15 @@ public class SateliteObservation extends Satelite{
 
     public SateliteObservation(double poids, String nom, double volume, int cout, int dureeMission, int statut,
             LocalDateTime dateDeLancement, Planete planete,
-            Orbite orbite, Proprietaire proprietaire) {
+            Orbite orbite, Proprietaire proprietaire,  int dureeVieEstimee) {
         super(poids, nom, volume, cout, dureeMission, statut, dateDeLancement, planete, orbite,
-                proprietaire);
+                proprietaire, dureeVieEstimee);
+    }
+
+    @Override
+    public void effectuerAction() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'effectuerAction'");
     }
     
     
